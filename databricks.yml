@@ -15,15 +15,16 @@
 # template folder; this bundle only provisions the workspace resources needed to
 # get data flowing. Deploy is documented in README.md — do NOT run it as part of authoring.
 bundle:
-  name: workshop-nimbus
+  name: databricks-tech-summit-fy27-last-penguin
 
 workspace:
-  root_path: /Workspace/Users/${workspace.current_user.userName}/nimbus-workshop
+  host: https://fe-sandbox-last-penguin.cloud.databricks.com
+  root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
 
 variables:
   catalog:
     description: Unity Catalog for the workshop data (must already exist / you can create it).
-    default: dbdemos_templates
+    default: last_penguin_catalog
   schema:
     description: Schema for the demo tables + the raw_data volume (created by this bundle).
     default: nimbus
@@ -70,3 +71,5 @@ targets:
     default: true
   prod:
     mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/prod
