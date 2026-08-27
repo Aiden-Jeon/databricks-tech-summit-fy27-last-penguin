@@ -1,0 +1,32 @@
+Database: nimbus on projects/nimbus-growth-ops/branches/main
+Role under test: nimbus_app_reader
+
+BEGIN;
+SET LOCAL ROLE nimbus_app_reader;
+INSERT INTO app.feature_decisions_app
+  (segment_id, action_type, status, drafted_note)
+VALUES
+  ('SEG-BUILD1-EVIDENCE', 'ship_proven_variant', 'proposed',
+   'application-role writable proof; rolled back')
+RETURNING segment_id, action_type, status;
+
+     segment_id      |     action_type     |  status
+---------------------+---------------------+----------
+ SEG-BUILD1-EVIDENCE | ship_proven_variant | proposed
+(1 row)
+INSERT 0 1
+ROLLBACK;
+
+BEGIN;
+SET LOCAL ROLE nimbus_app_reader;
+SELECT segment_id FROM nimbus_serving.segment_positions LIMIT 1;
+ segment_id
+-------------
+ SEG-0000001
+(1 row)
+
+INSERT INTO nimbus_serving.segment_positions (segment_id)
+VALUES ('SEG-BUILD1-EVIDENCE');
+ERROR: permission denied for table segment_positions
+
+The successful operational insert was rolled back; no evidence-only row remains.
