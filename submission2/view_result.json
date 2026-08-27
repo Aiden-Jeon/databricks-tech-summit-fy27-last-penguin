@@ -1,13 +1,24 @@
 {
+  "export_type": "record_linked_hero_decision_chain_result",
+  "executed": true,
+  "execution_evidence": true,
   "executed_at": "2026-08-27T06:02:05.317Z",
   "source": "deployed app GET /api/live-view?segment_id=SEG-0000214",
   "app": "nimbus-growth-desk",
   "lakebase_branch": "agent-forecast-dev",
   "lakebase_database": "nimbus",
+  "chain_id": "d2669088-4482-4aa5-a22f-12c074209380",
   "assist_run_id": "81f02665-94f9-47e1-b31a-962ab54da37f",
   "segment_id": "SEG-0000214",
   "experiment_id": "EXP-0000009",
   "decision_id": "d2669088-4482-4aa5-a22f-12c074209380",
+  "decision_chain": [
+    {"sequence":1,"event":"lakebase_search_executed","record_id":"EXP-0000009","evidence_file":"assist_log.jsonl"},
+    {"sequence":2,"event":"decision_proposed","record_id":"d2669088-4482-4aa5-a22f-12c074209380","evidence_file":"assist_log.jsonl"},
+    {"sequence":3,"event":"decision_approved","record_id":"d2669088-4482-4aa5-a22f-12c074209380","evidence_file":"writeback_table.json"},
+    {"sequence":4,"event":"decision_committed","record_id":"d2669088-4482-4aa5-a22f-12c074209380","evidence_file":"writeback_table.json"},
+    {"sequence":5,"event":"later_live_view_refreshed","record_id":"d2669088-4482-4aa5-a22f-12c074209380","evidence_file":"state_table.json"}
+  ],
   "row_count": 1,
   "rows": [{
     "segment_id": "SEG-0000214", "cohort": "gen_z", "platform": "android", "region": "EMEA",
