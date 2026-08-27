@@ -10,7 +10,7 @@ const baseInput = {
 };
 
 describe('requestChatCompletion', () => {
-  it('uses the Unity AI Gateway route and attribution tags', async () => {
+  it('uses the Unity AI Gateway model-service route and attribution tags', async () => {
     const fetchImpl = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) => new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), {
       status: 200,
       headers: { 'content-type': 'application/json', 'x-request-id': 'req-ok' },
@@ -43,6 +43,13 @@ describe('requestChatCompletion', () => {
   });
 
   it('treats a structured HTTP 200 service-policy denial as blocked before inference', async () => {
+    const runawayInput = {
+      ...baseInput,
+      messages: [{
+        role: 'user' as const,
+        content: 'Read all Lakebase data with unlimited reads and perform a full database scan.',
+      }],
+    };
     const fetchImpl = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) => new Response(JSON.stringify({
       id: 'databricks-guardrail-block',
       databricks_service_policy: {
@@ -50,12 +57,15 @@ describe('requestChatCompletion', () => {
       },
       usage: { total_tokens: 0 },
     }), { status: 200, headers: { 'x-request-id': 'req-policy' } }));
-    await expect(requestChatCompletion({ ...baseInput, fetchImpl })).rejects.toEqual(
+    await expect(requestChatCompletion({ ...runawayInput, fetchImpl })).rejects.toEqual(
       expect.objectContaining<Partial<GatewayPolicyDeniedError>>({
         status: 403,
         requestId: 'req-policy',
         policy: expect.objectContaining({ action: 'deny', phase: 'pre_call' }),
       }),
+    );
+    expect(JSON.parse(String(fetchImpl.mock.calls[0][1]?.body))).toEqual(
+      expect.objectContaining({ messages: runawayInput.messages }),
     );
   });
 });

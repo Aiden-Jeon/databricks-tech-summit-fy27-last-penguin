@@ -1,0 +1,56 @@
+{
+  "executed_at": "2026-08-27T06:13:00Z",
+  "profile": "fe-sandbox-last-penguin",
+  "endpoint_name": "databricks-gpt-5-4-mini",
+  "configuration_command": "databricks serving-endpoints put-ai-gateway databricks-gpt-5-4-mini --profile fe-sandbox-last-penguin --json @serving_endpoint_ai_gateway.json",
+  "serving_endpoint_spec": {
+    "config": {
+      "auto_capture_config": {
+        "catalog_name": "last_penguin_catalog",
+        "schema_name": "nimbus",
+        "table_name_prefix": "nimbus_app_serving",
+        "enabled": true
+      }
+    },
+    "ai_gateway": {
+      "inference_table_config": {
+        "catalog_name": "last_penguin_catalog",
+        "schema_name": "nimbus",
+        "table_name_prefix": "nimbus_app_serving",
+        "enabled": true
+      },
+      "usage_tracking_config": {
+        "enabled": true
+      }
+    }
+  },
+  "live_get": {
+    "name": "databricks-gpt-5-4-mini",
+    "state": {
+      "ready": "READY",
+      "config_update": "NOT_UPDATING"
+    },
+    "served_entity": "system.ai.databricks-gpt-5-4-mini",
+    "inference_table_config": {
+      "catalog_name": "last_penguin_catalog",
+      "schema_name": "nimbus",
+      "table_name_prefix": "nimbus_app_serving",
+      "enabled": true
+    }
+  },
+  "live_invocation": {
+    "http_status": 200,
+    "request_id": "bcfd2ce3-1072-4180-9d11-d124d50d7b7b",
+    "response": "ENDPOINT_AUTO_CAPTURE_OK",
+    "total_tokens": 21
+  },
+  "generated_table": "last_penguin_catalog.nimbus.nimbus_app_serving_payload",
+  "captured_inference_row": {
+    "request_time": "2026-08-27T06:17:46.602Z",
+    "databricks_request_id": "a7de118b-58a2-4c6f-a272-1bc909f74494",
+    "status_code": 200,
+    "execution_duration_ms": 628,
+    "requester": "jongseob.jeon@databricks.com"
+  },
+  "note": "The serving-endpoint auto-capture proof is additive. The app continues to use the Unity model-service route because that is where the custom pre-call SQL service policy is enforced. The Foundation Model endpoint accepted inference-table configuration but did not retain invalid_keywords, so it is not presented as the guardrail enforcement point."
+}
