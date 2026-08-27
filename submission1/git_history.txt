@@ -1,0 +1,27 @@
+$ git log --oneline --graph --decorate main agent-forecast-dev build1-feedback-remediation
+*   b24ec73 (HEAD -> main) merge: integrate Build 1 feedback remediation
+|\
+| * de9fa01 (build1-feedback-remediation) fix(build1): add executable Lakebase infrastructure evidence
+|/
+* 2718f2d (origin/main, origin/HEAD) docs(build1): add Lakebase validation evidence
+* 4b7f6dd feat(gateway): finalize Nimbus AI Gateway evidence
+* 21e999e fix(lakebase): finalize hybrid search and read-only access
+* 8e4adcc build(app): restore Lakebase and agent dependencies
+*   fffbc5e merge: promote validated forecast migration
+|\
+| * 3f59ebb (agent-forecast-dev) feat(lakebase): add decision forecasts
+|/
+* fc47cac feat(lakebase): define continuous sync search and CDF
+* 3ab993f feat: prepare app and submission guidance
+* 04626dd chore: preserve Nimbus app and bundle baseline
+* bf7dfe5 Remove Databricks CI/CD pipeline
+* 6f57e46 Add Databricks CI/CD pipeline
+* 4ea3a8b Initial commit
+
+Agent commit 3f59ebb full message trailer:
+Author: OpenAI Codex
+
+Merge verification:
+- fffbc5e has parents fc47cac and 3f59ebb.
+- b24ec73 has parents 2718f2d and de9fa01.
+- `git merge-base --is-ancestor 3f59ebb main` exits 0.
