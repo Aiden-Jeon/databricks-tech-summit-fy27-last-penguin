@@ -2,6 +2,15 @@ Build 2 progressive evidence layers: Visualize -> Search -> Act -> closed-loop e
 Final integration branch: main
 Final validator-readable merge: a8b8f4f (2026-08-27T15:22:57+09:00)
 
+FINAL SEARCH EXECUTION REMEDIATION
+Branch: build2-search-execution-notebook
+Implementation commit: 8217586 (2026-08-27T15:30:30+09:00)
+Live notebook output commit: 9621bff (2026-08-27T15:35:02+09:00)
+No-ff merge commit: 4d8e5be (2026-08-27T15:35:36+09:00)
+Execution artifact: evidence/lakebase_search_execution.ipynb
+Verified path: nimbus_serving.experiments -> app.search_experiments -> BM25 Index Scan -> EXP-0000009
+Result: SEARCH_EXECUTION_VERIFIED
+
 LAYER | BRANCH | COMMIT | MERGE COMMIT | ISO TIME | EXECUTION PROOF
 Search | build2-validator-search-v2 | 688ac2a | 71c2471 | 2026-08-27T15:21:22+09:00 | deployed Lakebase BM25 Index Scan and returned rows
 Act | build2-validator-act-v2 | 6cfe493 | 0b6b207 | 2026-08-27T15:21:51+09:00 | actual app-written PostgreSQL row and approval audit trail

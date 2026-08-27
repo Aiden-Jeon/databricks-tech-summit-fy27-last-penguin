@@ -26,6 +26,13 @@ describe('search evidence', () => {
     pool.query = query;
     pool.connect = vi.fn().mockResolvedValue({ query: clientQuery, release: vi.fn() });
     const result = await getSearchExperiments(pool, 'checkout', 5);
+    expect(result).toMatchObject({
+      search_function: 'app.search_experiments',
+      source_table: 'nimbus_serving.experiments',
+      source_kind: 'Build 1 continuous sync',
+      read_only: true,
+      method: 'lakebase_text BM25',
+    });
     expect(result.index).toBe('experiments_description_bm25_idx');
     expect(result.execution_plan.join('\n')).toContain('Index Scan');
     expect(result.rows[0]).toMatchObject({ experiment_id: 'EXP-0000009' });
