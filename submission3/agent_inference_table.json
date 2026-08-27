@@ -1,10 +1,16 @@
 {
   "table": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
-  "row_count": 7,
+  "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
+  "policy_attachment": [],
+  "policy_isolation_test": {
+    "quoted_prompt": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+    "agent_result": "AGENT_POLICY_ISOLATION_OK",
+    "model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway"
+  },
   "rows": [
-    {"event_time":"2026-08-27T05:17:47.476Z","request_id":"4f0e4e86-b72c-41d1-ba5d-04a293ca88ad","status_code":200,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"},
-    {"event_time":"2026-08-27T05:17:43.104Z","request_id":"a0173780-449c-43e9-97e6-586f247843bd","status_code":200,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"},
-    {"event_time":"2026-08-27T05:17:20.775Z","request_id":"db8f642a-e503-443a-b753-7f362ea73f49","status_code":200,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"}
+    {"event_time":"2026-08-27T05:47:51.048Z","request_id":"ef485dfc-32db-443f-a737-5ae31c68b124","status_code":200,"latency_ms":4559,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"},
+    {"event_time":"2026-08-27T05:48:15.484Z","request_id":"a5d878e7-9873-4bb0-b3c5-10dccf609712","status_code":200,"latency_ms":4238,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"},
+    {"event_time":"2026-08-27T05:48:20.663Z","request_id":"1cf0a905-1666-4635-a0c5-a63e0ee04a3c","status_code":200,"latency_ms":4075,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"}
   ],
-  "privacy": "Prompt/response payloads omitted; no Slack message bodies included."
+  "privacy": "Prompt and response payloads omitted; no Slack message bodies, channels, or user names included."
 }

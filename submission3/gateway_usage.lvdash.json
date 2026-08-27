@@ -8,10 +8,37 @@
   "source": "Databricks account usage-dashboards API",
   "dashboard_url": "https://fe-sandbox-last-penguin.cloud.databricks.com/sql/dashboardsv3/01f1a1d769f017328e5f7fea4f3ee409?o=7474655051393778",
   "gateway_evidence": {
+    "usage_system_table": "system.ai_gateway.usage",
     "app_model_service": "last_penguin_catalog.nimbus.nimbus_app_gateway",
     "coding_model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
-    "usage_system_table": "system.ai_gateway.usage",
-    "system_table_delivery_at_export": "pending",
-    "inference_table_counts": {"app": 1, "coding_agent": 7}
+    "mcp_service": "system.ai.slack",
+    "service_types": ["MODEL_SERVICE", "MCP_SERVICE"],
+    "app_inference_rows_observed": 22,
+    "coding_agent_inference_rows_observed": 10,
+    "new_app_request_ids": ["8b0e2983-c79a-4ce8-b186-aca7a1b52c32", "1e1b33f1-0bfc-43d5-9218-25dab3020a44", "ed54a642-b67b-4b07-b959-c8f91e7bb232"],
+    "new_coding_agent_request_ids": ["ef485dfc-32db-443f-a737-5ae31c68b124", "a5d878e7-9873-4bb0-b3c5-10dccf609712", "1cf0a905-1666-4635-a0c5-a63e0ee04a3c"],
+    "system_table_delivery_at_export": "pending for newest events; inference-table rows are already delivered"
+  },
+  "budget": {
+    "budget_id": "eac80ca4-e2af-46e1-9788-ad39925e31d6",
+    "name": "nimbus-app-gateway-live-cap",
+    "workspace": "last-penguin",
+    "resource_type": "Unity AI Gateway",
+    "tags": {"application": ["nimbus-growth-desk"]},
+    "shared_thresholds": [],
+    "default_per_user_thresholds": [{"amount_usd": 0.05, "action": "BLOCK_USAGE"}],
+    "status_at_export": "SETTING_UP",
+    "actual_post_threshold_http_status": 200,
+    "actual_post_threshold_request_id": "ed54a642-b67b-4b07-b959-c8f91e7bb232"
+  },
+  "alert_budget": {
+    "budget_id": "fec429e5-e934-4001-ba91-83e57fa16d49",
+    "name": "nimbus-app-gateway-live-alert",
+    "workspace": "last-penguin",
+    "resource_type": "Unity AI Gateway",
+    "tags": {"application": ["nimbus-growth-desk"]},
+    "shared_thresholds": [],
+    "default_per_user_thresholds": [{"amount_usd": 0.03, "action": "ALERT"}],
+    "status_at_export": "SETTING_UP"
   }
 }
