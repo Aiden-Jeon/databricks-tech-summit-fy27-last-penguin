@@ -1,7 +1,12 @@
-Generated from merged main on 2026-08-27T16:08:25+09:00
+Generated from merged main on 2026-08-27T16:17:02+09:00
 Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d %s' -35
 
-*   698a0fe 2026-08-27T16:08:05+09:00  (HEAD -> main) merge: add direct Submission 3 ucode proof
+*   86a678f 2026-08-27T16:16:49+09:00  (HEAD -> main) merge: add kernel-executed Submission 3 proof
+|\
+| * ca5c918 2026-08-27T16:16:41+09:00  (build3-validator-execution-proof-v3) fix(gateway): commit kernel-executed ucode proof
+|/
+* 95a498f 2026-08-27T16:09:38+09:00  chore(gateway): package direct ucode proof
+*   698a0fe 2026-08-27T16:08:05+09:00  merge: add direct Submission 3 ucode proof
 |\
 | * 42f2f16 2026-08-27T16:07:57+09:00  (build3-ucode-execution-proof-v2) chore(gateway): add direct ucode execution proof
 |/
@@ -53,7 +58,3 @@ Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d
 |\
 | * e3c099e 2026-08-27T15:07:56+09:00  (build3-gateway-final) chore(gateway): package Build 3 submission
 | * 52befaa 2026-08-27T15:07:07+09:00  (build2-feedback-remediation) feat(gateway): capture live policy budget and agent evidence
-* | c6c3302 2026-08-27T15:08:48+09:00  chore(app): rebuild Submission 2 from merged main
-* | 7034864 2026-08-27T15:08:17+09:00  merge: integrate Build 2 feedback remediation
-|\|
-| * 96a2340 2026-08-27T15:05:27+09:00  chore(app): package remediated Build 2 submission
