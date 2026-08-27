@@ -19,7 +19,30 @@ bundle:
 
 workspace:
   host: https://fe-sandbox-last-penguin.cloud.databricks.com
+  profile: fe-sandbox-last-penguin
+  # The default location is user-scoped. The prod target overrides this with
+  # the shared workshop paths below.
   root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+# Treat the repository as the source of truth for the deployed project files.
+# Databricks' default bundle exclusions still omit .git, local build output,
+# node_modules, and other ignored files.
+sync:
+  include:
+    - README.md
+    - resources.json
+    - data_generation/**
+    - docs/**
+    - specifications/**
+    - transformation/**
+    - app/**
+  exclude:
+    - app/node_modules/**
+
+artifacts:
+  app:
+    path: ./app
+    build: npm run build:source
 
 variables:
   catalog:
@@ -30,6 +53,14 @@ variables:
     default: nimbus
 
 resources:
+  apps:
+    nimbus_app:
+      name: nimbus-growth-desk
+      description: "Nimbus Growth Desk — conversion slide and feature velocity demo."
+      source_code_path: ./app
+      lifecycle:
+        started: true
+
   schemas:
     demo_schema:
       catalog_name: ${var.catalog}
@@ -69,7 +100,10 @@ targets:
   dev:
     mode: development
     default: true
+    variables:
+      schema: ${workspace.current_user.short_name}_nimbus
   prod:
     mode: production
     workspace:
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/prod
+      file_path: /Workspace/Shared/nimbus
