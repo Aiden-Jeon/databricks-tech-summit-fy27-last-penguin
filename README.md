@@ -1,5 +1,17 @@
 # Workshop - Nimbus (Conversion Slide & Feature Velocity)
 
+## Project visualization
+
+Open the [interactive project viewer](docs/architecture/index.html) to explore
+the end-to-end architecture and submission boundaries with zoom, pan, view
+tabs, and light/dark themes. Editable D2 sources and rendered SVG/PNG exports
+are in [`docs/architecture/`](docs/architecture/).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture/nimbus-overview-dark.svg">
+  <img alt="Nimbus project overview" src="docs/architecture/nimbus-overview-light.svg">
+</picture>
+
 **The use case, in plain words:** Nimbus is a mobile-first marketplace with 15M monthly users. A recent checkout-flow change **hurt some user groups and not others** — conversion is sliding for Gen-Z on Android while iOS is fine, and every week the team takes to spot it and ship a fix is lost revenue. You build an app that spots each sliding user segment, explains **why**, recommends the feature to ship next — **a variant that already won for a similar group, an alternative, or an existing flag that helped a neighboring group** — and lets a PM approve it, writing the decision back to the product to read at low latency. The data, the recommendation, and the AI that assists are all governed on Databricks, scale-to-zero when idle, with AI spend capped against margin.
 
 ## 🎓 Start here — you build this, it isn't pre-built

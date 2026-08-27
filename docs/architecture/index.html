@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nimbus 프로젝트 시각화</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f8;
+      --panel: #ffffff;
+      --text: #1b3139;
+      --muted: #5d6b70;
+      --line: #d7dcdf;
+      --brand: #ff3621;
+      --active: #fff0ed;
+    }
+    [data-theme="dark"] {
+      --bg: #10181c;
+      --panel: #17242a;
+      --text: #f4f7f8;
+      --muted: #aeb9be;
+      --line: #34464e;
+      --active: #43231f;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 14px 18px 10px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0; font-size: 18px; letter-spacing: -0.02em; }
+    .subtitle { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    nav, .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    nav {
+      padding: 10px 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    button, a.action {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      padding: 7px 10px;
+      text-decoration: none;
+    }
+    button:hover, a.action:hover { border-color: var(--brand); }
+    button[aria-selected="true"] {
+      border-color: var(--brand);
+      background: var(--active);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .spacer { flex: 1; }
+    #zoom-label { min-width: 48px; color: var(--muted); text-align: center; font-size: 12px; }
+    #viewport {
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle, var(--line) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+    #viewport.dragging { cursor: grabbing; }
+    #diagram {
+      position: absolute;
+      left: 0;
+      top: 0;
+      max-width: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: 0 0;
+      filter: drop-shadow(0 8px 22px rgb(0 0 0 / 0.08));
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 18px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 11px;
+    }
+    kbd { border: 1px solid var(--line); border-radius: 4px; padding: 1px 4px; background: var(--bg); }
+    @media (max-width: 760px) {
+      header { align-items: flex-start; }
+      header .controls { justify-content: flex-end; }
+      footer span:last-child { display: none; }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <header>
+    <div>
+      <h1>Nimbus 프로젝트 시각화</h1>
+      <div class="subtitle">데이터 → 추천 → 승인 → 제품 반영, 그리고 3개 제출물의 경계</div>
+    </div>
+    <div class="controls">
+      <button id="theme" type="button" title="라이트/다크 전환">다크 모드</button>
+      <a id="source" class="action" href="nimbus-overview.d2">D2 원본</a>
+    </div>
+  </header>
+
+  <nav aria-label="다이어그램 선택">
+    <button type="button" data-view="overview" aria-selected="true">한눈에 보기</button>
+    <button type="button" data-view="system" aria-selected="false">상세 시스템</button>
+    <button type="button" data-view="repository" aria-selected="false">저장소 · 제출 구조</button>
+    <span class="spacer"></span>
+    <button id="zoom-out" type="button" title="축소">−</button>
+    <span id="zoom-label">100%</span>
+    <button id="zoom-in" type="button" title="확대">＋</button>
+    <button id="fit" type="button">화면 맞춤</button>
+  </nav>
+
+  <main id="viewport" aria-label="확대와 이동이 가능한 아키텍처 다이어그램">
+    <img id="diagram" alt="Nimbus 프로젝트 아키텍처">
+  </main>
+
+  <footer>
+    <span>마우스 휠로 확대 · 드래그로 이동 · 더블클릭으로 화면 맞춤</span>
+    <span><kbd>+</kbd>/<kbd>−</kbd> 확대 · <kbd>0</kbd> 맞춤 · <kbd>D</kbd> 테마</span>
+  </footer>
+
+  <script>
+    const views = {
+      overview: { file: 'nimbus-overview', source: 'nimbus-overview.d2', alt: 'Nimbus 프로젝트 요약 아키텍처', width: 7254, height: 1137 },
+      system: { file: 'nimbus-system-architecture', source: 'nimbus-system-architecture.d2', alt: 'Nimbus 상세 시스템 아키텍처', width: 11591, height: 1814 },
+      repository: { file: 'nimbus-repository-map', source: 'nimbus-repository-map.d2', alt: 'Nimbus 저장소와 제출 구조', width: 2979, height: 1237 },
+    };
+
+    const body = document.body;
+    const viewport = document.querySelector('#viewport');
+    const diagram = document.querySelector('#diagram');
+    const zoomLabel = document.querySelector('#zoom-label');
+    const source = document.querySelector('#source');
+    let currentView = 'overview';
+    let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    let scale = 1;
+    let x = 0;
+    let y = 0;
+    let drag = null;
+
+    function renderTransform() {
+      diagram.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+      zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    function imageUrl() {
+      return `${views[currentView].file}-${theme}.svg`;
+    }
+
+    function applyTheme() {
+      body.dataset.theme = theme;
+      document.querySelector('#theme').textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+      diagram.src = imageUrl();
+    }
+
+    function fit() {
+      const { width, height } = views[currentView];
+      const padding = 28;
+      const availableWidth = Math.max(viewport.clientWidth - padding * 2, 1);
+      const availableHeight = Math.max(viewport.clientHeight - padding * 2, 1);
+      scale = Math.min(availableWidth / width, availableHeight / height, 1.4);
+      x = (viewport.clientWidth - width * scale) / 2;
+      y = (viewport.clientHeight - height * scale) / 2;
+      renderTransform();
+    }
+
+    function zoom(factor, clientX = viewport.clientWidth / 2, clientY = viewport.clientHeight / 2) {
+      const rect = viewport.getBoundingClientRect();
+      const px = clientX - rect.left;
+      const py = clientY - rect.top;
+      const next = Math.min(Math.max(scale * factor, 0.05), 5);
+      x = px - ((px - x) / scale) * next;
+      y = py - ((py - y) / scale) * next;
+      scale = next;
+      renderTransform();
+    }
+
+    function selectView(name) {
+      currentView = name;
+      document.querySelectorAll('[data-view]').forEach((button) => {
+        button.setAttribute('aria-selected', String(button.dataset.view === name));
+      });
+      source.href = views[name].source;
+      diagram.alt = views[name].alt;
+      diagram.style.width = `${views[name].width}px`;
+      diagram.style.height = `${views[name].height}px`;
+      diagram.src = imageUrl();
+    }
+
+    document.querySelectorAll('[data-view]').forEach((button) => {
+      button.addEventListener('click', () => selectView(button.dataset.view));
+    });
+    document.querySelector('#theme').addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      applyTheme();
+    });
+    document.querySelector('#zoom-in').addEventListener('click', () => zoom(1.2));
+    document.querySelector('#zoom-out').addEventListener('click', () => zoom(1 / 1.2));
+    document.querySelector('#fit').addEventListener('click', fit);
+    diagram.addEventListener('load', fit);
+    viewport.addEventListener('dblclick', fit);
+    viewport.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      zoom(event.deltaY < 0 ? 1.12 : 1 / 1.12, event.clientX, event.clientY);
+    }, { passive: false });
+    viewport.addEventListener('pointerdown', (event) => {
+      drag = { startX: event.clientX, startY: event.clientY, x, y };
+      viewport.classList.add('dragging');
+      viewport.setPointerCapture(event.pointerId);
+    });
+    viewport.addEventListener('pointermove', (event) => {
+      if (!drag) return;
+      x = drag.x + event.clientX - drag.startX;
+      y = drag.y + event.clientY - drag.startY;
+      renderTransform();
+    });
+    viewport.addEventListener('pointerup', () => {
+      drag = null;
+      viewport.classList.remove('dragging');
+    });
+    addEventListener('resize', fit);
+    addEventListener('keydown', (event) => {
+      if (event.key === '+' || event.key === '=') zoom(1.2);
+      if (event.key === '-') zoom(1 / 1.2);
+      if (event.key === '0') fit();
+      if (event.key.toLowerCase() === 'd') document.querySelector('#theme').click();
+    });
+
+    diagram.style.width = `${views[currentView].width}px`;
+    diagram.style.height = `${views[currentView].height}px`;
+    applyTheme();
+  </script>
+</body>
+</html>

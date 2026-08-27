@@ -1,0 +1,36 @@
+{
+  "dashboard_id": "01f1a1d769f017328e5f7fea4f3ee409",
+  "display_name": "Workspace Usage Dashboard V2",
+  "workspace_id": "7474655051393778",
+  "lifecycle_state": "ACTIVE",
+  "automatic_updates": true,
+  "source": "Databricks account usage-dashboards API",
+  "exported_at": "2026-08-27T06:49:00Z",
+  "usage_rows": [
+    {"source":"app_inference_table","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_app_gateway","request_id":"95451486-e2bc-49d7-8039-9b2454bc00bd","status_code":200,"total_tokens":5027,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"},
+    {"source":"app_inference_table_and_system.ai_gateway.usage","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_app_gateway","request_id":"57857105-3aa5-4f2e-9d11-745fb4ff32d4","status_code":403,"latency_ms":18,"blocking_budget_id":"c1999872-d8f0-4351-a932-17fd07e2fcdb","budget_limit_usd":0.05,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"},
+    {"source":"agent_inference_table","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","request_id":"fbb68e70-4b99-409a-83ed-d42f33ca3761","status_code":200,"exact_runaway_phrase_in_request":true,"isolation_marker_in_response":true,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"},
+    {"source":"governed_mcp_execution","service_type":"MCP_SERVICE","service_name":"system.ai.slack","operation":"resources/list","mode":"read-only","status":"failed_missing_per_user_connection","content_rows_exported":0}
+  ],
+  "guardrail_execution": {
+    "request_id": "03362d98-f773-4623-bc0e-92349d1d33c1",
+    "exact_runaway_prompt": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+    "gateway_policy_action": "deny",
+    "gateway_policy_phase": "pre_call",
+    "total_tokens": 0,
+    "client_facing_status": 403,
+    "test_exit_code": 0
+  },
+  "budget_configuration": {
+    "resource_type": "Unity AI Gateway",
+    "workspace": "last-penguin",
+    "resource_tags": {"application":["nimbus-growth-desk"]},
+    "shared_thresholds": [],
+    "default_per_user_alert_usd": 0.03,
+    "default_per_user_block_usd": 0.05,
+    "observed_live_block_request_id": "57857105-3aa5-4f2e-9d11-745fb4ff32d4",
+    "observed_live_block_budget_id": "c1999872-d8f0-4351-a932-17fd07e2fcdb",
+    "truthfulness_note": "The observed block is attributed only to the budget ID returned by the live Gateway response."
+  },
+  "proof_artifacts": ["live_execution_evidence.ipynb","app_inference_table.json","agent_inference_table.json","agent_thread.txt"]
+}

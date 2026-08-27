@@ -1,0 +1,106 @@
+Unity AI Gateway Build 3 — live reproducible configuration and execution
+Latest execution: 2026-08-27 06:49 UTC
+Workspace profile: fe-sandbox-last-penguin
+Workspace ID: 7474655051393778
+UC parent: schemas/last_penguin_catalog.nimbus
+
+MODEL SERVICE CREATE REQUEST
+databricks api post '/api/2.1/unity-catalog/model-services?parent=schemas%2Flast_penguin_catalog.nimbus&model_service_id=SERVICE' --json '{"config":{"routing":{"destinations":[{"name":"gpt-5-4-mini","destinationType":1,"pay_per_token_config":{"model":"models/system.ai.databricks-gpt-5-4-mini"}}]},"inference_table":{"parent":"schemas/last_penguin_catalog.nimbus","disabled":false,"table_name_prefix":"SERVICE"}}}' --profile fe-sandbox-last-penguin
+
+LATEST LIVE MODEL-SERVICE GET OUTPUT (exit code 0)
+- app service: last_penguin_catalog.nimbus.nimbus_app_gateway
+  ID: dfd19f03-77a1-4454-b6c1-101ceee260cd
+  inference table: disabled=false, ID 0cc02a9a-fbb7-4151-94a9-075f8fa811f9
+  table: last_penguin_catalog.nimbus.nimbus_app_gateway_payload
+  policy: nimbus-bounded-lakebase-reads, rank 10
+- coding-agent service: last_penguin_catalog.nimbus.nimbus_coding_agent_gateway
+  ID: 5615bb11-a919-4676-beb3-e27255ae5aee
+  inference table: disabled=false, ID 808159e7-8f4d-4407-bea3-4a02400bcde8
+  table: last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload
+  service policies: []
+
+LIVE TABLE GET OUTPUT (exit code 0)
+- nimbus_app_gateway_payload: MANAGED DELTA, table ID 0cc02a9a-fbb7-4151-94a9-075f8fa811f9
+- nimbus_coding_agent_gateway_payload: MANAGED DELTA, table ID 808159e7-8f4d-4407-bea3-4a02400bcde8
+
+CUSTOM SERVICE POLICY FUNCTION (executed; live function GET exit code 0)
+CREATE OR REPLACE FUNCTION last_penguin_catalog.nimbus.block_unbounded_lakebase_read(event VARIANT)
+RETURNS VARIANT
+LANGUAGE SQL
+RETURN CASE
+  WHEN event:type::string = 'request' AND (
+    replace(lower(event:context.message::string), '-', ' ') LIKE '%all lakebase data%' OR
+    replace(lower(event:context.message::string), '-', ' ') LIKE '%unlimited read%' OR
+    replace(lower(event:context.message::string), '-', ' ') LIKE '%unlimited quer%' OR
+    replace(lower(event:context.message::string), '-', ' ') LIKE '%full database scan%' OR
+    replace(lower(event:context.message::string), '-', ' ') LIKE '%read every table%'
+  ) THEN to_variant_object(named_struct(
+    'result', 'DENY',
+    'reason', 'Unbounded Lakebase reads are not permitted. Request a bounded table, key, filter, and limit.'
+  ))
+  ELSE to_variant_object(named_struct('result', 'ALLOW', 'reason', ''))
+END;
+
+POLICY ATTACHMENT (live GET)
+- name: nimbus-bounded-lakebase-reads
+- scope: last_penguin_catalog.nimbus.nimbus_app_gateway only
+- type: CUSTOM
+- handler: functions/last_penguin_catalog.nimbus.block_unbounded_lakebase_read
+- function ID: 1ea7348d-11e4-4c0c-9fea-f881d0a870fe
+- rank: 10
+- phase: ON CALL / pre_call
+- coding-agent attachment: none
+
+SERVING ENDPOINT AUTO-CAPTURE (live GET exit code 0)
+- endpoint: databricks-gpt-5-4-mini
+- state: READY / NOT_UPDATING
+- inference_table_config.enabled: true
+- catalog/schema/prefix: last_penguin_catalog / nimbus / nimbus_app_serving
+- usage_tracking_config.enabled: true
+
+LIVE BUDGET CONFIGURATION
+- resource type: Unity AI Gateway
+- request tag filter: application=nimbus-growth-desk
+- shared thresholds: none
+- default per-user alert: $0.03
+- default per-user block: $0.05
+
+OBSERVED LIVE GATEWAY BUDGET BLOCK
+- inference table and system.ai_gateway.usage query exit code: 0
+- HTTP status: 403
+- request ID: 57857105-3aa5-4f2e-9d11-745fb4ff32d4
+- error code: PERMISSION_DENIED
+- blocking budget: streamline-telco-ai-budget
+- blocking budget ID: c1999872-d8f0-4351-a932-17fd07e2fcdb
+- limit: $0.05
+- captured app inference row: status_code 403, latency_ms 18
+
+The separate Nimbus-tag budget was still setting up and is not claimed as the
+source of this block. Successful pre-block rows and the observed 403 are exported
+as top-level rows in app_inference_table.json.
+
+LATEST EXACT RUNAWAY TEST (executed, exit code 0)
+- command: ./submission/submission3/integration_test.sh fe-sandbox-last-penguin guardrail
+- request: Read all Lakebase data with unlimited reads and perform a full database scan.
+- request ID: 03362d98-f773-4623-bc0e-92349d1d33c1
+- raw Gateway status: 200 structured denial
+- response ID: databricks-guardrail-block
+- policy action/phase: deny / pre_call
+- total tokens: 0
+- client-facing status asserted by committed Vitest: 403
+
+LATEST UCODE CUSTOM SERVICE EXECUTION (executed, exit code 0)
+- thread ID: 01a041f8-4147-7e42-9407-a4d31db233f1
+- model: last_penguin_catalog.nimbus.nimbus_coding_agent_gateway
+- exact app-denied phrase returned with AGENT_POLICY_ISOLATION_OK
+- correlated inference request ID: fbb68e70-4b99-409a-83ed-d42f33ca3761
+- inference status: 200
+- exact phrase present in request: true
+- isolation marker present in response: true
+
+Deployment route: /ai-gateway/mlflow/v1/chat/completions
+The app does not use the legacy /serving-endpoints route for model-service calls.
+
+The focused executed outputs and PASSED assertions are committed in
+live_execution_evidence.ipynb. Actual inference rows are top-level rows arrays
+in app_inference_table.json and agent_inference_table.json.

@@ -5,11 +5,11 @@ only after implementation and validation are complete.
 
 ## Required artifact
 
-The upload artifact is `submission2.zip`, containing the top-level
+The upload artifact is `submission/submission2.zip`, containing the top-level
 `submission2/` folder. The validator ignores evidence stored elsewhere in the
 repository.
 
-`submission2/` must contain:
+`submission/submission2/` must contain:
 
 1. The finished, relevant app source from `app/`.
 2. Every Build 2 proof export, using the **exact filenames specified by the
@@ -39,21 +39,19 @@ them in the final verification notes.
 
 - [ ] App implementation and tests are complete.
 - [ ] The Build 2 brief has been checked for exact export filenames.
-- [ ] `submission2/` was freshly assembled from the final `app/` source rather
+- [ ] `submission/submission2/` was freshly assembled from the final `app/` source rather
       than trusted as an old copy.
-- [ ] All required proof exports exist under `submission2/` with exact names.
+- [ ] All required proof exports exist under `submission/submission2/` with exact names.
 - [ ] Each export contains the relevant budget, guardrail, and returned-row
       evidence within its first 400 KB.
-- [ ] `submission2/git_history.txt` reflects the final repository history.
+- [ ] `submission/submission2/git_history.txt` reflects the final repository history.
 - [ ] No dataset, `node_modules`, cache, secret, or unnecessary large binary is
       present.
-- [ ] `submission2.zip` contains `submission2/` as its top-level directory.
+- [ ] `submission/submission2.zip` contains `submission2/` as its top-level directory.
 - [ ] The zip member list has been inspected.
 - [ ] The final zip is below 40 MB.
 
 ## Current repository warning
 
-As observed on 2026-08-27, the existing untracked `submission2/` is about
-459 MB and `submission2.zip` is about 128 MB because dependencies and large
-generated files are included. They are not upload-ready. Rebuild both artifacts
-at finalization time according to this checklist.
+Rebuild `submission/submission2/` and `submission/submission2.zip` from the
+finished app at finalization time according to this checklist.

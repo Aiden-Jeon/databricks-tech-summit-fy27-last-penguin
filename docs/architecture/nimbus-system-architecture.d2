@@ -1,0 +1,134 @@
+# Nimbus Growth Desk — end-to-end system architecture.
+# Render with the architecture skill's render_d2.sh wrapper so the shared
+# Databricks theme and bundled icons are embedded in the output.
+
+direction: right
+vars: { d2-config: { layout-engine: elk; pad: 36 } }
+
+title: |md
+  # Nimbus Growth Desk · End-to-End Architecture
+  Conversion slide → evidence → governed recommendation → human approval → low-latency decision
+| { near: top-center; style: { font-size: 26; bold: true } }
+
+people: Growth Team & Product {
+  class: group
+  direction: right
+  jordan: Jordan Cole\nVP Growth { shape: person; class: source }
+  product: Nimbus Product\nlow-latency flag reader { class: source }
+}
+
+experience: Decision Experience {
+  class: group
+  direction: right
+  dashboard: AI/BI Dashboard\nconversion × MAU · risk KPIs { class: serve; icon: ${ICONS}/databricks/ai_bi.svg }
+  genie: Genie\nwhy is this segment sliding? { class: serve; icon: ${ICONS}/databricks/genie.svg }
+  app_ui: Growth Desk React UI\nlive view · search · assist · approve { class: serve; icon: ${ICONS}/databricks/apps.svg }
+}
+
+foundation: Data & Recommendation Foundation {
+  class: group
+  direction: down
+
+  inputs: Synthetic Nimbus Inputs {
+    class: group
+    direction: right
+    events: Clickstream + app events\n+ transactions { shape: queue; class: source }
+    experiments: Experiment catalog\n18-month history { shape: cylinder; class: source }
+    setup: DAB setup job\ngenerate_data.py { class: compute; icon: ${ICONS}/databricks/workflows.svg }
+    volume: UC Volume / raw_data\nParquet landing zone { shape: cylinder; class: store; icon: ${ICONS}/databricks/unity_catalog.svg }
+
+    events -> setup
+    experiments -> setup
+    setup -> volume: write raw datasets
+  }
+
+  lakehouse: Lakehouse Processing {
+    class: group
+    direction: right
+    pipeline: Lakeflow SDP\nsilver → gold transforms { class: compute; icon: ${ICONS}/databricks/lakeflow.svg }
+    gold: Governed Delta outputs\ngold_segment_position\ngold_open_sliding { shape: cylinder; class: store; icon: ${ICONS}/databricks/delta_lake.svg }
+    model: Conversion recommender\nrank 3 next-best actions { class: compute; icon: ${ICONS}/databricks/model_serving.svg }
+    recommendations: gold_action_recommendations\npredicted lift + net value { shape: cylinder; class: store; icon: ${ICONS}/databricks/delta_lake.svg }
+
+    pipeline -> gold
+    gold -> model: features
+    model -> recommendations: batch scores
+  }
+
+  inputs.volume -> lakehouse.pipeline: read_files()
+}
+
+build1: Build 1 · Lakebase Operational Serving {
+  class: group
+  direction: right
+
+  materialized: CDF-enabled Delta sync sources\nsegment · sliding · actions · experiments { shape: cylinder; class: store; icon: ${ICONS}/databricks/delta_lake.svg }
+  sync: Continuous UC → Lakebase sync { class: compute; icon: ${ICONS}/databricks/lakebase.svg }
+  serving: nimbus_serving (read-only)\n4 synced Postgres tables { shape: cylinder; class: store; icon: ${ICONS}/databricks/lakebase.svg }
+  search: Lakebase Search\nBM25 + ANN + RRF { class: compute; icon: ${ICONS}/databricks/lakebase.svg }
+  decisions: app.feature_decisions_app\nproposed → approved → committed { shape: cylinder; class: store; icon: ${ICONS}/databricks/lakebase.svg }
+  reverse: Lakebase CDF\nreverse sync { class: compute; icon: ${ICONS}/databricks/lakeflow_connect.svg }
+  decision_delta: UC nimbus_reverse\napproved product decisions { shape: cylinder; class: store; icon: ${ICONS}/databricks/delta_lake.svg }
+
+  materialized -> sync
+  sync -> serving: low-latency replicas { class: accent }
+  serving -> search: indexed descriptions
+  decisions -> reverse: committed changes
+  reverse -> decision_delta
+}
+
+build2: Build 2 · Databricks App {
+  class: group
+  direction: right
+  api: AppKit Node / Express API\n/live-view · /search · /assist · /decisions { class: serve; icon: ${ICONS}/databricks/apps.svg }
+  evidence: Grounded decision context\nsegment risk + ranked actions + experiment { class: compute }
+  human_gate: Human-in-the-loop gate\nPM approval required { shape: diamond; class: govern }
+
+  api -> evidence: assemble bounded context
+  evidence -> human_gate: propose only
+}
+
+build3: Build 3 · Unity AI Gateway {
+  class: group
+  direction: right
+  gateway: nimbus_app_gateway\nMLflow-compatible chat API { shape: hexagon; class: serve; icon: ${ICONS}/databricks/unity_ai_gateway.svg }
+  policy: Service policy\nblock unbounded Lakebase reads { class: govern; icon: ${ICONS}/databricks/unity_catalog.svg }
+  budget: Tagged spend controls\nalert + per-user block { class: govern }
+  fm: GPT-5.4-mini\nFoundation Model API { class: compute; icon: ${ICONS}/databricks/model_serving.svg }
+  inference: Gateway inference payload table\nusage · latency · status { shape: cylinder; class: store; icon: ${ICONS}/databricks/delta_lake.svg }
+
+  gateway -> policy: pre-call
+  policy -> budget: allowed request
+  budget -> fm: routed inference { class: accent }
+  gateway -> inference: auto-capture
+}
+
+governance: Unity Catalog · shared governance plane\nACLs · lineage · governed data + AI assets { class: govern; icon: ${ICONS}/databricks/unity_catalog.svg }
+warehouse: Serverless SQL Warehouse { class: compute; icon: ${ICONS}/databricks/sql_warehouse.svg }
+
+# Primary data and decision paths.
+foundation.lakehouse.gold -> build1.materialized: materialize serving sources
+foundation.lakehouse.recommendations -> build1.materialized
+foundation.inputs.experiments -> build1.materialized: embed descriptions
+build1.serving -> build2.api: bounded Postgres reads { class: accent }
+build1.search -> build2.evidence: experiment grounding { class: accent }
+build2.api -> build3.gateway: OBO token + request tags { class: accent }
+build3.fm -> build2.evidence: rollout memo
+build2.human_gate -> build1.decisions: approve / commit { class: accent }
+build1.decisions -> people.product: serve approved flag { class: accent }
+
+# User experience and analytical paths.
+people.jordan -> experience.app_ui
+people.jordan -> experience.dashboard
+people.jordan -> experience.genie
+experience.app_ui -> build2.api: HTTPS
+foundation.lakehouse.gold -> warehouse
+foundation.lakehouse.recommendations -> warehouse
+warehouse -> experience.dashboard: KPIs + scatter
+warehouse -> experience.genie: governed SQL
+
+# Cross-cutting governance links.
+governance -> foundation.lakehouse: governs { class: govlink }
+governance -> build1: governs { class: govlink }
+governance -> build3: governs { class: govlink }
+governance -> warehouse: governs { class: govlink }
