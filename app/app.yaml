@@ -29,6 +29,8 @@ user_authorization:
     - catalog.tables:read
 
 env:
+  - name: LAKEBASE_ENDPOINT
+    valueFrom: postgres
   - name: NODE_ENV
     value: production
   - name: AI_GATEWAY_MODEL

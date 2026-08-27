@@ -55,18 +55,7 @@ export function parseActionRanking(value: unknown) {
 }
 
 export async function initializeDecisionSchema(pool: Pool) {
-  await pool.query('BEGIN');
-  try {
-    await pool.query(`ALTER TABLE app.feature_decisions_app
-      DROP CONSTRAINT IF EXISTS feature_decisions_app_status_check`);
-    await pool.query(`ALTER TABLE app.feature_decisions_app
-      ADD CONSTRAINT feature_decisions_app_status_check
-      CHECK (status IN ('proposed', 'approved', 'committed'))`);
-    await pool.query('COMMIT');
-  } catch (error) {
-    await pool.query('ROLLBACK');
-    throw error;
-  }
+  await pool.query('SELECT 1 FROM app.feature_decisions_app LIMIT 1');
 }
 
 export async function getLiveView(pool: Pool, segmentId: string | null, limit = 40) {

@@ -1,9 +1,7 @@
 import express from 'express';
 import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
+import { createApp, lakebase, server } from '@databricks/appkit';
 import {
   HERO_EXPERIMENT_ID,
   HERO_SEGMENT_ID,
@@ -13,28 +11,35 @@ import {
   parseActionRanking,
   transitionDecision,
 } from './nimbus-runtime.js';
-
-const app = express();
-app.use(express.json({ limit: '1mb' }));
-
-const pool = new Pool({
-  max: 8,
-  connectionTimeoutMillis: 10_000,
-  idleTimeoutMillis: 30_000,
-  ssl: process.env.PGHOST ? { rejectUnauthorized: false } : undefined,
-});
+import { GatewayHttpError, GatewayPolicyDeniedError, requestChatCompletion } from './lib/ai-gateway.js';
 
 function actor(req: express.Request) {
   return req.header('x-forwarded-email') || req.header('x-forwarded-user') || 'local-operator@nimbus.test';
 }
 
 function sendError(res: express.Response, error: unknown) {
+  if (error instanceof GatewayPolicyDeniedError) {
+    res.status(error.status).json({
+      error: error.message,
+      request_id: error.requestId,
+      upstream_status: 200,
+      databricks_service_policy: error.policy,
+    });
+    return;
+  }
+  if (error instanceof GatewayHttpError) {
+    res.status(error.status).json({ ...error.body, request_id: error.requestId });
+    return;
+  }
   const message = error instanceof Error ? error.message : String(error);
   const status = /not found/i.test(message) ? 404 : /Invalid|required|Missing/i.test(message) ? 409 : 500;
   res.status(status).json({ error: message });
 }
 
-app.get('/health', async (_req, res) => {
+function registerRoutes(app: express.Application, pool: Pool) {
+app.use(express.json({ limit: '1mb' }));
+
+app.get('/api/runtime-health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
     res.json({ status: 'ok', database: 'connected', checked_at: new Date().toISOString() });
@@ -115,16 +120,14 @@ app.post('/api/assist', async (req, res) => {
     if (!token) throw new Error('Missing Databricks app OBO token');
     const host = String(process.env.DATABRICKS_HOST || '').replace(/\/$/, '');
     const model = process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway';
-    const gateway = await fetch(`${host}/ai-gateway/mlflow/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`, 'content-type': 'application/json',
-        'Databricks-Ai-Gateway-Request-Tags': JSON.stringify({ application: 'nimbus-growth-desk', assist_run_id: assistRunId, segment_id: segmentId, experiment_id: experiment.experiment_id }),
-      },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are a growth operations analyst. Draft evidence-based rollout memos. Never approve or commit.' }, { role: 'user', content: prompt }], max_tokens: 500, temperature: 0.2 }),
+    const { body: gatewayBody } = await requestChatCompletion({
+      host, token, model,
+      messages: [
+        { role: 'system', content: 'You are a growth operations analyst. Draft evidence-based rollout memos. Never approve or commit.' },
+        { role: 'user', content: prompt },
+      ],
+      tags: { application: 'nimbus-growth-desk', assist_run_id: assistRunId, segment_id: segmentId, experiment_id: String(experiment.experiment_id) },
     });
-    const gatewayBody = await gateway.json() as { choices?: Array<{ message?: { content?: string } }>; message?: string };
-    if (!gateway.ok) throw new Error(`AI Gateway ${gateway.status}: ${gatewayBody.message || 'request failed'}`);
     const memo = gatewayBody.choices?.[0]?.message?.content?.trim();
     if (!memo) throw new Error('AI Gateway returned no memo');
     const proposed = await createProposedDecision(pool, {
@@ -147,13 +150,14 @@ app.get('/api/activity/recent', async (_req, res) => {
   catch (error) { sendError(res, error); }
 });
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const clientDir = resolve(currentDir, '../client/dist');
-if (!existsSync(clientDir)) throw new Error(`Client build not found: ${clientDir}`);
-app.use(express.static(clientDir));
-app.get('*', (_req, res) => res.sendFile(resolve(clientDir, 'index.html')));
+}
 
-const port = Number(process.env.DATABRICKS_APP_PORT ?? process.env.PORT ?? 8000);
-initializeDecisionSchema(pool)
-  .then(() => app.listen(port, '0.0.0.0', () => console.log(`[nimbus] live runtime listening on ${port}`)))
-  .catch((error) => { console.error('[nimbus] database initialization failed', error); process.exitCode = 1; });
+await createApp({
+  plugins: [server({ staticPath: 'client/dist' }), lakebase({ pool: { max: 8 } })],
+  async onPluginsReady(appkit) {
+    const pool = appkit.lakebase.pool as Pool;
+    await initializeDecisionSchema(pool);
+    appkit.server.extend((app) => registerRoutes(app, pool));
+    console.log('[nimbus] live Lakebase runtime initialized');
+  },
+});
