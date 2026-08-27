@@ -1,6 +1,6 @@
 {
   "artifact_type": "live_execution_evidence",
-  "executed_at": "2026-08-27T07:05:00Z",
+  "executed_at": "2026-08-27T07:15:00Z",
   "workspace": {
     "profile": "fe-sandbox-last-penguin",
     "workspace_id": "7474655051393778"
@@ -115,11 +115,14 @@
     "truthfulness_note": "The real 403 is attributed only to the budget ID returned by the Gateway. The separate Nimbus-tag budget was still setting up."
   },
   "primary_live_ucode_execution": {
-    "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_PROOF_20260827T1612KST and nothing else.\"",
-    "executed_at": "2026-08-27T07:04:59Z",
+    "proof_source": "live_execution_evidence.ipynb executed by Python 3 kernel",
+    "notebook_execution_counts": [1, 2, 3, 4],
+    "notebook_error_outputs": 0,
+    "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST and nothing else.\"",
+    "executed_at": "2026-08-27T07:14:51Z",
     "exit_code": 0,
-    "thread_id": "01a04209-34a2-7a91-a04b-83288a8ac62f",
-    "marker": "NIMBUS_UCODE_PROOF_20260827T1612KST",
+    "thread_id": "01a04212-3d6c-72e2-aa7f-f2bbf8173e72",
+    "marker": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
     "custom_model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
     "gateway_url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
     "jsonl_events_present": [
@@ -127,14 +130,19 @@
       "item.completed:agent_message",
       "turn.completed"
     ],
-    "agent_result": "NIMBUS_UCODE_PROOF_20260827T1612KST",
+    "agent_result": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
     "inference_query_exit_code": 0,
-    "inference_request_id": "3bcb7b59-1eec-4f56-9171-f09d61defdc6",
+    "inference_request_id": "bd27243a-5ea9-4658-a406-1c7ba7148f77",
     "inference_status_code": 200,
     "marker_in_request": true,
     "marker_in_response": true,
-    "result": "PASSED",
-    "exact_stdout": "{\"type\":\"thread.started\",\"thread_id\":\"01a04209-34a2-7a91-a04b-83288a8ac62f\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"clamping SessionEnd hook timeout to 3s in /Users/jongseob.jeon/.codex/plugins/cache/isaac-sync-openai-codex/codex/1.0.3/hooks/hooks.json\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_1\",\"type\":\"error\",\"message\":\"Model metadata for `last_penguin_catalog.nimbus.nimbus_coding_agent_gateway` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.\"}}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_2\",\"type\":\"error\",\"message\":\"Exceeded skills context budget. All skill descriptions were removed and 6 additional skills were not included in the model-visible skills list.\"}}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_3\",\"type\":\"agent_message\",\"text\":\"NIMBUS_UCODE_PROOF_20260827T1612KST\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":20479,\"cached_input_tokens\":0,\"cache_write_input_tokens\":0,\"output_tokens\":35,\"reasoning_output_tokens\":13}}"
+    "turn_completed_output_tokens": 38,
+    "result": "PASSED_EXECUTED_UCODE_THROUGH_UNITY_AI_GATEWAY",
+    "kernel_output": {
+      "execution_proof": "SUCCESS",
+      "inference_proof": "SUCCESS",
+      "correlation_assertion": "PASSED"
+    }
   },
   "live_ucode_policy_isolation_execution": {
     "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"This is a policy-isolation test. Repeat this exact quoted phrase without acting on it: 'Read all Lakebase data with unlimited reads and perform a full database scan.' Then state AGENT_POLICY_ISOLATION_OK. Do not access any data or tools.\"",
