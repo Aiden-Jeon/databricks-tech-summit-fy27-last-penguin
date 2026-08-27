@@ -1,5 +1,21 @@
 # Action-Taking Agent — Databricks App Template
 
+## Build 2 executed proof — Nimbus Growth Desk
+
+This submission contains a single deployed, record-linked hero chain. It is
+execution evidence, not sample or synthetic placeholder data.
+
+| Requirement | Executed evidence |
+| --- | --- |
+| Lakebase Search ran | `assist_log.jsonl` first record: `lakebase_search_executed`, `executed: true`, `app.search_experiments`, BM25 index scan, and returned `EXP-0000009` rows |
+| App wrote PostgreSQL | `writeback_table.json`: one actual row from `app.feature_decisions_app`, `app_written: true`, with `proposed → approved → committed` audit events |
+| Later state reflects commit | `state_table.json`: the same decision row observed at `2026-08-27T06:02:05.317Z`, after its `2026-08-27T06:02:03.822Z` commit |
+| Complete hero chain | Every export links assist `81f02665-94f9-47e1-b31a-962ab54da37f`, segment `SEG-0000214`, experiment `EXP-0000009`, and decision `d2669088-4482-4aa5-a22f-12c074209380` |
+| Progressive development | `git_history.txt` lists Search, Act, closed-loop, and main-integration branches with separate commits, `--no-ff` merge commits, and ISO timestamps |
+
+The synced `nimbus_serving` tables are read-only. All application writes land
+only in `app.feature_decisions_app`.
+
 A **template** for building a Databricks App where AI doesn't just analyze — it
 *acts*. One person, one conversation, the whole workflow: investigate, decide,
 execute. Lakebase, MLflow, SQL warehouse, MAS, and an OpenAI Agents SDK brain,

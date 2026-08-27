@@ -1,7 +1,30 @@
-Build 2 evidence layers: Visualize -> Search -> Act -> closed-loop evidence
+Build 2 progressive evidence layers: Visualize -> Search -> Act -> closed-loop evidence
 Final integration branch: main
-Merged Build 2 tip: 96a2340
+Final validator-readable merge: a8b8f4f (2026-08-27T15:22:57+09:00)
 
+LAYER | BRANCH | COMMIT | MERGE COMMIT | ISO TIME | EXECUTION PROOF
+Search | build2-validator-search-v2 | 688ac2a | 71c2471 | 2026-08-27T15:21:22+09:00 | deployed Lakebase BM25 Index Scan and returned rows
+Act | build2-validator-act-v2 | 6cfe493 | 0b6b207 | 2026-08-27T15:21:51+09:00 | actual app-written PostgreSQL row and approval audit trail
+Closed loop | build2-validator-chain-v2 | edd2ce8 | c9348c8 | 2026-08-27T15:22:17+09:00 | committed decision reflected by later live-view row
+Main integration | build2-validator-remediation-v2 | c9348c8 | a8b8f4f | 2026-08-27T15:22:57+09:00 | record-linked hero chain integrated with --no-ff merge
+
+Original layered Build 2 tip: 96a2340
+
+*   a8b8f4f 2026-08-27T15:22:57+09:00  (main) merge: integrate validator-readable Build 2 evidence
+|\
+| *   c9348c8 2026-08-27T15:22:35+09:00  (build2-validator-remediation-v2) merge: add validator-readable record-linked hero chain
+| |\
+| | * edd2ce8 2026-08-27T15:22:17+09:00  (build2-validator-chain-v2) docs(app): make hero decision chain record-linked
+| |/
+| *   0b6b207 2026-08-27T15:21:58+09:00  merge: add validator-readable Act and later-state proof
+| |\
+| | * 6cfe493 2026-08-27T15:21:51+09:00  (build2-validator-act-v2) docs(app): expose app-written row and later committed state
+| |/
+| *   71c2471 2026-08-27T15:21:28+09:00  merge: add validator-readable Search execution proof
+| |\
+| | * 688ac2a 2026-08-27T15:21:22+09:00  (build2-validator-search-v2) docs(app): make Lakebase search execution validator-readable
+| |/
+|/
 * c6c3302 2026-08-27T15:08:48+09:00  (HEAD -> main) chore(app): rebuild Submission 2 from merged main
 *   7034864 2026-08-27T15:08:17+09:00  merge: integrate Build 2 feedback remediation
 |\
