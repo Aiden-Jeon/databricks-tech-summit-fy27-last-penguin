@@ -1,9 +1,14 @@
-$ git log --oneline --graph --decorate main agent-forecast-dev build1-feedback-remediation
-*   b24ec73 (HEAD -> main) merge: integrate Build 1 feedback remediation
+$ git log --oneline --graph --decorate main agent-forecast-dev build1-feedback-remediation build1-scoring-remediation
+* 6a08665 (HEAD -> main, origin/main, origin/HEAD) docs(build1): record merged promotion PR
+*   f107912 Merge pull request #1 from Aiden-Jeon/build1-scoring-remediation
 |\
+| * 18f8846 (origin/build1-scoring-remediation, build1-scoring-remediation) fix(build1): make Lakebase evidence grader-readable
+| * 88b7dcb chore(build1): commit resubmission package
+| * b24ec73 merge: integrate Build 1 feedback remediation
+|/|
 | * de9fa01 (build1-feedback-remediation) fix(build1): add executable Lakebase infrastructure evidence
 |/
-* 2718f2d (origin/main, origin/HEAD) docs(build1): add Lakebase validation evidence
+* 2718f2d docs(build1): add Lakebase validation evidence
 * 4b7f6dd feat(gateway): finalize Nimbus AI Gateway evidence
 * 21e999e fix(lakebase): finalize hybrid search and read-only access
 * 8e4adcc build(app): restore Lakebase and agent dependencies
@@ -18,10 +23,10 @@ $ git log --oneline --graph --decorate main agent-forecast-dev build1-feedback-r
 * 6f57e46 Add Databricks CI/CD pipeline
 * 4ea3a8b Initial commit
 
-Agent commit 3f59ebb full message trailer:
-Author: OpenAI Codex
-
-Merge verification:
-- fffbc5e has parents fc47cac and 3f59ebb.
-- b24ec73 has parents 2718f2d and de9fa01.
-- `git merge-base --is-ancestor 3f59ebb main` exits 0.
+Promotion verification:
+- GitHub PR: https://github.com/Aiden-Jeon/databricks-tech-summit-fy27-last-penguin/pull/1
+- PR state: MERGED
+- PR base/head: main <- build1-scoring-remediation
+- PR merge commit: f107912c8a624cb3a7f88c3189a144470fadef73
+- `git merge-base --is-ancestor 3f59ebb origin/main` exits 0.
+- `git merge-base --is-ancestor f107912 origin/main` exits 0.
