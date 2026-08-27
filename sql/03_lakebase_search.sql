@@ -36,14 +36,14 @@ bm25_candidates AS (
          row_number() OVER (
            ORDER BY to_tsvector('english', e.description)
              <@> to_bm25query(
-                    to_tsquery('english', regexp_replace(query_text, '\\s+', ' & ', 'g')),
-                    'experiments_description_bm25')
+                    to_tsvector('english', query_text),
+                    'nimbus_serving.experiments_description_bm25'::regclass)
          ) AS rank
   FROM nimbus_serving.experiments e
   ORDER BY to_tsvector('english', e.description)
              <@> to_bm25query(
-                    to_tsquery('english', regexp_replace(query_text, '\\s+', ' & ', 'g')),
-                    'experiments_description_bm25')
+                    to_tsvector('english', query_text),
+                    'nimbus_serving.experiments_description_bm25'::regclass)
   LIMIT 50
 ),
 fused AS (
@@ -61,4 +61,3 @@ JOIN nimbus_serving.experiments e USING (experiment_id)
 ORDER BY f.fused_relevance DESC, e.experiment_id
 LIMIT result_limit;
 $$;
-
