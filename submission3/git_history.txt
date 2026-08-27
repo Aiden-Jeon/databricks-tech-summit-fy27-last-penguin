@@ -1,4 +1,22 @@
-508c249 2026-08-27T15:33:11+09:00 Aiden-Jeon (HEAD -> main)
+d695b27 2026-08-27T15:38:06+09:00 Aiden-Jeon (HEAD -> main)
+    chore(build1): commit final root submission archive
+
+b1eaacf 2026-08-27T15:36:42+09:00 Aiden-Jeon (origin/main, origin/HEAD)
+    chore(app): package final Lakebase search evidence
+
+4d8e5be 2026-08-27T15:35:36+09:00 Aiden-Jeon
+    merge: add Lakebase search execution evidence
+
+eb40352 2026-08-27T15:35:31+09:00 Aiden-Jeon
+    docs: require final submissions at project root
+
+9621bff 2026-08-27T15:35:02+09:00 Aiden-Jeon (origin/build2-search-execution-notebook, build2-search-execution-notebook)
+    docs(app): capture live Lakebase search execution
+
+51e0f56 2026-08-27T15:33:54+09:00 Aiden-Jeon
+    chore(gateway): rebuild Submission 3 after feedback remediation
+
+508c249 2026-08-27T15:33:11+09:00 Aiden-Jeon
     merge: integrate Build 3 feedback remediation
 
 ade13a5 2026-08-27T15:32:54+09:00 Aiden-Jeon (build3-feedback-remediation-v2)
