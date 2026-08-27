@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assertTransition, getSearchExperiments, parseActionRanking } from './nimbus-runtime.js';
+import { assertTransition, getDecision, getSearchExperiments, parseActionRanking } from './nimbus-runtime.js';
 import type { Pool } from 'pg';
 
 describe('decision state machine', () => {
@@ -22,6 +22,35 @@ describe('search evidence', () => {
     expect(result.index).toBe('experiments_description_bm25_idx');
     expect(result.execution_plan.join('\n')).toContain('Index Scan');
     expect(result.rows[0]).toMatchObject({ experiment_id: 'EXP-0000009' });
+  });
+});
+
+describe('decision evidence', () => {
+  it('returns the app-written row and recovers its assist chain', async () => {
+    const pool = Object.create(null) as Pool;
+    pool.query = vi.fn().mockResolvedValue({
+      rows: [{
+        id: 'decision-1',
+        segment_id: 'SEG-0000214',
+        target_experiment_id: 'EXP-0000009',
+        status: 'committed',
+        audit_trail: [
+          { action: 'proposed', assist_run_id: 'assist-1' },
+          { action: 'approved' },
+          { action: 'committed' },
+        ],
+      }],
+    });
+    const result = await getDecision(pool, 'decision-1');
+    expect(result).toMatchObject({
+      app_written: true,
+      assist_run_id: 'assist-1',
+      segment_id: 'SEG-0000214',
+      experiment_id: 'EXP-0000009',
+      decision_id: 'decision-1',
+      row_count: 1,
+    });
+    expect(result.rows[0].audit_trail).toHaveLength(3);
   });
 });
 
