@@ -1,0 +1,32 @@
+{
+  "queried_at": "2026-08-27T06:02:04.568Z",
+  "source": "deployed app GET /api/decisions/d2669088-4482-4aa5-a22f-12c074209380",
+  "table": "app.feature_decisions_app",
+  "app_written": true,
+  "assist_run_id": "81f02665-94f9-47e1-b31a-962ab54da37f",
+  "segment_id": "SEG-0000214",
+  "experiment_id": "EXP-0000009",
+  "decision_id": "d2669088-4482-4aa5-a22f-12c074209380",
+  "row_count": 1,
+  "columns": ["id","segment_id","action_type","target_experiment_id","flag_key","variant","rollout_pct","drafted_note","predicted_conversion_lift","status","approved_by","audit_trail","created_at","decided_at"],
+  "rows": [{
+    "id": "d2669088-4482-4aa5-a22f-12c074209380",
+    "segment_id": "SEG-0000214",
+    "action_type": "ship_proven_variant",
+    "target_experiment_id": "EXP-0000009",
+    "flag_key": "checkout_flow",
+    "variant": "variant_a",
+    "rollout_pct": 25,
+    "drafted_note": "**Rollout memo — SEG-0000214**\n\n**Segment**\n- Gen Z on Android in EMEA\n- MAU: 420,000\n- Conversion: 2.9% vs 4.2% three weeks ago\n- Drop: -1.3 pp\n- Estimated conversion at risk: **$524.2k**\n- Slide signal: 0.6, band: **sliding**\n- Matching experiment: **EXP-0000009** (`checkout_flow`, `variant_a`)\n\n**Evidence**\n- Experiment **EXP-0000009** on Gen Z / Android checkout flow won with **+2.25 pp** observed lift.\n- Relevance score: **3.44**\n- Segment pattern aligns closely with the tested cohort and the decline began after the checkout change.\n\n**Ranked actions**\n1. **ship_proven_variant**\n   - Predicted lift: **+1.80 pp**\n   - Predicted net value: **$721.3k**\n   - Cost: **$5k**\n2. rollout_existing_flag\n   - Predicted lift: +0.70 pp\n   - Predicted net value: $281.2k\n   - Cost: $500\n3. ship_alt_variant\n   - Predicted lift: +0.39 pp\n   - Predicted net value: $154.2k\n   - Cost: $5k\n\n**Recommendation**\n- The evidence favors **shipping the proven variant** for this segment, given the strong experiment match and the current conversion slide.\n\n**Before approval**\n- Confirm no conflicting checkout changes are active for Gen Z / Android / EMEA.\n- Validate rollout guardrails and monitoring for conversion recovery, error rate, and checkout completion.\n\n**Status**\n- Decision record shows **committed** for `checkout_flow` / `variant_a` at **25% rollout**.\n- I’m stopping here before approval.",
+    "predicted_conversion_lift": 0.018012460321187973,
+    "status": "committed",
+    "approved_by": "jongseob.jeon@databricks.com",
+    "audit_trail": [
+      {"at":"2026-08-27T06:01:50.914Z","by":"nimbus-assistant","tool":"assist","notes":"AI draft awaiting human approval","action":"proposed","assist_run_id":"81f02665-94f9-47e1-b31a-962ab54da37f"},
+      {"at":"2026-08-27T06:02:03.060Z","by":"jongseob.jeon@databricks.com","tool":"decision_approved","notes":"Human approval recorded","action":"approved"},
+      {"at":"2026-08-27T06:02:03.822Z","by":"jongseob.jeon@databricks.com","tool":"decision_committed","notes":"Decision committed","action":"committed"}
+    ],
+    "created_at": "2026-08-27T06:01:50.914Z",
+    "decided_at": "2026-08-27T06:02:03.822Z"
+  }]
+}

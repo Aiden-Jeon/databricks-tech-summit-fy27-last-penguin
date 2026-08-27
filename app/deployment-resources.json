@@ -1,0 +1,23 @@
+{
+  "update_mask": "resources,user_api_scopes",
+  "app": {
+    "resources": [
+      {
+        "name": "postgres",
+        "postgres": {
+          "branch": "projects/nimbus-growth-ops/branches/agent-forecast-dev",
+          "database": "projects/nimbus-growth-ops/branches/agent-forecast-dev/databases/db-1yvj-4oxl1t5wrr",
+          "permission": "CAN_CONNECT_AND_CREATE"
+        }
+      },
+      {
+        "name": "sql-warehouse",
+        "sql_warehouse": {
+          "id": "4e5825eb699bec7b",
+          "permission": "CAN_USE"
+        }
+      }
+    ],
+    "user_api_scopes": ["ai-gateway"]
+  }
+}
