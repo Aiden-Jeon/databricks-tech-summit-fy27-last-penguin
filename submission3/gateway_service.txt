@@ -48,6 +48,25 @@ databricks functions get last_penguin_catalog.nimbus.block_unbounded_lakebase_re
 databricks api get /api/2.1/unity-catalog/model-services/last_penguin_catalog.nimbus.nimbus_app_gateway --profile fe-sandbox-last-penguin
 databricks api get /api/2.1/unity-catalog/model-services/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway --profile fe-sandbox-last-penguin
 
+SERVING ENDPOINT AUTO-CAPTURE (executed 2026-08-27)
+databricks serving-endpoints put-ai-gateway databricks-gpt-5-4-mini \
+  --profile fe-sandbox-last-penguin \
+  --json '{"usage_tracking_config":{"enabled":true},"inference_table_config":{"enabled":true,"catalog_name":"last_penguin_catalog","schema_name":"nimbus","table_name_prefix":"nimbus_app_serving"}}'
+
+Live GET state: READY / NOT_UPDATING
+Live inference_table_config: enabled=true
+Generated table: last_penguin_catalog.nimbus.nimbus_app_serving_payload
+Live invocation: HTTP 200, request bcfd2ce3-1072-4180-9d11-d124d50d7b7b
+Captured payload row: HTTP 200, request a7de118b-58a2-4c6f-a272-1bc909f74494,
+request_time 2026-08-27T06:17:46.602Z
+
+The equivalent serving-endpoint config field is auto_capture_config.enabled=true;
+both the canonical spec and live AI Gateway field are committed in
+serving_endpoint.json. This endpoint proof is additive: the app keeps the
+Unity model-service route because the custom SQL pre-call policy is supported
+there. The Foundation Model endpoint discarded invalid_keywords and is not
+misrepresented as the custom guardrail enforcement point.
+
 LIVE BUDGET
 - budget ID: eac80ca4-e2af-46e1-9788-ad39925e31d6
 - name: nimbus-app-gateway-live-cap
@@ -57,7 +76,22 @@ LIVE BUDGET
 - shared thresholds: none
 - default per-user block: $0.05 monthly list-price spend
 - live status at final export: Setting up budget
-- actual post-threshold check: HTTP 200, request ed54a642-b67b-4b07-b959-c8f91e7bb232
+- detail UI status at refreshed export: Currently setting up this budget
+- actual Nimbus-tagged endpoint post-threshold check remained HTTP 200
+
+OBSERVED LIVE GATEWAY BUDGET BLOCK
+- HTTP status: 403
+- request ID: 57857105-3aa5-4f2e-9d11-745fb4ff32d4
+- error code: PERMISSION_DENIED
+- blocking budget: streamline-telco-ai-budget
+- blocking budget ID: c1999872-d8f0-4351-a932-17fd07e2fcdb
+- limit: $0.05
+- captured app inference row: status_code 403, latency_ms 18,
+  event_time 2026-08-27T06:17:45.133Z
+
+This is a real Gateway block on the app model-service request, but it is a
+pre-existing workspace budget. It is kept distinct from the Nimbus budget,
+which is still setting up; no false attribution is made.
 
 LIVE ALERT BUDGET
 - budget ID: fec429e5-e934-4001-ba91-83e57fa16d49

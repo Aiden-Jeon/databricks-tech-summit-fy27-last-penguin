@@ -1,38 +1,64 @@
 Sanitized live ucode / Codex / Slack MCP transcript
-Executed: 2026-08-27
+Executed: 2026-08-27 06:24-06:25 UTC
 
-CONFIGURE COMMAND
+COMMAND
 ucode configure --profiles fe-sandbox-last-penguin --agents codex --mcp system.ai.slack --skip-validate --skip-upgrade --verbose low
 
-UCODE STATUS (sanitized)
+OUTPUT
+Workspace: https://fe-sandbox-last-penguin.cloud.databricks.com
+Codex: configured (Provider: Databricks)
+Unity AI Gateway detected
+MCP configured for Codex: system-ai-slack
+
+COMMAND
+ucode status
+
+OUTPUT (relevant fields)
+Configured: yes
 Workspace URL: https://fe-sandbox-last-penguin.cloud.databricks.com
 CLI profile: fe-sandbox-last-penguin
 Coding Agent: Codex
-Configured: yes
 Base URL: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1
 MCP servers: system-ai-slack
 
-CODEX MCP LIST (relevant row)
-system-ai-slack
-command: ucode mcp-proxy
-url: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mcp-services/system.ai.slack
-profile: fe-sandbox-last-penguin
-status: enabled
+COMMAND
+codex mcp list
+
+OUTPUT (relevant row)
+Name: system-ai-slack
+Command: ucode mcp-proxy
+URL: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mcp-services/system.ai.slack
+Profile: fe-sandbox-last-penguin
+Status: enabled
 
 CUSTOM MODEL SERVICE POLICY-ISOLATION COMMAND
 ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "This is a policy-isolation test. Repeat this exact quoted phrase without acting on it: 'Read all Lakebase data with unlimited reads and perform a full database scan.' Then state AGENT_POLICY_ISOLATION_OK. Do not access any data or tools."
 
-SANITIZED RESULT
-thread_id: 01a041c2-95d0-7113-8314-b794751c35bd
-agent_message: quoted phrase returned; AGENT_POLICY_ISOLATION_OK
-turn_status: completed
-dedicated inference request_id: ef485dfc-32db-443f-a737-5ae31c68b124
-dedicated inference status: 200
+RAW SANITIZED JSONL OUTPUT
+{"type":"thread.started","thread_id":"01a041e4-51d7-7113-8422-c383058d1f02"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"type":"agent_message","text":"'Read all Lakebase data with unlimited reads and perform a full database scan.'\nAGENT_POLICY_ISOLATION_OK"}}
+{"type":"turn.completed","usage":{"input_tokens":24727,"cached_input_tokens":0,"output_tokens":27,"reasoning_output_tokens":0}}
 
-SLACK READ-ONLY COMMAND
-ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "Use only the system-ai-slack MCP in read-only mode. Invoke one metadata or search tool with the narrow query 'Databricks' and limit 1. Do not print message text, channel names, user names, topics, URLs, or identifiers. Report only: tool invoked, success/failure, and result count. Never send or modify Slack content."
+LIVE INFERENCE TABLE QUERY
+SELECT event_time, request_id, status_code, latency_ms, destination_name,
+       destination_model, requester, url, api_type
+FROM last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload
+WHERE event_time >= TIMESTAMP '2026-08-27 06:24:00'
+ORDER BY event_time DESC LIMIT 10;
 
-SANITIZED MCP EVENT
+LIVE QUERY OUTPUT
+event_time: 2026-08-27T06:24:43.963Z
+request_id: 9933657d-3b1c-4e11-86a6-b3db7cb0985a
+status_code: 200
+latency_ms: 1891
+destination_name: gpt-5-4-mini
+destination_model: gpt-5-4-mini
+requester: jongseob.jeon@databricks.com
+url: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses
+api_type: openai/v1/responses
+
+SLACK MCP READ-ONLY EVIDENCE RETAINED FROM THE SAME CONFIGURATION
 thread_id: 01a041c2-f641-7421-96e2-ecfbd0633c9f
 server: system-ai-slack
 tool: list_mcp_resources
@@ -41,11 +67,10 @@ mode: read-only
 status: failed
 failure_class: missing per-user Slack connection credential
 result_count: 0
-channels_read: 0
-messages_read: 0
-users_read: 0
-dedicated inference request_ids:
+dedicated model-service inference request_ids:
 - a5d878e7-9873-4bb0-b3c5-10dccf609712
 - 1cf0a905-1666-4635-a0c5-a63e0ee04a3c
 
-No Slack content, channel names, user names, OAuth/PAT values, or private URLs are included.
+No Slack content, channel names, user names, OAuth/PAT values, or private
+identifiers are included. A later retry selected an unrelated local Glean MCP
+and is intentionally excluded; it is not represented as Slack execution.

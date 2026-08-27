@@ -1,22 +1,117 @@
 {
-  "executed_at": "2026-08-27T06:05:00Z",
-  "workspace": {"profile": "fe-sandbox-last-penguin", "workspace_id": "7474655051393778"},
-  "app_model_service": {
-    "id": "dfd19f03-77a1-4454-b6c1-101ceee260cd",
-    "name": "model-services/last_penguin_catalog.nimbus.nimbus_app_gateway",
-    "inference_table": {"disabled": false, "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9", "table": "tables/last_penguin_catalog.nimbus.nimbus_app_gateway_payload"},
-    "destination": {"name": "gpt-5-4-mini", "model": "models/system.ai.databricks-gpt-5-4-mini"},
-    "service_policies": [{"name": "nimbus-bounded-lakebase-reads", "policy_type": "POLICY_TYPE_CUSTOM", "rank": 10, "handler": "functions/last_penguin_catalog.nimbus.block_unbounded_lakebase_read", "function_id": "1ea7348d-11e4-4c0c-9fea-f881d0a870fe"}]
+  "executed_at": "2026-08-27T06:27:00Z",
+  "workspace": {
+    "profile": "fe-sandbox-last-penguin",
+    "workspace_id": "7474655051393778"
   },
-  "coding_agent_model_service": {
-    "id": "5615bb11-a919-4676-beb3-e27255ae5aee",
-    "name": "model-services/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
-    "inference_table": {"disabled": false, "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8", "table": "tables/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload"},
-    "destination": {"name": "gpt-5-4-mini", "model": "models/system.ai.databricks-gpt-5-4-mini"},
-    "service_policies": []
+  "live_model_service_get": {
+    "app": {
+      "id": "dfd19f03-77a1-4454-b6c1-101ceee260cd",
+      "name": "model-services/last_penguin_catalog.nimbus.nimbus_app_gateway",
+      "inference_table": {
+        "disabled": false,
+        "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9",
+        "table": "tables/last_penguin_catalog.nimbus.nimbus_app_gateway_payload"
+      },
+      "service_policies": [{
+        "name": "nimbus-bounded-lakebase-reads",
+        "rank": 10,
+        "handler": "functions/last_penguin_catalog.nimbus.block_unbounded_lakebase_read",
+        "function_id": "1ea7348d-11e4-4c0c-9fea-f881d0a870fe"
+      }]
+    },
+    "coding_agent": {
+      "id": "5615bb11-a919-4676-beb3-e27255ae5aee",
+      "name": "model-services/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+      "inference_table": {
+        "disabled": false,
+        "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
+        "table": "tables/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload"
+      },
+      "service_policies": []
+    }
   },
-  "policy_function": {"full_name": "last_penguin_catalog.nimbus.block_unbounded_lakebase_read", "function_id": "1ea7348d-11e4-4c0c-9fea-f881d0a870fe", "input_type": "VARIANT", "return_type": "VARIANT"},
-  "live_policy_test": {"normal_request_id": "8b0e2983-c79a-4ce8-b186-aca7a1b52c32", "denied_request_id": "1e1b33f1-0bfc-43d5-9218-25dab3020a44", "denied_upstream_status": 200, "response_id": "databricks-guardrail-block", "action": "deny", "phase": "pre_call", "total_tokens": 0},
-  "budget": {"budget_id": "eac80ca4-e2af-46e1-9788-ad39925e31d6", "name": "nimbus-app-gateway-live-cap", "workspace_id": "7474655051393778", "resource_type": "Unity AI Gateway", "resource_tags": {"application": ["nimbus-growth-desk"]}, "shared_thresholds": [], "default_per_user_thresholds": [{"amount_usd": 0.05, "action": "BLOCK_USAGE"}], "creation_status": "SETTING_UP", "post_threshold_check": {"request_id": "ed54a642-b67b-4b07-b959-c8f91e7bb232", "http_status": 200, "total_tokens": 14, "result": "Budget enforcement was not active while the UI reported Setting up budget."}},
-  "alert_budget": {"budget_id": "fec429e5-e934-4001-ba91-83e57fa16d49", "name": "nimbus-app-gateway-live-alert", "workspace_id": "7474655051393778", "resource_type": "Unity AI Gateway", "resource_tags": {"application": ["nimbus-growth-desk"]}, "shared_thresholds": [], "default_per_user_thresholds": [{"amount_usd": 0.03, "action": "ALERT", "recipient": "configured and redacted"}], "creation_status": "SETTING_UP", "platform_note": "The 2026-08-27 Beta UI permits one default per-user threshold per budget, so alert and block use identical-scope budgets."}
+  "serving_endpoint_execution": {
+    "endpoint": "databricks-gpt-5-4-mini",
+    "state": {"ready":"READY","config_update":"NOT_UPDATING"},
+    "inference_table_config": {
+      "enabled": true,
+      "catalog_name": "last_penguin_catalog",
+      "schema_name": "nimbus",
+      "table_name_prefix": "nimbus_app_serving"
+    },
+    "generated_table": "last_penguin_catalog.nimbus.nimbus_app_serving_payload",
+    "live_request_id": "bcfd2ce3-1072-4180-9d11-d124d50d7b7b",
+    "live_http_status": 200,
+    "captured_table_row": {
+      "request_time": "2026-08-27T06:17:46.602Z",
+      "request_id": "a7de118b-58a2-4c6f-a272-1bc909f74494",
+      "status_code": 200,
+      "execution_duration_ms": 628
+    }
+  },
+  "live_guardrail_execution": {
+    "exact_request": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+    "request_id": "2781f180-1c9c-4afd-847c-8dd23f63938d",
+    "raw_gateway_http_status": 200,
+    "client_facing_status": 403,
+    "response_id": "databricks-guardrail-block",
+    "action": "deny",
+    "phase": "pre_call",
+    "total_tokens": 0,
+    "local_prompt_filter": false
+  },
+  "committed_integration_test_execution": {
+    "command": "./submission3/integration_test.sh fe-sandbox-last-penguin guardrail",
+    "exit_code": 0,
+    "mode": "guardrail",
+    "serving_endpoint_request_id": "bcfd2ce3-1072-4180-9d11-d124d50d7b7b",
+    "serving_endpoint_http_status": 200,
+    "exact_runaway_prompt": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+    "gateway_request_id": "2781f180-1c9c-4afd-847c-8dd23f63938d",
+    "raw_gateway_http_status": 200,
+    "gateway_policy_action": "deny",
+    "gateway_policy_phase": "pre_call",
+    "client_mapping_status": 403,
+    "total_tokens": 0,
+    "result": "PASSED"
+  },
+  "live_agent_policy_isolation_execution": {
+    "thread_id": "01a041e4-51d7-7113-8422-c383058d1f02",
+    "custom_model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+    "agent_message": "quoted phrase returned; AGENT_POLICY_ISOLATION_OK",
+    "inference_request_id": "9933657d-3b1c-4e11-86a6-b3db7cb0985a",
+    "inference_status_code": 200
+  },
+  "live_budget_execution": {
+    "configured_nimbus_budget": {
+      "budget_id": "eac80ca4-e2af-46e1-9788-ad39925e31d6",
+      "name": "nimbus-app-gateway-live-cap",
+      "resource_type": "Unity AI Gateway",
+      "resource_tags": {"application":["nimbus-growth-desk"]},
+      "shared_thresholds": [],
+      "default_per_user_thresholds": [{"amount_usd":0.05,"action":"BLOCK_USAGE"}],
+      "live_ui_detail_status": "SETTING_UP"
+    },
+    "observed_gateway_403": {
+      "request_id": "57857105-3aa5-4f2e-9d11-745fb4ff32d4",
+      "http_status": 403,
+      "error_code": "PERMISSION_DENIED",
+      "blocking_budget_id": "c1999872-d8f0-4351-a932-17fd07e2fcdb",
+      "blocking_budget_name": "streamline-telco-ai-budget",
+      "limit_usd": 0.05,
+      "captured_app_inference_row": {
+        "event_time": "2026-08-27T06:17:45.133Z",
+        "status_code": 403,
+        "latency_ms": 18,
+        "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+      }
+    },
+    "truthfulness_note": "The real 403 belongs to a pre-existing workspace budget. The Nimbus-specific budget still reports Setting up and is not claimed as the source of that block."
+  },
+  "delivery": {
+    "new_serving_inference_table_rows_at_export": 1,
+    "new_system_usage_rows_at_export": 0,
+    "note": "Both system.ai_gateway.usage and endpoint inference tables are asynchronous. Raw HTTP responses and request IDs are retained when delivery is pending."
+  }
 }
