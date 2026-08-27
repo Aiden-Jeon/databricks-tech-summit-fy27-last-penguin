@@ -1,0 +1,21 @@
+{
+  "executed_at": "2026-08-27T05:44:36.923Z",
+  "source": "deployed app GET /api/live-view?segment_id=SEG-0000214",
+  "sliding_row_count": 40,
+  "row": {
+    "segment_id": "SEG-0000214", "cohort": "gen_z", "platform": "android", "region": "EMEA",
+    "mau": 420000, "conversion_rate": 0.029, "conversion_rate_3w_ago": 0.042,
+    "conversion_drop": 0.013, "conversion_at_risk_usd": 524160.0, "risk_rank": 1,
+    "conv_band": "sliding", "has_matching_experiment": true,
+    "matching_experiment_id": "EXP-0000009", "matching_experiment_lift": 0.0225,
+    "neighbor_flag_key": "checkout_flow", "recommended_action": "ship_proven_variant",
+    "predicted_conversion_lift": 0.018012460321187973,
+    "predicted_net_value_usd": 721262.4001502991,
+    "action_ranking": [
+      {"action":"ship_proven_variant","conversion_lift":0.018012,"net_value":721262.4,"cost":5000},
+      {"action":"rollout_existing_flag","conversion_lift":0.006986,"net_value":281165.82,"cost":500},
+      {"action":"ship_alt_variant","conversion_lift":0.003948,"net_value":154184.1,"cost":5000}
+    ],
+    "decision_id": null, "decision_status": null
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "captured_at": "2026-08-27T05:46:39.527Z",
+  "table": "app.feature_decisions_app",
+  "decision": {
+    "id": "44350937-ca81-428a-b4af-6b9044385939", "segment_id": "SEG-0000214",
+    "target_experiment_id": "EXP-0000009", "action_type": "ship_proven_variant",
+    "flag_key": "checkout_flow", "variant": "variant_a", "rollout_pct": 25,
+    "predicted_conversion_lift": 0.018012460321187973,
+    "status": "committed", "approved_by": "jongseob.jeon@databricks.com",
+    "created_at": "2026-08-27T05:46:28.586Z", "decided_at": "2026-08-27T05:46:39.527Z",
+    "audit_trail": [
+      {"at":"2026-08-27T05:46:28.586Z","by":"nimbus-assistant","action":"proposed","tool":"assist"},
+      {"at":"2026-08-27T05:46:38.819Z","by":"jongseob.jeon@databricks.com","action":"approved","tool":"decision_approved"},
+      {"at":"2026-08-27T05:46:39.527Z","by":"jongseob.jeon@databricks.com","action":"committed","tool":"decision_committed"}
+    ]
+  }
+}
