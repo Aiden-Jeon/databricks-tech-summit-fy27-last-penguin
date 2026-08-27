@@ -2,8 +2,6 @@
 
 Databricks project: `databricks-tech-summit-fy27-last-penguin`
 
-CI/CD and deployment: [`docs/CICD.md`](docs/CICD.md)
-
 **The use case, in plain words:** Nimbus is a mobile-first marketplace with 15M monthly users. A recent checkout-flow change **hurt some user groups and not others** — conversion is sliding for Gen-Z on Android while iOS is fine, and every week the team takes to spot it and ship a fix is lost revenue. You build an app that spots each sliding user segment, explains **why**, recommends the feature to ship next — **a variant that already won for a similar group, an alternative, or an existing flag that helped a neighboring group** — and lets a PM approve it, writing the decision back to the product to read at low latency. The data, the recommendation, and the AI that assists are all governed on Databricks, scale-to-zero when idle, with AI spend capped against margin.
 
 ## 🎓 Start here — you build this, it isn't pre-built
