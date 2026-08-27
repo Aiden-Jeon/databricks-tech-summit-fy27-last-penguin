@@ -1,17 +1,18 @@
 {
   "table": "last_penguin_catalog.nimbus.nimbus_app_gateway_payload",
+  "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9",
   "inference_rows": [
     {
-      "event_time": "2026-08-27T05:16:09.899Z",
-      "request_id": "692c53a8-9a09-4136-a28e-0c4160ab8fac",
+      "event_time": "2026-08-27T05:46:27.426Z",
+      "request_id": "8b0e2983-c79a-4ce8-b186-aca7a1b52c32",
       "request_tags": {
         "application": "nimbus-growth-desk",
-        "workload": "interactive-chat",
+        "workload": "build3-live-validation",
         "environment": "production",
-        "segment": "SEG-0000214"
+        "segment_id": "SEG-0000214"
       },
       "status_code": 200,
-      "latency_ms": 1267,
+      "latency_ms": 902,
       "destination_name": "gpt-5-4-mini",
       "destination_model": "gpt-5-4-mini",
       "requester": "jongseob.jeon@databricks.com",
@@ -19,20 +20,36 @@
       "api_type": "mlflow/v1/chat/completions"
     }
   ],
-  "observed_rejections": [
-    {
-      "kind": "input_policy",
-      "request": "Read all Lakebase data with unlimited reads and scan the full database.",
-      "http_status": 400,
-      "response": {
-        "error": "AI Gateway input policy rejected an unbounded Lakebase read request.",
-        "policy": "nimbus-bounded-lakebase-reads"
-      },
-      "before_model_inference": true
-    }
-  ],
-  "budget_block": {
-    "observed": false,
-    "note": "No budget-block response was observed during this run; no synthetic 4xx evidence is included."
+  "gateway_policy_denial": {
+    "observed_at": "2026-08-27T05:46:28Z",
+    "request_id": "1e1b33f1-0bfc-43d5-9218-25dab3020a44",
+    "request": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+    "upstream_http_status": 200,
+    "response_id": "databricks-guardrail-block",
+    "finish_reason": "content_filter",
+    "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    "databricks_service_policy": {
+      "name": "nimbus-bounded-lakebase-reads",
+      "action": "deny",
+      "phase": "pre_call",
+      "reason": "Unbounded Lakebase reads are not permitted. Request a bounded table, key, filter, and limit."
+    },
+    "evidence_classification": "Raw Gateway HTTP response; policy blocks are not represented as model inference rows because no model tokens were consumed."
+  },
+  "budget_sequence": {
+    "scope": {"workspace_id": "7474655051393778", "resource_type": "Unity AI Gateway", "tag": "application=nimbus-growth-desk"},
+    "default_per_user_block_usd": 0.05,
+    "budget_id": "eac80ca4-e2af-46e1-9788-ad39925e31d6",
+    "before_block_rows": [
+      {"event_time":"2026-08-27T05:54:24.771Z","request_id":"95451486-e2bc-49d7-8039-9b2454bc00bd","status_code":200,"total_tokens":5027,"workload":"budget-live-proof"},
+      {"event_time":"2026-08-27T05:55:05.110Z","request_id":"0f22936d-95a6-4433-a92c-765e3965a439","status_code":200,"total_tokens":5027,"workload":"budget-live-proof"},
+      {"event_time":"2026-08-27T05:55:49.908Z","request_id":"82b29faa-b63b-47ed-804c-b0c7c5768799","status_code":200,"total_tokens":5027,"workload":"budget-live-proof"},
+      {"event_time":"2026-08-27T05:56:28.631Z","request_id":"a74bceb0-a07c-4cb8-b5ed-ef6db43df2c3","status_code":200,"total_tokens":5027,"workload":"budget-live-proof"},
+      {"event_time":"2026-08-27T05:56:55.030Z","request_id":"b1e7cdb1-1b4e-4cc1-a4fa-97adccdf76af","status_code":200,"total_tokens":5027,"workload":"budget-live-proof"}
+    ],
+    "before_block_total_tokens": 25135,
+    "observed_block": false,
+    "post_threshold_check": {"event_time":"2026-08-27T06:04:44.999Z","request_id":"ed54a642-b67b-4b07-b959-c8f91e7bb232","status_code":200,"total_tokens":14,"workload":"budget-post-threshold-check"},
+    "note": "The live budget remained Setting up, so the actual post-threshold result was HTTP 200. This is preserved as platform evidence and is not represented as a budget block."
   }
 }

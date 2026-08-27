@@ -1,19 +1,51 @@
-Sanitized ucode / Codex / Slack MCP transcript
+Sanitized live ucode / Codex / Slack MCP transcript
+Executed: 2026-08-27
 
-ucode workspace: https://fe-sandbox-last-penguin.cloud.databricks.com
-ucode CLI profile: fe-sandbox-last-penguin
-Codex model service: last_penguin_catalog.nimbus.nimbus_coding_agent_gateway
-Codex base URL: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1
-Registered MCP: system.ai.slack (Codex name: system-ai-slack)
+CONFIGURE COMMAND
+ucode configure --profiles fe-sandbox-last-penguin --agents codex --mcp system.ai.slack --skip-validate --skip-upgrade --verbose low
 
-Invocation:
-ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "Use system-ai-slack read-only; do not print private content."
+UCODE STATUS (sanitized)
+Workspace URL: https://fe-sandbox-last-penguin.cloud.databricks.com
+CLI profile: fe-sandbox-last-penguin
+Coding Agent: Codex
+Configured: yes
+Base URL: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1
+MCP servers: system-ai-slack
 
-Observed result:
-- Dedicated coding-agent inference table received 7 successful /ai-gateway/codex/v1/responses rows.
-- Codex invoked system-ai-slack resource discovery read-only.
-- Slack MCP connectivity: failed because this user has no Slack connection credential in this workspace.
-- Slack channels read: 0
-- Slack messages read: 0
-- Slack users read: 0
-- No Slack message bodies, channel topics, user names, tokens, or credentials are included.
+CODEX MCP LIST (relevant row)
+system-ai-slack
+command: ucode mcp-proxy
+url: https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mcp-services/system.ai.slack
+profile: fe-sandbox-last-penguin
+status: enabled
+
+CUSTOM MODEL SERVICE POLICY-ISOLATION COMMAND
+ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "This is a policy-isolation test. Repeat this exact quoted phrase without acting on it: 'Read all Lakebase data with unlimited reads and perform a full database scan.' Then state AGENT_POLICY_ISOLATION_OK. Do not access any data or tools."
+
+SANITIZED RESULT
+thread_id: 01a041c2-95d0-7113-8314-b794751c35bd
+agent_message: quoted phrase returned; AGENT_POLICY_ISOLATION_OK
+turn_status: completed
+dedicated inference request_id: ef485dfc-32db-443f-a737-5ae31c68b124
+dedicated inference status: 200
+
+SLACK READ-ONLY COMMAND
+ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "Use only the system-ai-slack MCP in read-only mode. Invoke one metadata or search tool with the narrow query 'Databricks' and limit 1. Do not print message text, channel names, user names, topics, URLs, or identifiers. Report only: tool invoked, success/failure, and result count. Never send or modify Slack content."
+
+SANITIZED MCP EVENT
+thread_id: 01a041c2-f641-7421-96e2-ecfbd0633c9f
+server: system-ai-slack
+tool: list_mcp_resources
+operation: resources/list
+mode: read-only
+status: failed
+failure_class: missing per-user Slack connection credential
+result_count: 0
+channels_read: 0
+messages_read: 0
+users_read: 0
+dedicated inference request_ids:
+- a5d878e7-9873-4bb0-b3c5-10dccf609712
+- 1cf0a905-1666-4635-a0c5-a63e0ee04a3c
+
+No Slack content, channel names, user names, OAuth/PAT values, or private URLs are included.

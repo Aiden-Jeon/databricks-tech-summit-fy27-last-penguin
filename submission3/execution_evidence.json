@@ -1,0 +1,22 @@
+{
+  "executed_at": "2026-08-27T06:05:00Z",
+  "workspace": {"profile": "fe-sandbox-last-penguin", "workspace_id": "7474655051393778"},
+  "app_model_service": {
+    "id": "dfd19f03-77a1-4454-b6c1-101ceee260cd",
+    "name": "model-services/last_penguin_catalog.nimbus.nimbus_app_gateway",
+    "inference_table": {"disabled": false, "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9", "table": "tables/last_penguin_catalog.nimbus.nimbus_app_gateway_payload"},
+    "destination": {"name": "gpt-5-4-mini", "model": "models/system.ai.databricks-gpt-5-4-mini"},
+    "service_policies": [{"name": "nimbus-bounded-lakebase-reads", "policy_type": "POLICY_TYPE_CUSTOM", "rank": 10, "handler": "functions/last_penguin_catalog.nimbus.block_unbounded_lakebase_read", "function_id": "1ea7348d-11e4-4c0c-9fea-f881d0a870fe"}]
+  },
+  "coding_agent_model_service": {
+    "id": "5615bb11-a919-4676-beb3-e27255ae5aee",
+    "name": "model-services/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+    "inference_table": {"disabled": false, "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8", "table": "tables/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload"},
+    "destination": {"name": "gpt-5-4-mini", "model": "models/system.ai.databricks-gpt-5-4-mini"},
+    "service_policies": []
+  },
+  "policy_function": {"full_name": "last_penguin_catalog.nimbus.block_unbounded_lakebase_read", "function_id": "1ea7348d-11e4-4c0c-9fea-f881d0a870fe", "input_type": "VARIANT", "return_type": "VARIANT"},
+  "live_policy_test": {"normal_request_id": "8b0e2983-c79a-4ce8-b186-aca7a1b52c32", "denied_request_id": "1e1b33f1-0bfc-43d5-9218-25dab3020a44", "denied_upstream_status": 200, "response_id": "databricks-guardrail-block", "action": "deny", "phase": "pre_call", "total_tokens": 0},
+  "budget": {"budget_id": "eac80ca4-e2af-46e1-9788-ad39925e31d6", "name": "nimbus-app-gateway-live-cap", "workspace_id": "7474655051393778", "resource_type": "Unity AI Gateway", "resource_tags": {"application": ["nimbus-growth-desk"]}, "shared_thresholds": [], "default_per_user_thresholds": [{"amount_usd": 0.05, "action": "BLOCK_USAGE"}], "creation_status": "SETTING_UP", "post_threshold_check": {"request_id": "ed54a642-b67b-4b07-b959-c8f91e7bb232", "http_status": 200, "total_tokens": 14, "result": "Budget enforcement was not active while the UI reported Setting up budget."}},
+  "alert_budget": {"budget_id": "fec429e5-e934-4001-ba91-83e57fa16d49", "name": "nimbus-app-gateway-live-alert", "workspace_id": "7474655051393778", "resource_type": "Unity AI Gateway", "resource_tags": {"application": ["nimbus-growth-desk"]}, "shared_thresholds": [], "default_per_user_thresholds": [{"amount_usd": 0.03, "action": "ALERT", "recipient": "configured and redacted"}], "creation_status": "SETTING_UP", "platform_note": "The 2026-08-27 Beta UI permits one default per-user threshold per budget, so alert and block use identical-scope budgets."}
+}

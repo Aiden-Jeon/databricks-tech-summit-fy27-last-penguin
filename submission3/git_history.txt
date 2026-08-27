@@ -1,11 +1,86 @@
-* 8e4adcc (HEAD -> main) build(app): restore Lakebase and agent dependencies
-*   fffbc5e merge: promote validated forecast migration
-|\
-| * 3f59ebb (agent-forecast-dev) feat(lakebase): add decision forecasts
-|/
-* fc47cac feat(lakebase): define continuous sync search and CDF
-* 3ab993f feat: prepare app and submission guidance
-* 04626dd chore: preserve Nimbus app and bundle baseline
-* bf7dfe5 (origin/main, origin/HEAD) Remove Databricks CI/CD pipeline
-* 6f57e46 Add Databricks CI/CD pipeline
-* 4ea3a8b Initial commit
+52befaa 2026-08-27T15:07:07+09:00 Aiden-Jeon  (HEAD -> build3-gateway-final, build2-feedback-remediation)
+    feat(gateway): capture live policy budget and agent evidence
+
+96a2340 2026-08-27T15:05:27+09:00 Aiden-Jeon 
+    chore(app): package remediated Build 2 submission
+
+5e1d875 2026-08-27T15:05:27+09:00 Aiden-Jeon 
+    merge: close Build 2 proof chain
+
+ab4e4f0 2026-08-27T15:03:11+09:00 Aiden-Jeon  (build2-proof-chain)
+    docs(app): capture closed-loop Build 2 execution proof
+
+8efa5ac 2026-08-27T14:54:24+09:00 Aiden-Jeon 
+    merge: add Build 2 act proof API
+
+49d5994 2026-08-27T14:54:21+09:00 Aiden-Jeon  (build2-proof-act)
+    feat(app): expose decision writeback audit chain
+
+f3cd445 2026-08-27T14:53:53+09:00 Aiden-Jeon 
+    merge: add Build 2 search proof API
+
+575632f 2026-08-27T14:53:51+09:00 Aiden-Jeon  (build2-proof-search)
+    feat(app): expose verifiable Lakebase search evidence
+
+ab276ea 2026-08-27T14:49:48+09:00 Aiden-Jeon  (build2-remediation)
+    chore(app): package Build 2 resubmission
+
+9e74e20 2026-08-27T14:48:02+09:00 Aiden-Jeon 
+    merge: finalize Build 2 evidence
+
+aa1e490 2026-08-27T14:47:59+09:00 Aiden-Jeon  (build2-act-evidence)
+    docs(app): add verified Build 2 evidence
+
+6ab09ac 2026-08-27T14:47:15+09:00 Aiden-Jeon 
+    merge: integrate Build 2 act and evidence runtime
+
+145600b 2026-08-27T14:47:02+09:00 Aiden-Jeon 
+    feat(app): deploy human-gated decision runtime
+
+2070350 2026-08-27T14:32:44+09:00 Aiden-Jeon 
+    merge: integrate Build 2 assist and search
+
+0fa345d 2026-08-27T14:32:42+09:00 Aiden-Jeon  (build2-assist-search)
+    feat(app): implement grounded assist and BM25 search
+
+73333ff 2026-08-27T14:32:05+09:00 Aiden-Jeon 
+    merge: integrate Build 2 live view
+
+8a7935e 2026-08-27T14:32:03+09:00 Aiden-Jeon  (build2-visualize)
+    feat(app): add live Lakebase decision view
+
+2718f2d 2026-08-27T14:26:26+09:00 Aiden-Jeon 
+    docs(build1): add Lakebase validation evidence
+
+4b7f6dd 2026-08-27T14:26:23+09:00 Aiden-Jeon 
+    feat(gateway): finalize Nimbus AI Gateway evidence
+
+21e999e 2026-08-27T14:25:16+09:00 Aiden-Jeon 
+    fix(lakebase): finalize hybrid search and read-only access
+
+8e4adcc 2026-08-27T14:16:39+09:00 Aiden-Jeon 
+    build(app): restore Lakebase and agent dependencies
+
+fffbc5e 2026-08-27T14:11:06+09:00 Aiden-Jeon 
+    merge: promote validated forecast migration
+
+3f59ebb 2026-08-27T14:10:57+09:00 Aiden-Jeon  (agent-forecast-dev)
+    feat(lakebase): add decision forecasts
+
+fc47cac 2026-08-27T14:08:57+09:00 Aiden-Jeon 
+    feat(lakebase): define continuous sync search and CDF
+
+3ab993f 2026-08-27T14:04:48+09:00 Aiden-Jeon 
+    feat: prepare app and submission guidance
+
+04626dd 2026-08-27T13:55:38+09:00 Aiden-Jeon 
+    chore: preserve Nimbus app and bundle baseline
+
+bf7dfe5 2026-08-27T12:10:37+09:00 Aiden-Jeon 
+    Remove Databricks CI/CD pipeline
+
+6f57e46 2026-08-27T12:07:44+09:00 Aiden-Jeon 
+    Add Databricks CI/CD pipeline
+
+4ea3a8b 2026-08-27T11:58:29+09:00 Aiden-Jeon 
+    Initial commit
