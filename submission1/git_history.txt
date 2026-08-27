@@ -1,27 +1,29 @@
 $ git log --oneline --graph --decorate main agent-forecast-dev build1-feedback-remediation build1-scoring-remediation
-* f95cd56 (HEAD -> main) docs(build1): refresh remote promotion history
-* 6a08665 (origin/main, origin/HEAD) docs(build1): record merged promotion PR
-*   f107912 Merge pull request #1 from Aiden-Jeon/build1-scoring-remediation
-|\
+* b1eaacf (HEAD -> main, origin/main, origin/HEAD) chore(app): package final Lakebase search evidence
+* 4d8e5be merge: add Lakebase search execution evidence
+* eb40352 docs: require final submissions at project root
+* 51e0f56 chore(gateway): rebuild Submission 3 after feedback remediation
+* 508c249 merge: integrate Build 3 feedback remediation
+* ade13a5 feat(gateway): prove live endpoint guardrail budget and agent isolation
+* 3b9803f chore(app): package validator-readable Submission 2 evidence
+* 5d532da chore(app): finalize Submission 2 evidence archive
+* 22b3d7b chore(gateway): rebuild Submission 3 from merged main
+* a87e892 merge: integrate Build 3 Unity AI Gateway submission
+* a2fc968 chore(build1): package grader-readable resubmission
+* f95cd56 docs(build1): refresh remote promotion history
+* 6a08665 docs(build1): record merged promotion PR
+* f107912 Merge pull request #1 from Aiden-Jeon/build1-scoring-remediation
 | * 18f8846 (origin/build1-scoring-remediation, build1-scoring-remediation) fix(build1): make Lakebase evidence grader-readable
 | * 88b7dcb chore(build1): commit resubmission package
 | * b24ec73 merge: integrate Build 1 feedback remediation
-|/|
 | * de9fa01 (build1-feedback-remediation) fix(build1): add executable Lakebase infrastructure evidence
 |/
 * 2718f2d docs(build1): add Lakebase validation evidence
-* 4b7f6dd feat(gateway): finalize Nimbus AI Gateway evidence
 * 21e999e fix(lakebase): finalize hybrid search and read-only access
-* 8e4adcc build(app): restore Lakebase and agent dependencies
-*   fffbc5e merge: promote validated forecast migration
-|\
-| * 3f59ebb (agent-forecast-dev) feat(lakebase): add decision forecasts
-|/
+* 3f59ebb (agent-forecast-dev) feat(lakebase): add decision forecasts
 * fc47cac feat(lakebase): define continuous sync search and CDF
 * 3ab993f feat: prepare app and submission guidance
 * 04626dd chore: preserve Nimbus app and bundle baseline
-* bf7dfe5 Remove Databricks CI/CD pipeline
-* 6f57e46 Add Databricks CI/CD pipeline
 * 4ea3a8b Initial commit
 
 Promotion verification:
@@ -29,5 +31,5 @@ Promotion verification:
 - PR state: MERGED
 - PR base/head: main <- build1-scoring-remediation
 - PR merge commit: f107912c8a624cb3a7f88c3189a144470fadef73
-- `git merge-base --is-ancestor 3f59ebb origin/main` exits 0.
-- `git merge-base --is-ancestor f107912 origin/main` exits 0.
+- `git merge-base --is-ancestor 3f59ebb main` exits 0.
+- `git merge-base --is-ancestor f107912 main` exits 0.
