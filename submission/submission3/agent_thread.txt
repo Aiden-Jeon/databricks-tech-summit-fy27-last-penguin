@@ -1,14 +1,14 @@
-{"record_type":"primary_kernel_executed_ucode","executed":true,"notebook":"live_execution_evidence.ipynb","execution_counts":[1,2,3,4],"notebook_error_outputs":0,"command":"ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST and nothing else.\"","exit_code":0,"thread_id":"01a04212-3d6c-72e2-aa7f-f2bbf8173e72","marker":"NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST","agent_response":"NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST","custom_model_service":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","gateway_url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","correlated_inference_row":{"event_time":"2026-08-27T07:14:51.132Z","request_id":"bd27243a-5ea9-4658-a406-1c7ba7148f77","status_code":200,"destination_name":"gpt-5-4-mini","marker_in_request":true,"marker_in_response":true},"assertion":"PASSED_EXECUTED_UCODE_THROUGH_UNITY_AI_GATEWAY"}
+{"record_type":"primary_kernel_executed_raw_ucode_jsonl","executed":true,"notebook":"live_execution_evidence.ipynb","execution_counts":[1,2,3,4],"notebook_error_outputs":0,"raw_successful_jsonl_in_notebook_output":true,"command":"ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST and nothing else.\"","exit_code":0,"thread_id":"01a04217-d4f8-7de3-947c-e07df9c57c0b","marker":"NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST","agent_response":"NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST","custom_model_service":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","gateway_url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","correlated_inference_row":{"event_time":"2026-08-27T07:20:57.656Z","request_id":"ac8c02eb-5ed6-4f27-b68f-ae491eca9ef5","status_code":200,"destination_name":"gpt-5-4-mini","marker_in_request":true,"marker_in_response":true},"assertion":"PASSED_EXECUTED_UCODE_THROUGH_UNITY_AI_GATEWAY"}
 
 PRIMARY KERNEL-EXECUTED UCODE PROOF
-Executed: 2026-08-27 07:14 UTC
+Executed: 2026-08-27 07:20 UTC
 Profile: fe-sandbox-last-penguin
 Notebook: live_execution_evidence.ipynb
 Execution counts: 1, 2, 3, 4
 Notebook error outputs: 0
 
 DIRECT COMMAND
-ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "Reply with exactly NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST and nothing else."
+ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "Reply with exactly NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST and nothing else."
 
 EXIT CODE
 0
@@ -16,18 +16,24 @@ EXIT CODE
 KERNEL OUTPUT
 EXECUTION_PROOF=SUCCESS
 UCODE_EXIT_CODE=0
-THREAD_STARTED=01a04212-3d6c-72e2-aa7f-f2bbf8173e72
-AGENT_RESPONSE=NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST
-TURN_COMPLETED_OUTPUT_TOKENS=38
+RAW_SUCCESSFUL_UCODE_JSONL_BEGIN
+{"type":"thread.started","thread_id":"01a04217-d4f8-7de3-947c-e07df9c57c0b"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST"}}
+{"type":"turn.completed","usage":{"input_tokens":20626,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":43,"reasoning_output_tokens":18}}
+RAW_SUCCESSFUL_UCODE_JSONL_END
+THREAD_STARTED=01a04217-d4f8-7de3-947c-e07df9c57c0b
+AGENT_RESPONSE=NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST
+TURN_COMPLETED_OUTPUT_TOKENS=43
 
 DIRECT INFERENCE TABLE QUERY
-databricks experimental aitools tools query "SELECT event_time, request_id, status_code, latency_ms, instr(request, 'NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST') > 0 AS marker_in_request, instr(response, 'NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST') > 0 AS marker_in_response, destination_name, destination_model, requester, url, api_type FROM last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload WHERE event_time >= current_timestamp() - INTERVAL 1 HOUR AND (instr(request, 'NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST') > 0 OR instr(response, 'NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST') > 0) ORDER BY event_time DESC LIMIT 1" --profile fe-sandbox-last-penguin
+databricks experimental aitools tools query "SELECT event_time, request_id, status_code, latency_ms, instr(request, 'NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST') > 0 AS marker_in_request, instr(response, 'NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST') > 0 AS marker_in_response, destination_name, destination_model, requester, url, api_type FROM last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload WHERE event_time >= current_timestamp() - INTERVAL 1 HOUR AND (instr(request, 'NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST') > 0 OR instr(response, 'NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST') > 0) ORDER BY event_time DESC LIMIT 1" --profile fe-sandbox-last-penguin
 
 QUERY EXIT CODE
 0
 
 RAW QUERY OUTPUT
-[{"api_type":"openai/v1/responses","destination_model":"gpt-5-4-mini","destination_name":"gpt-5-4-mini","event_time":"2026-08-27T07:14:51.132Z","latency_ms":"1331","marker_in_request":"true","marker_in_response":"true","request_id":"bd27243a-5ea9-4658-a406-1c7ba7148f77","requester":"jongseob.jeon@databricks.com","status_code":"200","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"}]
+[{"api_type":"openai/v1/responses","destination_model":"gpt-5-4-mini","destination_name":"gpt-5-4-mini","event_time":"2026-08-27T07:20:57.656Z","latency_ms":"3342","marker_in_request":"true","marker_in_response":"true","request_id":"ac8c02eb-5ed6-4f27-b68f-ae491eca9ef5","requester":"jongseob.jeon@databricks.com","status_code":"200","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"}]
 
 ASSERTION
 PASSED: a real Python kernel executed ucode and emitted exit code 0, thread ID, agent response, and completed-turn usage.

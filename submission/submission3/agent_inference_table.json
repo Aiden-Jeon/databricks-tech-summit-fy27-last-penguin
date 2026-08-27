@@ -1,6 +1,6 @@
 {
   "artifact_type": "executed_inference_table_export",
-  "executed_at": "2026-08-27T07:15:00Z",
+  "executed_at": "2026-08-27T07:21:00Z",
   "profile": "fe-sandbox-last-penguin",
   "table": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
   "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
@@ -9,24 +9,24 @@
   "query_exit_code": 0,
   "rows": [
     {
-      "event_time": "2026-08-27T07:14:51.132Z",
-      "request_id": "bd27243a-5ea9-4658-a406-1c7ba7148f77",
-      "thread_id": "01a04212-3d6c-72e2-aa7f-f2bbf8173e72",
+      "event_time": "2026-08-27T07:20:57.656Z",
+      "request_id": "ac8c02eb-5ed6-4f27-b68f-ae491eca9ef5",
+      "thread_id": "01a04217-d4f8-7de3-947c-e07df9c57c0b",
       "model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
-      "request": "Reply with exactly NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST and nothing else.",
-      "response": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
-      "marker": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
+      "request": "Reply with exactly NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST and nothing else.",
+      "response": "NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST",
+      "marker": "NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST",
       "marker_in_request": true,
       "marker_in_response": true,
       "status_code": 200,
-      "latency_ms": 1331,
+      "latency_ms": 3342,
       "destination_name": "gpt-5-4-mini",
       "destination_model": "gpt-5-4-mini",
       "requester": "jongseob.jeon@databricks.com",
       "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
       "api_type": "openai/v1/responses",
       "proof_role": "PRIMARY_UCODE_EXECUTION",
-      "proof": "A real Python kernel executed the ucode subprocess in live_execution_evidence.ipynb. The adjacent output cells link exit code 0, thread ID, unique agent response, and this HTTP 200 inference row."
+      "proof": "A real Python kernel executed ucode in live_execution_evidence.ipynb. Its output contains the literal command, exit code 0, raw successful JSONL lifecycle, unique agent response, and this HTTP 200 inference row."
     },
     {
       "event_time": "2026-08-27T06:46:28.216Z",
