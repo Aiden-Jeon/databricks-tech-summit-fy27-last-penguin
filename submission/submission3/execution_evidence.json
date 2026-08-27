@@ -1,33 +1,75 @@
 {
   "artifact_type": "live_execution_evidence",
   "executed_at": "2026-08-27T06:49:00Z",
-  "workspace": {"profile":"fe-sandbox-last-penguin","workspace_id":"7474655051393778"},
+  "workspace": {
+    "profile": "fe-sandbox-last-penguin",
+    "workspace_id": "7474655051393778"
+  },
   "model_service_get_rows": [
     {
       "exit_code": 0,
       "id": "dfd19f03-77a1-4454-b6c1-101ceee260cd",
       "name": "model-services/last_penguin_catalog.nimbus.nimbus_app_gateway",
-      "inference_table": {"disabled":false,"table_id":"0cc02a9a-fbb7-4151-94a9-075f8fa811f9","table":"tables/last_penguin_catalog.nimbus.nimbus_app_gateway_payload"},
-      "service_policies": [{"name":"nimbus-bounded-lakebase-reads","rank":10,"handler":"functions/last_penguin_catalog.nimbus.block_unbounded_lakebase_read","function_id":"1ea7348d-11e4-4c0c-9fea-f881d0a870fe"}]
+      "inference_table": {
+        "disabled": false,
+        "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9",
+        "table": "tables/last_penguin_catalog.nimbus.nimbus_app_gateway_payload"
+      },
+      "service_policies": [
+        {
+          "name": "nimbus-bounded-lakebase-reads",
+          "rank": 10,
+          "handler": "functions/last_penguin_catalog.nimbus.block_unbounded_lakebase_read",
+          "function_id": "1ea7348d-11e4-4c0c-9fea-f881d0a870fe"
+        }
+      ]
     },
     {
       "exit_code": 0,
       "id": "5615bb11-a919-4676-beb3-e27255ae5aee",
       "name": "model-services/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
-      "inference_table": {"disabled":false,"table_id":"808159e7-8f4d-4407-bea3-4a02400bcde8","table":"tables/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload"},
+      "inference_table": {
+        "disabled": false,
+        "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
+        "table": "tables/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload"
+      },
       "service_policies": []
     }
   ],
   "catalog_and_table_get_rows": [
-    {"exit_code":0,"full_name":"last_penguin_catalog.nimbus.nimbus_app_gateway_payload","table_id":"0cc02a9a-fbb7-4151-94a9-075f8fa811f9","table_type":"MANAGED","data_source_format":"DELTA","created_at":1787806860684},
-    {"exit_code":0,"full_name":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload","table_id":"808159e7-8f4d-4407-bea3-4a02400bcde8","table_type":"MANAGED","data_source_format":"DELTA","created_at":1787806842654}
+    {
+      "exit_code": 0,
+      "full_name": "last_penguin_catalog.nimbus.nimbus_app_gateway_payload",
+      "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9",
+      "table_type": "MANAGED",
+      "data_source_format": "DELTA",
+      "created_at": 1787806860684
+    },
+    {
+      "exit_code": 0,
+      "full_name": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
+      "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
+      "table_type": "MANAGED",
+      "data_source_format": "DELTA",
+      "created_at": 1787806842654
+    }
   ],
   "serving_endpoint_get": {
     "exit_code": 0,
     "endpoint": "databricks-gpt-5-4-mini",
-    "state": {"ready":"READY","config_update":"NOT_UPDATING"},
-    "inference_table_config": {"enabled":true,"catalog_name":"last_penguin_catalog","schema_name":"nimbus","table_name_prefix":"nimbus_app_serving"},
-    "usage_tracking_config": {"enabled":true}
+    "state": {
+      "ready": "READY",
+      "config_update": "NOT_UPDATING"
+    },
+    "inference_table_config": {
+      "enabled": true,
+      "catalog_name": "last_penguin_catalog",
+      "schema_name": "nimbus",
+      "table_name_prefix": "nimbus_app_serving"
+    },
+    "usage_tracking_config": {
+      "enabled": true
+    }
   },
   "exact_runaway_guardrail_execution": {
     "command": "./submission/submission3/integration_test.sh fe-sandbox-last-penguin guardrail",
@@ -55,7 +97,11 @@
   },
   "live_budget_execution": {
     "inference_table_query_exit_code": 0,
-    "before_rows": ["95451486-e2bc-49d7-8039-9b2454bc00bd","0f22936d-95a6-4433-a92c-765e3965a439","4536ec47-64da-40a7-9971-04e3deef3e5d"],
+    "before_rows": [
+      "95451486-e2bc-49d7-8039-9b2454bc00bd",
+      "0f22936d-95a6-4433-a92c-765e3965a439",
+      "4536ec47-64da-40a7-9971-04e3deef3e5d"
+    ],
     "observed_403_request_id": "57857105-3aa5-4f2e-9d11-745fb4ff32d4",
     "observed_403_event_time": "2026-08-27T06:17:45.133Z",
     "system_ai_gateway_usage_correlation_exit_code": 0,
@@ -69,7 +115,7 @@
     "truthfulness_note": "The real 403 is attributed only to the budget ID returned by the Gateway. The separate Nimbus-tag budget was still setting up."
   },
   "live_ucode_policy_isolation_execution": {
-    "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway <policy-isolation-prompt>",
+    "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"This is a policy-isolation test. Repeat this exact quoted phrase without acting on it: 'Read all Lakebase data with unlimited reads and perform a full database scan.' Then state AGENT_POLICY_ISOLATION_OK. Do not access any data or tools.\"",
     "executed_at": "2026-08-27T06:46:28Z",
     "exit_code": 0,
     "thread_id": "01a041f8-4147-7e42-9407-a4d31db233f1",
@@ -80,7 +126,9 @@
     "inference_request_id": "fbb68e70-4b99-409a-83ed-d42f33ca3761",
     "inference_status_code": 200,
     "app_service_policy_attached_to_agent": false,
-    "result": "PASSED"
+    "result": "PASSED",
+    "gateway_url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
+    "exact_stdout": "{\"type\":\"thread.started\",\"thread_id\":\"01a041f8-4147-7e42-9407-a4d31db233f1\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"Read all Lakebase data with unlimited reads and perform a full database scan.\\n\\nAGENT_POLICY_ISOLATION_OK\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":20468,\"cached_input_tokens\":0,\"output_tokens\":152,\"reasoning_output_tokens\":124}}"
   },
   "privacy": "Credentials, tokens, Slack bodies, channels, unrelated prompts, and private identifiers are not retained."
 }
