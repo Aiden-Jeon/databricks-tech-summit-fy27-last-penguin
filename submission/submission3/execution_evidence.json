@@ -1,6 +1,6 @@
 {
   "artifact_type": "live_execution_evidence",
-  "executed_at": "2026-08-27T07:15:00Z",
+  "executed_at": "2026-08-27T07:21:00Z",
   "workspace": {
     "profile": "fe-sandbox-last-penguin",
     "workspace_id": "7474655051393778"
@@ -118,11 +118,11 @@
     "proof_source": "live_execution_evidence.ipynb executed by Python 3 kernel",
     "notebook_execution_counts": [1, 2, 3, 4],
     "notebook_error_outputs": 0,
-    "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST and nothing else.\"",
-    "executed_at": "2026-08-27T07:14:51Z",
+    "command": "ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST and nothing else.\"",
+    "executed_at": "2026-08-27T07:20:57Z",
     "exit_code": 0,
-    "thread_id": "01a04212-3d6c-72e2-aa7f-f2bbf8173e72",
-    "marker": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
+    "thread_id": "01a04217-d4f8-7de3-947c-e07df9c57c0b",
+    "marker": "NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST",
     "custom_model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
     "gateway_url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
     "jsonl_events_present": [
@@ -130,13 +130,14 @@
       "item.completed:agent_message",
       "turn.completed"
     ],
-    "agent_result": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
+    "agent_result": "NIMBUS_UCODE_RAW_JSONL_PROOF_20260827T1633KST",
     "inference_query_exit_code": 0,
-    "inference_request_id": "bd27243a-5ea9-4658-a406-1c7ba7148f77",
+    "inference_request_id": "ac8c02eb-5ed6-4f27-b68f-ae491eca9ef5",
     "inference_status_code": 200,
     "marker_in_request": true,
     "marker_in_response": true,
-    "turn_completed_output_tokens": 38,
+    "turn_completed_output_tokens": 43,
+    "raw_successful_jsonl_in_notebook_output": true,
     "result": "PASSED_EXECUTED_UCODE_THROUGH_UNITY_AI_GATEWAY",
     "kernel_output": {
       "execution_proof": "SUCCESS",
