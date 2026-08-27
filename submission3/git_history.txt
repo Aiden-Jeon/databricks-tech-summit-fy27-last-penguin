@@ -1,4 +1,40 @@
-a87e892 2026-08-27T15:10:03+09:00 Aiden-Jeon (HEAD -> main)
+508c249 2026-08-27T15:33:11+09:00 Aiden-Jeon (HEAD -> main)
+    merge: integrate Build 3 feedback remediation
+
+ade13a5 2026-08-27T15:32:54+09:00 Aiden-Jeon (build3-feedback-remediation-v2)
+    feat(gateway): prove live endpoint guardrail budget and agent isolation
+
+3b9803f 2026-08-27T15:24:45+09:00 Aiden-Jeon (origin/main, origin/HEAD)
+    chore(app): package validator-readable Submission 2 evidence
+
+a8b8f4f 2026-08-27T15:22:57+09:00 Aiden-Jeon
+    merge: integrate validator-readable Build 2 evidence
+
+c9348c8 2026-08-27T15:22:35+09:00 Aiden-Jeon (origin/build2-validator-remediation-v2, build2-validator-remediation-v2)
+    merge: add validator-readable record-linked hero chain
+
+edd2ce8 2026-08-27T15:22:17+09:00 Aiden-Jeon (origin/build2-validator-chain-v2, build2-validator-chain-v2)
+    docs(app): make hero decision chain record-linked
+
+0b6b207 2026-08-27T15:21:58+09:00 Aiden-Jeon
+    merge: add validator-readable Act and later-state proof
+
+6cfe493 2026-08-27T15:21:51+09:00 Aiden-Jeon (origin/build2-validator-act-v2, build2-validator-act-v2)
+    docs(app): expose app-written row and later committed state
+
+71c2471 2026-08-27T15:21:28+09:00 Aiden-Jeon
+    merge: add validator-readable Search execution proof
+
+688ac2a 2026-08-27T15:21:22+09:00 Aiden-Jeon (origin/build2-validator-search-v2, build2-validator-search-v2)
+    docs(app): make Lakebase search execution validator-readable
+
+5d532da 2026-08-27T15:11:49+09:00 Aiden-Jeon
+    chore(app): finalize Submission 2 evidence archive
+
+22b3d7b 2026-08-27T15:10:27+09:00 Aiden-Jeon
+    chore(gateway): rebuild Submission 3 from merged main
+
+a87e892 2026-08-27T15:10:03+09:00 Aiden-Jeon
     merge: integrate Build 3 Unity AI Gateway submission
 
 c6c3302 2026-08-27T15:08:48+09:00 Aiden-Jeon
