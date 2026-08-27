@@ -1,9 +1,14 @@
-Generated from merged main on 2026-08-27T16:17:02+09:00
+Generated from merged main on 2026-08-27T16:22:22+09:00
 Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d %s' -35
 
-*   86a678f 2026-08-27T16:16:49+09:00  (HEAD -> main) merge: add kernel-executed Submission 3 proof
+*   56ed6f9 2026-08-27T16:22:15+09:00  (HEAD -> main) merge: add raw ucode execution lifecycle proof
 |\
-| * ca5c918 2026-08-27T16:16:41+09:00  (build3-validator-execution-proof-v3) fix(gateway): commit kernel-executed ucode proof
+| * 483cf44 2026-08-27T16:22:13+09:00  (build3-raw-ucode-proof-v4) fix(gateway): expose raw ucode lifecycle output
+|/
+* 1688f4e 2026-08-27T16:17:19+09:00  chore(gateway): package kernel-executed proof
+*   86a678f 2026-08-27T16:16:50+09:00  merge: add kernel-executed Submission 3 proof
+|\
+| * ca5c918 2026-08-27T16:16:42+09:00  (build3-validator-execution-proof-v3) fix(gateway): commit kernel-executed ucode proof
 |/
 * 95a498f 2026-08-27T16:09:38+09:00  chore(gateway): package direct ucode proof
 *   698a0fe 2026-08-27T16:08:05+09:00  merge: add direct Submission 3 ucode proof
@@ -54,7 +59,3 @@ Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d
 |/
 * 5d532da 2026-08-27T15:11:49+09:00  chore(app): finalize Submission 2 evidence archive
 * 22b3d7b 2026-08-27T15:10:27+09:00  chore(gateway): rebuild Submission 3 from merged main
-*   a87e892 2026-08-27T15:10:03+09:00  merge: integrate Build 3 Unity AI Gateway submission
-|\
-| * e3c099e 2026-08-27T15:07:56+09:00  (build3-gateway-final) chore(gateway): package Build 3 submission
-| * 52befaa 2026-08-27T15:07:07+09:00  (build2-feedback-remediation) feat(gateway): capture live policy budget and agent evidence
