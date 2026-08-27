@@ -32,6 +32,7 @@
  * `input[*].id` strip.
  */
 import type { Request } from 'express';
+import { randomUUID } from 'node:crypto';
 import OpenAI from 'openai';
 import {
   Agent,
@@ -50,6 +51,12 @@ import type { AppDb } from '../db/index.js';
 // preserves the template's MAS-OR-Genie flexibility exactly.
 import { callMasEndpoint } from './tools/mas.js';
 import { callGenieSpace } from './tools/genie.js';
+import {
+  getRecommendation,
+  getSlidingSegment,
+  searchExperiments as searchExperimentCatalog,
+  worstSlidingSegment,
+} from '../db/queries/segments.js';
 export type { ToolProgressEvent } from './tools/types.js';
 
 /** Captured detail of the last failing call to the model serving endpoint. */
@@ -140,11 +147,16 @@ function makeTools(ctx: AgentContext): Tool[] {
         .nullable()
         .describe('Segment id, e.g. SEG-0000214. Null → return the worst sliding segment.'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 2 Assist task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({ segment_id }) => mlflow.withSpan(
+      async () => ({
+        assist_run_id: randomUUID(),
+        segment_id: segment_id ?? 'worst-sliding',
+        result: segment_id
+          ? await getSlidingSegment(ctx.db, segment_id)
+          : await worstSlidingSegment(ctx.db),
+      }),
+      { name: 'find_sliding_segment', spanType: mlflow.SpanType.TOOL, inputs: { segment_id } },
+    ),
   });
 
   // ── rank_actions — TRAINEE BUILDS (Build 2 · Assist). STUB. ────────────────
@@ -162,11 +174,10 @@ function makeTools(ctx: AgentContext): Tool[] {
         .string()
         .describe('Segment id, e.g. SEG-0000214'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 2 Assist task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({ segment_id }) => mlflow.withSpan(
+      async () => ({ segment_id, recommendation: await getRecommendation(ctx.db, segment_id) }),
+      { name: 'rank_actions', spanType: mlflow.SpanType.TOOL, inputs: { segment_id } },
+    ),
   });
 
   // ── search_experiments — TRAINEE BUILDS (Build 2 · Assist). STUB. ──────────
@@ -180,12 +191,12 @@ function makeTools(ctx: AgentContext): Tool[] {
       query: z
         .string()
         .describe('Search query, e.g. "checkout" or "gen-z" or "android"'),
+      limit: z.number().nullable().describe('Maximum results, 1-50; null uses 10.'),
     }),
-    execute: async () => {
-      throw new Error(
-        'Not implemented — this is your Build 2 Assist task; see APP_WORKSHOP.md',
-      );
-    },
+    execute: async ({ query, limit }) => mlflow.withSpan(
+      async () => ({ query, results: await searchExperimentCatalog(ctx.db, query, limit ?? 10) }),
+      { name: 'search_experiments', spanType: mlflow.SpanType.TOOL, inputs: { query, limit } },
+    ),
   });
 
   // ── execute_feature_decision — TRAINEE BUILDS (Build 3 · Act). STUB. ──────
