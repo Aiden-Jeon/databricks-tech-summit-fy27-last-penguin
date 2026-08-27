@@ -1,21 +1,23 @@
 {
-  "executed_at": "2026-08-27T05:44:36.923Z",
+  "executed_at": "2026-08-27T06:02:05.317Z",
   "source": "deployed app GET /api/live-view?segment_id=SEG-0000214",
-  "sliding_row_count": 40,
-  "row": {
+  "app": "nimbus-growth-desk",
+  "lakebase_branch": "agent-forecast-dev",
+  "lakebase_database": "nimbus",
+  "assist_run_id": "81f02665-94f9-47e1-b31a-962ab54da37f",
+  "segment_id": "SEG-0000214",
+  "experiment_id": "EXP-0000009",
+  "decision_id": "d2669088-4482-4aa5-a22f-12c074209380",
+  "row_count": 1,
+  "rows": [{
     "segment_id": "SEG-0000214", "cohort": "gen_z", "platform": "android", "region": "EMEA",
     "mau": 420000, "conversion_rate": 0.029, "conversion_rate_3w_ago": 0.042,
     "conversion_drop": 0.013, "conversion_at_risk_usd": 524160.0, "risk_rank": 1,
     "conv_band": "sliding", "has_matching_experiment": true,
     "matching_experiment_id": "EXP-0000009", "matching_experiment_lift": 0.0225,
-    "neighbor_flag_key": "checkout_flow", "recommended_action": "ship_proven_variant",
-    "predicted_conversion_lift": 0.018012460321187973,
+    "recommended_action": "ship_proven_variant", "predicted_conversion_lift": 0.018012460321187973,
     "predicted_net_value_usd": 721262.4001502991,
-    "action_ranking": [
-      {"action":"ship_proven_variant","conversion_lift":0.018012,"net_value":721262.4,"cost":5000},
-      {"action":"rollout_existing_flag","conversion_lift":0.006986,"net_value":281165.82,"cost":500},
-      {"action":"ship_alt_variant","conversion_lift":0.003948,"net_value":154184.1,"cost":5000}
-    ],
-    "decision_id": null, "decision_status": null
-  }
+    "decision_id": "d2669088-4482-4aa5-a22f-12c074209380", "decision_status": "committed",
+    "target_experiment_id": "EXP-0000009", "decided_at": "2026-08-27T06:02:03.822Z"
+  }]
 }
