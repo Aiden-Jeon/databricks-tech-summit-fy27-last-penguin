@@ -1,0 +1,31 @@
+Generated 2026-08-27 from: git log --graph --decorate --oneline build2-remediation -24
+
+*   9e74e20 (HEAD -> build2-remediation) merge: finalize Build 2 evidence
+|\
+| * aa1e490 (build2-act-evidence) docs(app): add verified Build 2 evidence
+* | 6ab09ac merge: integrate Build 2 act and evidence runtime
+|\|
+| * 145600b feat(app): deploy human-gated decision runtime
+|/
+*   2070350 merge: integrate Build 2 assist and search
+|\
+| * 0fa345d (build2-assist-search) feat(app): implement grounded assist and BM25 search
+|/
+*   73333ff merge: integrate Build 2 live view
+|\
+| * 8a7935e (build2-visualize) feat(app): add live Lakebase decision view
+|/
+* 2718f2d (origin/main, origin/HEAD, main) docs(build1): add Lakebase validation evidence
+* 4b7f6dd feat(gateway): finalize Nimbus AI Gateway evidence
+* 21e999e fix(lakebase): finalize hybrid search and read-only access
+* 8e4adcc build(app): restore Lakebase and agent dependencies
+*   fffbc5e merge: promote validated forecast migration
+|\
+| * 3f59ebb (agent-forecast-dev) feat(lakebase): add decision forecasts
+|/
+* fc47cac feat(lakebase): define continuous sync search and CDF
+* 3ab993f feat: prepare app and submission guidance
+* 04626dd chore: preserve Nimbus app and bundle baseline
+* bf7dfe5 Remove Databricks CI/CD pipeline
+* 6f57e46 Add Databricks CI/CD pipeline
+* 4ea3a8b Initial commit
