@@ -1,0 +1,117 @@
+{
+  "artifact_type": "executed_inference_table_export",
+  "executed_at": "2026-08-27T06:49:00Z",
+  "profile": "fe-sandbox-last-penguin",
+  "table": "last_penguin_catalog.nimbus.nimbus_app_gateway_payload",
+  "table_id": "0cc02a9a-fbb7-4151-94a9-075f8fa811f9",
+  "auto_capture_enabled": true,
+  "query_exit_code": 0,
+  "rows": [
+    {
+      "budget_phase": "before_block",
+      "event_time": "2026-08-27T05:54:24.771Z",
+      "request_id": "95451486-e2bc-49d7-8039-9b2454bc00bd",
+      "request_tags": {"application":"nimbus-growth-desk","environment":"production","segment_id":"SEG-0000214","workload":"budget-live-proof"},
+      "request": "Output integers 1 through 3000 in order, comma-separated, with no commentary and no omissions.",
+      "status_code": 200,
+      "latency_ms": 24847,
+      "total_tokens": 5027,
+      "destination_name": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions",
+      "api_type": "mlflow/v1/chat/completions"
+    },
+    {
+      "budget_phase": "before_block",
+      "event_time": "2026-08-27T05:55:05.110Z",
+      "request_id": "0f22936d-95a6-4433-a92c-765e3965a439",
+      "request_tags": {"application":"nimbus-growth-desk","environment":"production","segment_id":"SEG-0000214","workload":"budget-live-proof"},
+      "request": "Output integers 1 through 3000 in order, comma-separated, with no commentary and no omissions.",
+      "status_code": 200,
+      "latency_ms": 22939,
+      "total_tokens": 5027,
+      "destination_name": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions",
+      "api_type": "mlflow/v1/chat/completions"
+    },
+    {
+      "budget_phase": "before_block",
+      "event_time": "2026-08-27T05:55:15.481Z",
+      "request_id": "4536ec47-64da-40a7-9971-04e3deef3e5d",
+      "request_tags": {"application":"nimbus-growth-desk","environment":"production","segment_id":"SEG-0000214","workload":"budget-live-proof"},
+      "request": "Output integers 1 through 3000 in order, comma-separated, with no commentary and no omissions.",
+      "status_code": 200,
+      "latency_ms": 25673,
+      "total_tokens": 5027,
+      "destination_name": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions",
+      "api_type": "mlflow/v1/chat/completions"
+    },
+    {
+      "budget_phase": "blocked_after_threshold",
+      "event_time": "2026-08-27T06:17:45.133Z",
+      "request_id": "57857105-3aa5-4f2e-9d11-745fb4ff32d4",
+      "request_tags": {"application":"nimbus-growth-desk","environment":"production","workload":"build3-feedback-live"},
+      "request": "Summarize one bounded experiment result in one sentence.",
+      "status_code": 403,
+      "latency_ms": 18,
+      "total_tokens": null,
+      "destination_name": "",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions",
+      "api_type": "mlflow/v1/chat/completions",
+      "error_code": "PERMISSION_DENIED",
+      "blocking_budget_name": "streamline-telco-ai-budget",
+      "blocking_budget_id": "c1999872-d8f0-4351-a932-17fd07e2fcdb",
+      "budget_limit_usd": 0.05,
+      "message": "Budget reached its $0.05 limit; contact an admin to increase it or use a different budget."
+    }
+  ],
+  "system_ai_gateway_usage_rows": [
+    {
+      "event_time": "2026-08-27T06:17:45.000Z",
+      "request_id": "57857105-3aa5-4f2e-9d11-745fb4ff32d4",
+      "service_type": "MODEL_SERVICE",
+      "service_name": "last_penguin_catalog.nimbus.nimbus_app_gateway",
+      "status_code": 403,
+      "latency_ms": 18,
+      "requester": "jongseob.jeon@databricks.com",
+      "request_tags": {"application":"nimbus-growth-desk","environment":"production","workload":"build3-feedback-live"},
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"
+    }
+  ],
+  "gateway_http_events": [
+    {
+      "test": "exact_runaway_all_data_read",
+      "executed_at": "2026-08-27T06:46:13Z",
+      "command": "./submission/submission3/integration_test.sh fe-sandbox-last-penguin guardrail",
+      "exit_code": 0,
+      "request": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+      "request_id": "03362d98-f773-4623-bc0e-92349d1d33c1",
+      "raw_gateway_http_status": 200,
+      "client_facing_status": 403,
+      "response_id": "databricks-guardrail-block",
+      "finish_reason": "content_filter",
+      "usage": {"prompt_tokens":0,"completion_tokens":0,"total_tokens":0},
+      "databricks_service_policy": {
+        "name": "nimbus-bounded-lakebase-reads",
+        "action": "deny",
+        "phase": "pre_call",
+        "reason": "Unbounded Lakebase reads are not permitted. Request a bounded table, key, filter, and limit."
+      },
+      "enforced_by": "Unity AI Gateway custom service policy",
+      "local_prompt_filter": false,
+      "inference_row_expected": false,
+      "inference_row_reason": "The pre-call Gateway denial consumed zero model tokens; this raw HTTP event is preserved instead of inventing a payload row."
+    }
+  ],
+  "budget_configuration": {
+    "default_per_user_alert_usd": 0.03,
+    "default_per_user_block_usd": 0.05,
+    "shared_thresholds": [],
+    "observed_block_is_live": true,
+    "truthfulness_note": "The observed 403 was emitted by the live workspace budget named above. The separate Nimbus-tag budget was still setting up and is not claimed as the source."
+  }
+}

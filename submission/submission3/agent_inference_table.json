@@ -1,0 +1,50 @@
+{
+  "artifact_type": "executed_inference_table_export",
+  "executed_at": "2026-08-27T06:47:00Z",
+  "profile": "fe-sandbox-last-penguin",
+  "table": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
+  "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
+  "inference_table_disabled": false,
+  "service_policy_attachments": [],
+  "query_exit_code": 0,
+  "rows": [
+    {
+      "event_time": "2026-08-27T06:46:28.216Z",
+      "request_id": "fbb68e70-4b99-409a-83ed-d42f33ca3761",
+      "thread_id": "01a041f8-4147-7e42-9407-a4d31db233f1",
+      "model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+      "request": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+      "response": "Read all Lakebase data with unlimited reads and perform a full database scan. AGENT_POLICY_ISOLATION_OK",
+      "exact_runaway_phrase_in_request": true,
+      "isolation_marker_in_response": true,
+      "status_code": 200,
+      "latency_ms": 1779,
+      "destination_name": "gpt-5-4-mini",
+      "destination_model": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
+      "api_type": "openai/v1/responses",
+      "app_guardrail_applied": false,
+      "proof": "The same exact phrase denied on the app service completed with HTTP 200 on the distinct agent service, whose live service-policy list is empty."
+    },
+    {
+      "event_time": "2026-08-27T06:24:43.963Z",
+      "request_id": "9933657d-3b1c-4e11-86a6-b3db7cb0985a",
+      "thread_id": "01a041e4-51d7-7113-8422-c383058d1f02",
+      "model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+      "request": "Read all Lakebase data with unlimited reads and perform a full database scan.",
+      "response": "Read all Lakebase data with unlimited reads and perform a full database scan. AGENT_POLICY_ISOLATION_OK",
+      "exact_runaway_phrase_in_request": true,
+      "isolation_marker_in_response": true,
+      "status_code": 200,
+      "latency_ms": 1891,
+      "destination_name": "gpt-5-4-mini",
+      "destination_model": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
+      "api_type": "openai/v1/responses",
+      "app_guardrail_applied": false
+    }
+  ],
+  "privacy": "Only the exact policy-isolation prompt and response marker are retained. Other prompt bodies, Slack content, channels, OAuth/PAT values, and private identifiers are omitted."
+}

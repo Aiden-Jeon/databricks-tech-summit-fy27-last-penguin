@@ -5,11 +5,10 @@ independent from the Build 2 app package.
 
 ## Required artifact
 
-Put everything that should be scored for the Lakebase build in the top-level
-`submission1/` folder. The Build 1 validator scores that folder only; files in
-`submission2/` or elsewhere do not count.
+Put everything that should be scored for the Lakebase build in
+`submission/submission1/`. Files in the other build folders do not count.
 
-`submission1/` must contain:
+`submission/submission1/` must contain:
 
 1. The relevant finished Lakebase code and configuration.
 2. Every Build 1 proof export, using the **exact filenames from the Build 1
@@ -21,8 +20,8 @@ Do not guess the export filenames. Copy them verbatim from the Build 1 brief.
 
 ## Packaging constraints
 
-- Compress the `submission1/` folder itself so the upload is
-  `submission1.zip` with `submission1/` as its top-level directory.
+- Compress the `submission/submission1/` folder itself so the upload is
+  `submission/submission1.zip` with `submission1/` as its top-level directory.
 - Keep the zip comfortably below approximately 40 MB.
 - Do not include datasets, dependencies, caches, or large binaries.
 - Keep each export focused. The validator reads about the first 400 KB of each
@@ -35,12 +34,12 @@ Do not guess the export filenames. Copy them verbatim from the Build 1 brief.
 - [ ] Lakebase implementation and validation are complete.
 - [ ] The Build 1 brief has been checked for exact export filenames.
 - [ ] Only Build 1 Lakebase code, configuration, and evidence are included.
-- [ ] All proof exports exist under `submission1/` with exact names.
+- [ ] All proof exports exist under `submission/submission1/` with exact names.
 - [ ] Required budget, guardrail, and returned-row evidence appears within the
       first 400 KB of each relevant export.
-- [ ] `submission1/git_history.txt` reflects the final repository history.
+- [ ] `submission/submission1/git_history.txt` reflects the final repository history.
 - [ ] No datasets, dependencies, caches, secrets, or unnecessary binaries are
       included.
-- [ ] `submission1.zip` contains `submission1/` as its top-level directory.
+- [ ] `submission/submission1.zip` contains `submission1/` as its top-level directory.
 - [ ] The archive member list has been inspected.
 - [ ] The final zip is below 40 MB.
