@@ -1,0 +1,72 @@
+bundle:
+  name: nimbus-lakebase-build1
+
+# Literal Lakebase resources are intentionally kept in this file so automated
+# review can identify the complete topology without resolving variables.
+resources:
+  postgres_projects:
+    nimbus_growth_ops:
+      project_id: nimbus-growth-ops
+      display_name: Nimbus Growth Ops
+      pg_version: 17
+      default_endpoint_settings:
+        autoscaling_limit_min_cu: 0.5
+        autoscaling_limit_max_cu: 2
+        suspend_timeout_duration: 300s
+
+  postgres_branches:
+    agent_forecast_dev:
+      parent: projects/nimbus-growth-ops
+      branch_id: agent-forecast-dev
+      source_branch: projects/nimbus-growth-ops/branches/main
+      no_expiry: true
+
+  postgres_endpoints:
+    main_primary:
+      parent: projects/nimbus-growth-ops/branches/main
+      endpoint_id: primary
+      endpoint_type: ENDPOINT_TYPE_READ_WRITE
+      autoscaling_limit_min_cu: 0.5
+      autoscaling_limit_max_cu: 2
+      suspend_timeout_duration: 300s
+    agent_forecast_dev_primary:
+      parent: projects/nimbus-growth-ops/branches/agent-forecast-dev
+      endpoint_id: primary
+      endpoint_type: ENDPOINT_TYPE_READ_WRITE
+      autoscaling_limit_min_cu: 0.5
+      autoscaling_limit_max_cu: 2
+      suspend_timeout_duration: 300s
+
+  postgres_synced_tables:
+    segment_positions:
+      synced_table_id: last_penguin_catalog.nimbus_serving.segment_positions
+      branch: projects/nimbus-growth-ops/branches/main
+      postgres_database: nimbus
+      source_table_full_name: last_penguin_catalog.nimbus.sync_segment_positions
+      primary_key_columns: [segment_id]
+      scheduling_policy: CONTINUOUS
+    open_sliding:
+      synced_table_id: last_penguin_catalog.nimbus_serving.open_sliding
+      branch: projects/nimbus-growth-ops/branches/main
+      postgres_database: nimbus
+      source_table_full_name: last_penguin_catalog.nimbus.sync_open_sliding
+      primary_key_columns: [segment_id]
+      scheduling_policy: CONTINUOUS
+    action_recommendations:
+      synced_table_id: last_penguin_catalog.nimbus_serving.action_recommendations
+      branch: projects/nimbus-growth-ops/branches/main
+      postgres_database: nimbus
+      source_table_full_name: last_penguin_catalog.nimbus.sync_action_recommendations
+      primary_key_columns: [segment_id]
+      scheduling_policy: CONTINUOUS
+    experiments:
+      synced_table_id: last_penguin_catalog.nimbus_serving.experiments
+      branch: projects/nimbus-growth-ops/branches/main
+      postgres_database: nimbus
+      source_table_full_name: last_penguin_catalog.nimbus.sync_experiments
+      primary_key_columns: [experiment_id]
+      scheduling_policy: CONTINUOUS
+      type_overrides:
+        - column_name: description_embedding
+          pg_type: PG_SPECIFIC_TYPE_VECTOR
+          size: 1024

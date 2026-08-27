@@ -1,0 +1,16 @@
+Validated agent commit promotion
+================================
+
+$ git show --no-patch --pretty='format:commit %H%nparents %P%nsubject %s' fffbc5e
+commit fffbc5eab4b8578030f044e9ef24d53ee0388c10
+parents fc47cacdadcaebb9faa0fff36d62366df0832eab 3f59ebb3c3765e91c4fc29e3e3e63901951677b5
+subject merge: promote validated forecast migration
+
+The two parent hashes prove this is a committed merge rather than a textual
+reference to one. Parent 3f59ebb is the validated Codex-authored migration.
+
+$ git merge-base --is-ancestor 3f59ebb main
+exit 0 (the validated agent commit is contained in main)
+
+See git_history.txt for the final decorated graph including this merge and the
+Build 1 feedback-remediation merge.
