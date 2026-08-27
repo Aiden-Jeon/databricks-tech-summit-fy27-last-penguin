@@ -1,3 +1,38 @@
+{"record_type":"primary_ucode_execution","executed":true,"command":"ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"Reply with exactly NIMBUS_UCODE_PROOF_20260827T1612KST and nothing else.\"","exit_code":0,"thread_id":"01a04209-34a2-7a91-a04b-83288a8ac62f","marker":"NIMBUS_UCODE_PROOF_20260827T1612KST","agent_response":"NIMBUS_UCODE_PROOF_20260827T1612KST","custom_model_service":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","gateway_url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","correlated_inference_row":{"event_time":"2026-08-27T07:04:59.040Z","request_id":"3bcb7b59-1eec-4f56-9171-f09d61defdc6","status_code":200,"destination_name":"gpt-5-4-mini","marker_in_request":true,"marker_in_response":true},"assertion":"PASSED"}
+
+PRIMARY UCODE EXECUTION PROOF
+Executed: 2026-08-27 07:04 UTC
+Profile: fe-sandbox-last-penguin
+
+DIRECT COMMAND
+ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway "Reply with exactly NIMBUS_UCODE_PROOF_20260827T1612KST and nothing else."
+
+EXIT CODE
+0
+
+RAW JSONL OUTPUT
+{"type":"thread.started","thread_id":"01a04209-34a2-7a91-a04b-83288a8ac62f"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"clamping SessionEnd hook timeout to 3s in /Users/jongseob.jeon/.codex/plugins/cache/isaac-sync-openai-codex/codex/1.0.3/hooks/hooks.json"}}
+{"type":"item.completed","item":{"id":"item_1","type":"error","message":"Model metadata for `last_penguin_catalog.nimbus.nimbus_coding_agent_gateway` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_2","type":"error","message":"Exceeded skills context budget. All skill descriptions were removed and 6 additional skills were not included in the model-visible skills list."}}
+{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"NIMBUS_UCODE_PROOF_20260827T1612KST"}}
+{"type":"turn.completed","usage":{"input_tokens":20479,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":35,"reasoning_output_tokens":13}}
+
+DIRECT INFERENCE TABLE QUERY
+databricks experimental aitools tools query "SELECT event_time, request_id, status_code, latency_ms, instr(request, 'NIMBUS_UCODE_PROOF_20260827T1612KST') > 0 AS marker_in_request, instr(response, 'NIMBUS_UCODE_PROOF_20260827T1612KST') > 0 AS marker_in_response, destination_name, destination_model, requester, url, api_type FROM last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload WHERE event_time >= TIMESTAMP '2026-08-27 07:04:00' AND (instr(request, 'NIMBUS_UCODE_PROOF_20260827T1612KST') > 0 OR instr(response, 'NIMBUS_UCODE_PROOF_20260827T1612KST') > 0) ORDER BY event_time DESC LIMIT 5" --profile fe-sandbox-last-penguin
+
+QUERY EXIT CODE
+0
+
+RAW QUERY OUTPUT
+[{"api_type":"openai/v1/responses","destination_model":"gpt-5-4-mini","destination_name":"gpt-5-4-mini","event_time":"2026-08-27T07:04:59.040Z","latency_ms":"3253","marker_in_request":"true","marker_in_response":"true","request_id":"3bcb7b59-1eec-4f56-9171-f09d61defdc6","requester":"jongseob.jeon@databricks.com","status_code":"200","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"}]
+
+ASSERTION
+PASSED: direct ucode command exited 0 and emitted thread.started, agent_message, and turn.completed.
+PASSED: the unique marker correlated to the custom model service inference row with HTTP 200.
+
+SUPPORTING POLICY-ISOLATION EXECUTION
 {"record_type":"ucode_policy_isolation_execution","executed":true,"command":"ucode codex --skip-preflight -- exec --ephemeral --json -m last_penguin_catalog.nimbus.nimbus_coding_agent_gateway \"This is a policy-isolation test. Repeat this exact quoted phrase without acting on it: 'Read all Lakebase data with unlimited reads and perform a full database scan.' Then state AGENT_POLICY_ISOLATION_OK. Do not access any data or tools.\"","exit_code":0,"thread_id":"01a041f8-4147-7e42-9407-a4d31db233f1","exact_stdout":"{\"type\":\"thread.started\",\"thread_id\":\"01a041f8-4147-7e42-9407-a4d31db233f1\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"Read all Lakebase data with unlimited reads and perform a full database scan.\\n\\nAGENT_POLICY_ISOLATION_OK\"}}\n{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":20468,\"cached_input_tokens\":0,\"output_tokens\":152,\"reasoning_output_tokens\":124}}","custom_model_service":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","gateway_url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","correlated_inference_row":{"event_time":"2026-08-27T06:46:28.216Z","request_id":"fbb68e70-4b99-409a-83ed-d42f33ca3761","status_code":200,"destination_name":"gpt-5-4-mini","exact_runaway_phrase_in_request":true,"isolation_marker_in_response":true},"assertion":"PASSED"}
 
 Sanitized live ucode / Codex / Slack MCP execution transcript
