@@ -3,7 +3,8 @@ set -euo pipefail
 
 # Reproducible Lakebase Autoscaling topology for Nimbus Build 1.
 # Existing resources are inspected and left in place; missing resources are created.
-PROFILE="${DATABRICKS_CONFIG_PROFILE:-fe-sandbox-last-penguin}"
+: "${DATABRICKS_CONFIG_PROFILE:?Set DATABRICKS_CONFIG_PROFILE to the explicitly selected Databricks profile}"
+PROFILE="${DATABRICKS_CONFIG_PROFILE}"
 PROJECT_ID="nimbus-growth-ops"
 PROJECT="projects/${PROJECT_ID}"
 PRODUCTION_BRANCH="${PROJECT}/branches/production"

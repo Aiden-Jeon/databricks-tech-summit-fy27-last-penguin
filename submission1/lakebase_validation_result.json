@@ -1,0 +1,17 @@
+{
+  "captured_at": "2026-08-27",
+  "target": "projects/nimbus-growth-ops/branches/main",
+  "database": "nimbus",
+  "operational_tables": [
+    {"schema_name":"app","table_name":"decision_forecasts","row_count":1,"replica_identity":"FULL"},
+    {"schema_name":"app","table_name":"feature_decisions_app","row_count":1,"replica_identity":"FULL"}
+  ],
+  "constraints": [
+    {"table_name":"app.decision_forecasts","constraint_name":"decision_forecasts_feature_decision_id_fkey","constraint_type":"FOREIGN KEY","references_table":"app.feature_decisions_app"},
+    {"table_name":"app.decision_forecasts","constraint_name":"decision_forecasts_pkey","constraint_type":"PRIMARY KEY","references_table":null},
+    {"table_name":"app.feature_decisions_app","constraint_name":"feature_decisions_app_pkey","constraint_type":"PRIMARY KEY","references_table":null}
+  ],
+  "forecast": {"segment_id":"SEG-0000214","forecast_conversion_lift":0.0225,"forecast_conversion_at_risk_usd":524160,"rationale":"Proven checkout variant EXP-0000009 for Gen-Z Android users."},
+  "application_role_test": {"role":"nimbus_app_reader","operational_insert":"SUCCEEDED","transaction":"ROLLED BACK"},
+  "synced_table_test": {"table":"nimbus_serving.segment_positions","select":"SUCCEEDED","sample_segment_id":"SEG-0000001","insert":"DENIED: permission denied for table segment_positions"}
+}

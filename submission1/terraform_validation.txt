@@ -17,8 +17,15 @@ PASS
 $ bash -n submission1/lakebase_setup.sh
 PASS
 
+$ databricks bundle validate --strict --profile fe-sandbox-last-penguin
+Name: nimbus-lakebase-build1
+Target: default
+Validation OK!
+
 Validated constructs:
-- databricks_postgres_synced_table with CONTINUOUS scheduling for four UC tables
+- DAB-native postgres_projects, postgres_branches, postgres_endpoints, and
+  postgres_synced_tables with literal project/branch/endpoint values
+- four explicit databricks_postgres_synced_table resources with CONTINUOUS scheduling
 - databricks_postgres_cdf_config for app reverse sync
 - explicit branch creation from projects/nimbus-growth-ops/branches/main
 - endpoint autoscaling 0.5-2 CU and suspend_timeout_duration 300s
