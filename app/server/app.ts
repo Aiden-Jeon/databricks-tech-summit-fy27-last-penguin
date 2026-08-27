@@ -7,6 +7,7 @@ import {
   HERO_SEGMENT_ID,
   createProposedDecision,
   getLiveView,
+  getSearchExperiments,
   initializeDecisionSchema,
   parseActionRanking,
   transitionDecision,
@@ -70,6 +71,17 @@ app.get('/api/live-view', async (req, res) => {
   } catch (error) { sendError(res, error); }
 });
 
+app.get('/api/search-experiments', async (req, res) => {
+  try {
+    const query = typeof req.query.q === 'string' && req.query.q.trim()
+      ? req.query.q.trim()
+      : 'checkout android gen-z';
+    const requestedLimit = Number(req.query.limit ?? 5);
+    const limit = Number.isFinite(requestedLimit) ? requestedLimit : 5;
+    res.json(await getSearchExperiments(pool, query, limit));
+  } catch (error) { sendError(res, error); }
+});
+
 app.post('/api/decisions', async (req, res) => {
   try {
     const body = req.body as Record<string, unknown>;
@@ -108,10 +120,7 @@ app.post('/api/assist', async (req, res) => {
     const hero = live.rows[0];
     if (!hero) throw new Error(`Segment not found: ${segmentId}`);
     const ranking = parseActionRanking(hero.action_ranking);
-    const search = await pool.query(
-      'SELECT * FROM app.search_experiments($1, $2) ORDER BY relevance DESC NULLS LAST LIMIT $2',
-      ['checkout android gen-z', 5],
-    );
+    const search = await getSearchExperiments(pool, 'checkout android gen-z', 5);
     const experiment = search.rows.find((row) => row.experiment_id === HERO_EXPERIMENT_ID) || search.rows[0];
     if (!experiment) throw new Error('Experiment search returned no grounding result');
 
@@ -139,7 +148,8 @@ app.post('/api/assist', async (req, res) => {
     res.status(201).json({
       executed_at: new Date().toISOString(), assist_run_id: assistRunId, segment_id: segmentId,
       experiment_id: experiment.experiment_id, decision_id: proposed.id,
-      investigation: hero, search_results: search.rows, ranked_actions: ranking,
+      investigation: hero, search: { method: search.method, index: search.index, execution_plan: search.execution_plan },
+      search_results: search.rows, ranked_actions: ranking,
       drafted_memo: memo, decision_status: 'proposed', approval_required: true,
     });
   } catch (error) { sendError(res, error); }
