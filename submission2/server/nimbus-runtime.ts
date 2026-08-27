@@ -3,6 +3,8 @@ import type { Pool, PoolClient } from 'pg';
 
 export const HERO_SEGMENT_ID = 'SEG-0000214';
 export const HERO_EXPERIMENT_ID = 'EXP-0000009';
+export const EXPERIMENT_SEARCH_INDEX = 'experiments_description_bm25_idx';
+export const EXPERIMENT_SEARCH_METHOD = 'lakebase_text BM25';
 
 export const LIVE_VIEW_SQL = `WITH ranked_sliding AS (
   SELECT os.*,
@@ -63,6 +65,63 @@ export async function getLiveView(pool: Pool, segmentId: string | null, limit = 
   return { queried_at: new Date().toISOString(), row_count: result.rowCount, rows: result.rows };
 }
 
+export async function getSearchExperiments(pool: Pool, query: string, limit = 5) {
+  const boundedLimit = Math.min(Math.max(limit, 1), 20);
+  const searchSql =
+    'SELECT * FROM app.search_experiments($1, $2) ORDER BY relevance DESC NULLS LAST LIMIT $2';
+  const result = await pool.query(searchSql, [query, boundedLimit]);
+  const client = await pool.connect();
+  let explained;
+  try {
+    await client.query('BEGIN READ ONLY');
+    await client.query('SET LOCAL enable_seqscan=off');
+    explained = await client.query(`EXPLAIN (FORMAT TEXT) ${searchSql}`, [query, boundedLimit]);
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+  const executionPlan = explained.rows
+    .map((row) => String(row['QUERY PLAN'] ?? row.query_plan ?? ''))
+    .filter(Boolean);
+  return {
+    executed_at: new Date().toISOString(),
+    query,
+    method: EXPERIMENT_SEARCH_METHOD,
+    index: EXPERIMENT_SEARCH_INDEX,
+    execution_plan: executionPlan,
+    row_count: result.rowCount,
+    rows: result.rows,
+  };
+}
+
+export async function getDecision(pool: Pool, decisionId: string) {
+  const result = await pool.query(
+    'SELECT * FROM app.feature_decisions_app WHERE id=$1 LIMIT 1',
+    [decisionId],
+  );
+  if (!result.rows[0]) throw new Error(`Decision not found: ${decisionId}`);
+  const row = result.rows[0] as Record<string, unknown>;
+  const auditTrail = Array.isArray(row.audit_trail) ? row.audit_trail : [];
+  const proposed = auditTrail.find((event) =>
+    typeof event === 'object' && event !== null && event.action === 'proposed',
+  ) as Record<string, unknown> | undefined;
+  return {
+    queried_at: new Date().toISOString(),
+    table: 'app.feature_decisions_app',
+    app_written: true,
+    assist_run_id: proposed?.assist_run_id ?? null,
+    segment_id: row.segment_id,
+    experiment_id: row.target_experiment_id,
+    decision_id: row.id,
+    row_count: 1,
+    columns: Object.keys(row),
+    rows: [row],
+  };
+}
+
 type ProposedDecision = {
   assistRunId: string;
   segmentId: string;
@@ -78,7 +137,14 @@ type ProposedDecision = {
 export async function createProposedDecision(pool: Pool, input: ProposedDecision) {
   const decisionId = randomUUID();
   const at = new Date().toISOString();
-  const audit = [{ at, by: 'nimbus-assistant', action: 'proposed', notes: 'AI draft awaiting human approval', tool: 'assist' }];
+  const audit = [{
+    at,
+    by: 'nimbus-assistant',
+    action: 'proposed',
+    notes: 'AI draft awaiting human approval',
+    tool: 'assist',
+    assist_run_id: input.assistRunId,
+  }];
   const result = await pool.query(
     `INSERT INTO app.feature_decisions_app
        (id, segment_id, action_type, target_experiment_id, flag_key, variant,

@@ -1,31 +1,166 @@
-Generated 2026-08-27 from: git log --graph --decorate --oneline build2-remediation -24
+Build 2 evidence layers: Visualize -> Search -> Act -> closed-loop evidence
+Integration branch: build2-feedback-remediation
+Proof branches: build2-proof-search, build2-proof-act, build2-proof-chain
 
-*   9e74e20 (HEAD -> build2-remediation) merge: finalize Build 2 evidence
-|\
-| * aa1e490 (build2-act-evidence) docs(app): add verified Build 2 evidence
-* | 6ab09ac merge: integrate Build 2 act and evidence runtime
-|\|
-| * 145600b feat(app): deploy human-gated decision runtime
-|/
-*   2070350 merge: integrate Build 2 assist and search
-|\
-| * 0fa345d (build2-assist-search) feat(app): implement grounded assist and BM25 search
-|/
-*   73333ff merge: integrate Build 2 live view
-|\
-| * 8a7935e (build2-visualize) feat(app): add live Lakebase decision view
-|/
-* 2718f2d (origin/main, origin/HEAD, main) docs(build1): add Lakebase validation evidence
-* 4b7f6dd feat(gateway): finalize Nimbus AI Gateway evidence
-* 21e999e fix(lakebase): finalize hybrid search and read-only access
-* 8e4adcc build(app): restore Lakebase and agent dependencies
-*   fffbc5e merge: promote validated forecast migration
-|\
-| * 3f59ebb (agent-forecast-dev) feat(lakebase): add decision forecasts
-|/
-* fc47cac feat(lakebase): define continuous sync search and CDF
-* 3ab993f feat: prepare app and submission guidance
-* 04626dd chore: preserve Nimbus app and bundle baseline
-* bf7dfe5 Remove Databricks CI/CD pipeline
-* 6f57e46 Add Databricks CI/CD pipeline
-* 4ea3a8b Initial commit
+* a2fc968 2026-08-27T15:03:36+09:00  (origin/main, origin/HEAD, main) chore(build1): package grader-readable resubmission
+* f95cd56 2026-08-27T15:02:53+09:00  docs(build1): refresh remote promotion history
+* 6a08665 2026-08-27T15:02:20+09:00  docs(build1): record merged promotion PR
+*   f107912 2026-08-27T15:01:56+09:00  Merge pull request #1 from Aiden-Jeon/build1-scoring-remediation
+|\  
+| * 18f8846 2026-08-27T15:01:27+09:00  (origin/build1-scoring-remediation, build1-scoring-remediation) fix(build1): make Lakebase evidence grader-readable
+| * 88b7dcb 2026-08-27T14:50:39+09:00  chore(build1): commit resubmission package
+| * b24ec73 2026-08-27T14:48:35+09:00  merge: integrate Build 1 feedback remediation
+|/| 
+| * de9fa01 2026-08-27T14:48:23+09:00  (build1-feedback-remediation) fix(build1): add executable Lakebase infrastructure evidence
+|/  
+| *   c57d887 2026-08-27T15:03:13+09:00  (HEAD -> build2-feedback-remediation) merge: close Build 2 proof chain
+| |\  
+| | * da4a954 2026-08-27T15:03:11+09:00  (build2-proof-chain) docs(app): capture closed-loop Build 2 execution proof
+| | | * be6bb41 2026-08-27T15:00:46+09:00  On build3-gateway-remediation: cmux last turn baseline
+| | |/| 
+| | | * b5325a3 2026-08-27T15:00:46+09:00  index on build3-gateway-remediation: 7020f09 feat(gateway): enforce live app policy and agent isolation
+| | |/  
+| | * 7020f09 2026-08-27T14:59:00+09:00  (build3-gateway-remediation) feat(gateway): enforce live app policy and agent isolation
+| |/  
+| | * 7972ecc 2026-08-27T14:58:18+09:00  On build2-feedback-remediation: cmux last turn baseline
+| |/| 
+| | * 6d42921 2026-08-27T14:58:18+09:00  index on build2-feedback-remediation: 8efa5ac merge: add Build 2 act proof API
+| |/  
+| | * 9d7d386 2026-08-27T14:54:54+09:00  On build2-feedback-remediation: cmux last turn baseline
+| |/| 
+| | * a02dfa6 2026-08-27T14:54:54+09:00  index on build2-feedback-remediation: 8efa5ac merge: add Build 2 act proof API
+| |/  
+| *   8efa5ac 2026-08-27T14:54:24+09:00  merge: add Build 2 act proof API
+| |\  
+| | * 49d5994 2026-08-27T14:54:21+09:00  (build2-proof-act) feat(app): expose decision writeback audit chain
+| |/  
+| *   f3cd445 2026-08-27T14:53:53+09:00  merge: add Build 2 search proof API
+| |\  
+| | * 575632f 2026-08-27T14:53:51+09:00  (build2-proof-search) feat(app): expose verifiable Lakebase search evidence
+| |/  
+| | * 5ab29cb 2026-08-27T14:52:23+09:00  On build2-remediation: cmux last turn baseline
+| |/| 
+| | * 2c38ac5 2026-08-27T14:52:23+09:00  index on build2-remediation: ab276ea chore(app): package Build 2 resubmission
+| |/  
+| | * 51e6e20 2026-08-27T14:50:56+09:00  On build2-remediation: cmux last turn baseline
+| |/| 
+| | * 1bc3668 2026-08-27T14:50:56+09:00  index on build2-remediation: ab276ea chore(app): package Build 2 resubmission
+| |/  
+| | * 1abcf64 2026-08-27T14:50:37+09:00  On build2-remediation: cmux last turn baseline
+| |/| 
+| | * 1d45d44 2026-08-27T14:50:37+09:00  index on build2-remediation: ab276ea chore(app): package Build 2 resubmission
+| |/  
+| * ab276ea 2026-08-27T14:49:48+09:00  (build2-remediation) chore(app): package Build 2 resubmission
+| *   9e74e20 2026-08-27T14:48:02+09:00  merge: finalize Build 2 evidence
+| |\  
+| | * aa1e490 2026-08-27T14:47:59+09:00  (build2-act-evidence) docs(app): add verified Build 2 evidence
+| * | 6ab09ac 2026-08-27T14:47:15+09:00  merge: integrate Build 2 act and evidence runtime
+| |\| 
+| | * 145600b 2026-08-27T14:47:02+09:00  feat(app): deploy human-gated decision runtime
+| |/  
+| | * 3a698c3 2026-08-27T14:43:36+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 5758b6c 2026-08-27T14:43:36+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * 5b55072 2026-08-27T14:39:38+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * a9b8449 2026-08-27T14:39:38+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * cb53138 2026-08-27T14:38:46+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 472baf5 2026-08-27T14:38:46+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * 133649c 2026-08-27T14:37:10+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * e5e8eef 2026-08-27T14:37:10+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * 1ade002 2026-08-27T14:36:51+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 7a6faf4 2026-08-27T14:36:51+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * aa78670 2026-08-27T14:36:36+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 8f08cd1 2026-08-27T14:36:36+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * 7556c38 2026-08-27T14:36:05+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 3c52c72 2026-08-27T14:36:05+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * 2586c01 2026-08-27T14:35:50+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 75945ec 2026-08-27T14:35:50+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| | * 2539398 2026-08-27T14:33:21+09:00  On build2-act-evidence: cmux last turn baseline
+| |/| 
+| | * 61c660a 2026-08-27T14:33:21+09:00  index on build2-act-evidence: 2070350 merge: integrate Build 2 assist and search
+| |/  
+| *   2070350 2026-08-27T14:32:44+09:00  merge: integrate Build 2 assist and search
+| |\  
+| | * 0fa345d 2026-08-27T14:32:42+09:00  (build2-assist-search) feat(app): implement grounded assist and BM25 search
+| |/  
+| * 73333ff 2026-08-27T14:32:05+09:00  merge: integrate Build 2 live view
+|/| 
+| * 8a7935e 2026-08-27T14:32:03+09:00  (build2-visualize) feat(app): add live Lakebase decision view
+|/  
+* 2718f2d 2026-08-27T14:26:26+09:00  docs(build1): add Lakebase validation evidence
+* 4b7f6dd 2026-08-27T14:26:23+09:00  feat(gateway): finalize Nimbus AI Gateway evidence
+| * 26dd086 2026-08-27T14:25:58+09:00  On main: cmux last turn baseline
+|/| 
+| * 0d1d1a7 2026-08-27T14:25:58+09:00  index on main: 21e999e fix(lakebase): finalize hybrid search and read-only access
+|/  
+* 21e999e 2026-08-27T14:25:16+09:00  fix(lakebase): finalize hybrid search and read-only access
+| * 8eb47ba 2026-08-27T14:22:19+09:00  On main: cmux last turn baseline
+|/| 
+| * 480cc39 2026-08-27T14:22:19+09:00  index on main: 8e4adcc build(app): restore Lakebase and agent dependencies
+|/  
+* 8e4adcc 2026-08-27T14:16:39+09:00  build(app): restore Lakebase and agent dependencies
+*   fffbc5e 2026-08-27T14:11:06+09:00  merge: promote validated forecast migration
+|\  
+| * 3f59ebb 2026-08-27T14:10:57+09:00  (agent-forecast-dev) feat(lakebase): add decision forecasts
+|/  
+* fc47cac 2026-08-27T14:08:57+09:00  feat(lakebase): define continuous sync search and CDF
+* 3ab993f 2026-08-27T14:04:48+09:00  feat: prepare app and submission guidance
+| * 00615e2 2026-08-27T14:03:32+09:00  On main: cmux last turn baseline
+|/| 
+| * f27bf78 2026-08-27T14:03:32+09:00  index on main: 04626dd chore: preserve Nimbus app and bundle baseline
+|/  
+| * 182adda 2026-08-27T14:02:16+09:00  On main: cmux last turn baseline
+|/| 
+| * 882d89a 2026-08-27T14:02:16+09:00  index on main: 04626dd chore: preserve Nimbus app and bundle baseline
+|/  
+* 04626dd 2026-08-27T13:55:38+09:00  chore: preserve Nimbus app and bundle baseline
+| * 611a509 2026-08-27T13:54:47+09:00  On main: cmux last turn baseline
+|/| 
+| * 65cfb9c 2026-08-27T13:54:47+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * 114b853 2026-08-27T13:54:45+09:00  On main: cmux last turn baseline
+|/| 
+| * 29c9d97 2026-08-27T13:54:45+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * 502297b 2026-08-27T13:01:27+09:00  On main: cmux last turn baseline
+|/| 
+| * 183d57f 2026-08-27T13:01:27+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * b1d4432 2026-08-27T12:59:59+09:00  On main: cmux last turn baseline
+|/| 
+| * fbd017e 2026-08-27T12:59:59+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * a77c502 2026-08-27T12:31:30+09:00  On main: cmux last turn baseline
+|/| 
+| * cc978d8 2026-08-27T12:31:30+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * c261a52 2026-08-27T12:26:32+09:00  On main: cmux last turn baseline
+|/| 
+| * c17a815 2026-08-27T12:26:32+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * 5c5e5cc 2026-08-27T12:17:13+09:00  On main: cmux last turn baseline
+|/| 
+| * 8792f78 2026-08-27T12:17:13+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+| * 02583b3 2026-08-27T12:14:47+09:00  On main: cmux last turn baseline
+|/| 
+| * cdcae3e 2026-08-27T12:14:47+09:00  index on main: bf7dfe5 Remove Databricks CI/CD pipeline
+|/  
+* bf7dfe5 2026-08-27T12:10:37+09:00  Remove Databricks CI/CD pipeline
+* 6f57e46 2026-08-27T12:07:44+09:00  Add Databricks CI/CD pipeline
+* 4ea3a8b 2026-08-27T11:58:29+09:00  Initial commit
