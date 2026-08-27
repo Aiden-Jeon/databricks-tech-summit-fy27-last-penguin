@@ -1,0 +1,10 @@
+{
+  "table": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
+  "row_count": 7,
+  "rows": [
+    {"event_time":"2026-08-27T05:17:47.476Z","request_id":"4f0e4e86-b72c-41d1-ba5d-04a293ca88ad","status_code":200,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"},
+    {"event_time":"2026-08-27T05:17:43.104Z","request_id":"a0173780-449c-43e9-97e6-586f247843bd","status_code":200,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"},
+    {"event_time":"2026-08-27T05:17:20.775Z","request_id":"db8f642a-e503-443a-b753-7f362ea73f49","status_code":200,"destination_name":"gpt-5-4-mini","destination_model":"gpt-5-4-mini","requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses","api_type":"openai/v1/responses"}
+  ],
+  "privacy": "Prompt/response payloads omitted; no Slack message bodies included."
+}

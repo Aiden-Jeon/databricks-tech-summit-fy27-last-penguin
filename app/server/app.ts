@@ -131,7 +131,12 @@ app.post('/api/chat/stream', async (req, res) => {
       authorization: `Bearer ${forwardedToken}`,
       'content-type': 'application/json',
       'user-agent': 'nimbus-growth-desk/3.0',
-      'Databricks-Ai-Gateway-Request-Tags': `application=nimbus-growth-desk,workload=interactive-chat,environment=production,segment=${segment}`,
+      'Databricks-Ai-Gateway-Request-Tags': JSON.stringify({
+        application: 'nimbus-growth-desk',
+        workload: 'interactive-chat',
+        environment: 'production',
+        segment,
+      }),
     },
     body: JSON.stringify({
       model,

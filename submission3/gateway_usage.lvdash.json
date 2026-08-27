@@ -1,0 +1,17 @@
+{
+  "dashboard_id": "01f1a1d769f017328e5f7fea4f3ee409",
+  "display_name": "Workspace Usage Dashboard V2",
+  "workspace_id": "7474655051393778",
+  "lifecycle_state": "ACTIVE",
+  "automatic_updates": true,
+  "created_at": "2026-08-27T05:23:19.297Z",
+  "source": "Databricks account usage-dashboards API",
+  "dashboard_url": "https://fe-sandbox-last-penguin.cloud.databricks.com/sql/dashboardsv3/01f1a1d769f017328e5f7fea4f3ee409?o=7474655051393778",
+  "gateway_evidence": {
+    "app_model_service": "last_penguin_catalog.nimbus.nimbus_app_gateway",
+    "coding_model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+    "usage_system_table": "system.ai_gateway.usage",
+    "system_table_delivery_at_export": "pending",
+    "inference_table_counts": {"app": 1, "coding_agent": 7}
+  }
+}

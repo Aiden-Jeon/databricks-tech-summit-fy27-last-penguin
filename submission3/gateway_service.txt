@@ -1,0 +1,23 @@
+Unity AI Gateway Build 3 — reproducible configuration
+Workspace profile: fe-sandbox-last-penguin
+Workspace ID: 7474655051393778
+UC parent: schemas/last_penguin_catalog.nimbus
+
+Create each model service (replace SERVICE with nimbus_app_gateway or nimbus_coding_agent_gateway):
+databricks api post '/api/2.1/unity-catalog/model-services?parent=schemas%2Flast_penguin_catalog.nimbus&model_service_id=SERVICE' --json '{"config":{"routing":{"destinations":[{"name":"gpt-5-4-mini","destinationType":1,"pay_per_token_config":{"model":"models/system.ai.databricks-gpt-5-4-mini"}}]},"inference_table":{"parent":"schemas/last_penguin_catalog.nimbus","disabled":false,"table_name_prefix":"SERVICE"}}}' --profile fe-sandbox-last-penguin
+
+Verify:
+databricks api get /api/2.1/unity-catalog/model-services/last_penguin_catalog.nimbus.nimbus_app_gateway --profile fe-sandbox-last-penguin
+databricks api get /api/2.1/unity-catalog/model-services/last_penguin_catalog.nimbus.nimbus_coding_agent_gateway --profile fe-sandbox-last-penguin
+
+Inference tables:
+last_penguin_catalog.nimbus.nimbus_app_gateway_payload
+last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload
+
+Bounded-read input policy enforced by the deployed app before inference:
+policy name: nimbus-bounded-lakebase-reads
+deny patterns: all/entire/every/full Lakebase or database data; unlimited reads/queries; full database scan
+implementation: app/server/app.ts (blockedLakebaseRead)
+
+Deployment route: /ai-gateway/mlflow/v1/chat/completions
+Legacy /serving-endpoints route: not used by the Build 3 app entrypoint.

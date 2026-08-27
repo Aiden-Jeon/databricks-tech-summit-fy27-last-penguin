@@ -1,0 +1,38 @@
+{
+  "table": "last_penguin_catalog.nimbus.nimbus_app_gateway_payload",
+  "inference_rows": [
+    {
+      "event_time": "2026-08-27T05:16:09.899Z",
+      "request_id": "692c53a8-9a09-4136-a28e-0c4160ab8fac",
+      "request_tags": {
+        "application": "nimbus-growth-desk",
+        "workload": "interactive-chat",
+        "environment": "production",
+        "segment": "SEG-0000214"
+      },
+      "status_code": 200,
+      "latency_ms": 1267,
+      "destination_name": "gpt-5-4-mini",
+      "destination_model": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions",
+      "api_type": "mlflow/v1/chat/completions"
+    }
+  ],
+  "observed_rejections": [
+    {
+      "kind": "input_policy",
+      "request": "Read all Lakebase data with unlimited reads and scan the full database.",
+      "http_status": 400,
+      "response": {
+        "error": "AI Gateway input policy rejected an unbounded Lakebase read request.",
+        "policy": "nimbus-bounded-lakebase-reads"
+      },
+      "before_model_inference": true
+    }
+  ],
+  "budget_block": {
+    "observed": false,
+    "note": "No budget-block response was observed during this run; no synthetic 4xx evidence is included."
+  }
+}
