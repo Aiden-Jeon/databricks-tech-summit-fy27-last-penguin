@@ -1,176 +1,42 @@
-d695b27 2026-08-27T15:38:06+09:00 Aiden-Jeon (HEAD -> main)
-    chore(build1): commit final root submission archive
+Generated from merged main on 2026-08-27T15:52:08+09:00
+Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d %s' -35
 
-b1eaacf 2026-08-27T15:36:42+09:00 Aiden-Jeon (origin/main, origin/HEAD)
-    chore(app): package final Lakebase search evidence
-
-4d8e5be 2026-08-27T15:35:36+09:00 Aiden-Jeon
-    merge: add Lakebase search execution evidence
-
-eb40352 2026-08-27T15:35:31+09:00 Aiden-Jeon
-    docs: require final submissions at project root
-
-9621bff 2026-08-27T15:35:02+09:00 Aiden-Jeon (origin/build2-search-execution-notebook, build2-search-execution-notebook)
-    docs(app): capture live Lakebase search execution
-
-51e0f56 2026-08-27T15:33:54+09:00 Aiden-Jeon
-    chore(gateway): rebuild Submission 3 after feedback remediation
-
-508c249 2026-08-27T15:33:11+09:00 Aiden-Jeon
-    merge: integrate Build 3 feedback remediation
-
-ade13a5 2026-08-27T15:32:54+09:00 Aiden-Jeon (build3-feedback-remediation-v2)
-    feat(gateway): prove live endpoint guardrail budget and agent isolation
-
-3b9803f 2026-08-27T15:24:45+09:00 Aiden-Jeon (origin/main, origin/HEAD)
-    chore(app): package validator-readable Submission 2 evidence
-
-a8b8f4f 2026-08-27T15:22:57+09:00 Aiden-Jeon
-    merge: integrate validator-readable Build 2 evidence
-
-c9348c8 2026-08-27T15:22:35+09:00 Aiden-Jeon (origin/build2-validator-remediation-v2, build2-validator-remediation-v2)
-    merge: add validator-readable record-linked hero chain
-
-edd2ce8 2026-08-27T15:22:17+09:00 Aiden-Jeon (origin/build2-validator-chain-v2, build2-validator-chain-v2)
-    docs(app): make hero decision chain record-linked
-
-0b6b207 2026-08-27T15:21:58+09:00 Aiden-Jeon
-    merge: add validator-readable Act and later-state proof
-
-6cfe493 2026-08-27T15:21:51+09:00 Aiden-Jeon (origin/build2-validator-act-v2, build2-validator-act-v2)
-    docs(app): expose app-written row and later committed state
-
-71c2471 2026-08-27T15:21:28+09:00 Aiden-Jeon
-    merge: add validator-readable Search execution proof
-
-688ac2a 2026-08-27T15:21:22+09:00 Aiden-Jeon (origin/build2-validator-search-v2, build2-validator-search-v2)
-    docs(app): make Lakebase search execution validator-readable
-
-5d532da 2026-08-27T15:11:49+09:00 Aiden-Jeon
-    chore(app): finalize Submission 2 evidence archive
-
-22b3d7b 2026-08-27T15:10:27+09:00 Aiden-Jeon
-    chore(gateway): rebuild Submission 3 from merged main
-
-a87e892 2026-08-27T15:10:03+09:00 Aiden-Jeon
-    merge: integrate Build 3 Unity AI Gateway submission
-
-c6c3302 2026-08-27T15:08:48+09:00 Aiden-Jeon
-    chore(app): rebuild Submission 2 from merged main
-
-7034864 2026-08-27T15:08:17+09:00 Aiden-Jeon
-    merge: integrate Build 2 feedback remediation
-
-e3c099e 2026-08-27T15:07:56+09:00 Aiden-Jeon (build3-gateway-final)
-    chore(gateway): package Build 3 submission
-
-52befaa 2026-08-27T15:07:07+09:00 Aiden-Jeon (build2-feedback-remediation)
-    feat(gateway): capture live policy budget and agent evidence
-
-96a2340 2026-08-27T15:05:27+09:00 Aiden-Jeon
-    chore(app): package remediated Build 2 submission
-
-5e1d875 2026-08-27T15:05:27+09:00 Aiden-Jeon
-    merge: close Build 2 proof chain
-
-ab4e4f0 2026-08-27T15:03:11+09:00 Aiden-Jeon (build2-proof-chain)
-    docs(app): capture closed-loop Build 2 execution proof
-
-a2fc968 2026-08-27T15:03:36+09:00 Aiden-Jeon (origin/main, origin/HEAD)
-    chore(build1): package grader-readable resubmission
-
-f95cd56 2026-08-27T15:02:53+09:00 Aiden-Jeon
-    docs(build1): refresh remote promotion history
-
-6a08665 2026-08-27T15:02:20+09:00 Aiden-Jeon
-    docs(build1): record merged promotion PR
-
-f107912 2026-08-27T15:01:56+09:00 Jongseob Jeon
-    Merge pull request #1 from Aiden-Jeon/build1-scoring-remediation
-
-18f8846 2026-08-27T15:01:27+09:00 Aiden-Jeon (origin/build1-scoring-remediation, build1-scoring-remediation)
-    fix(build1): make Lakebase evidence grader-readable
-
-8efa5ac 2026-08-27T14:54:24+09:00 Aiden-Jeon
-    merge: add Build 2 act proof API
-
-49d5994 2026-08-27T14:54:21+09:00 Aiden-Jeon (build2-proof-act)
-    feat(app): expose decision writeback audit chain
-
-f3cd445 2026-08-27T14:53:53+09:00 Aiden-Jeon
-    merge: add Build 2 search proof API
-
-575632f 2026-08-27T14:53:51+09:00 Aiden-Jeon (build2-proof-search)
-    feat(app): expose verifiable Lakebase search evidence
-
-88b7dcb 2026-08-27T14:50:39+09:00 Aiden-Jeon
-    chore(build1): commit resubmission package
-
-ab276ea 2026-08-27T14:49:48+09:00 Aiden-Jeon (build2-remediation)
-    chore(app): package Build 2 resubmission
-
-b24ec73 2026-08-27T14:48:35+09:00 Aiden-Jeon
-    merge: integrate Build 1 feedback remediation
-
-de9fa01 2026-08-27T14:48:23+09:00 Aiden-Jeon (build1-feedback-remediation)
-    fix(build1): add executable Lakebase infrastructure evidence
-
-9e74e20 2026-08-27T14:48:02+09:00 Aiden-Jeon
-    merge: finalize Build 2 evidence
-
-aa1e490 2026-08-27T14:47:59+09:00 Aiden-Jeon (build2-act-evidence)
-    docs(app): add verified Build 2 evidence
-
-6ab09ac 2026-08-27T14:47:15+09:00 Aiden-Jeon
-    merge: integrate Build 2 act and evidence runtime
-
-145600b 2026-08-27T14:47:02+09:00 Aiden-Jeon
-    feat(app): deploy human-gated decision runtime
-
-2070350 2026-08-27T14:32:44+09:00 Aiden-Jeon
-    merge: integrate Build 2 assist and search
-
-0fa345d 2026-08-27T14:32:42+09:00 Aiden-Jeon (build2-assist-search)
-    feat(app): implement grounded assist and BM25 search
-
-73333ff 2026-08-27T14:32:05+09:00 Aiden-Jeon
-    merge: integrate Build 2 live view
-
-8a7935e 2026-08-27T14:32:03+09:00 Aiden-Jeon (build2-visualize)
-    feat(app): add live Lakebase decision view
-
-2718f2d 2026-08-27T14:26:26+09:00 Aiden-Jeon
-    docs(build1): add Lakebase validation evidence
-
-4b7f6dd 2026-08-27T14:26:23+09:00 Aiden-Jeon
-    feat(gateway): finalize Nimbus AI Gateway evidence
-
-21e999e 2026-08-27T14:25:16+09:00 Aiden-Jeon
-    fix(lakebase): finalize hybrid search and read-only access
-
-8e4adcc 2026-08-27T14:16:39+09:00 Aiden-Jeon
-    build(app): restore Lakebase and agent dependencies
-
-fffbc5e 2026-08-27T14:11:06+09:00 Aiden-Jeon
-    merge: promote validated forecast migration
-
-3f59ebb 2026-08-27T14:10:57+09:00 Aiden-Jeon (agent-forecast-dev)
-    feat(lakebase): add decision forecasts
-
-fc47cac 2026-08-27T14:08:57+09:00 Aiden-Jeon
-    feat(lakebase): define continuous sync search and CDF
-
-3ab993f 2026-08-27T14:04:48+09:00 Aiden-Jeon
-    feat: prepare app and submission guidance
-
-04626dd 2026-08-27T13:55:38+09:00 Aiden-Jeon
-    chore: preserve Nimbus app and bundle baseline
-
-bf7dfe5 2026-08-27T12:10:37+09:00 Aiden-Jeon
-    Remove Databricks CI/CD pipeline
-
-6f57e46 2026-08-27T12:07:44+09:00 Aiden-Jeon
-    Add Databricks CI/CD pipeline
-
-4ea3a8b 2026-08-27T11:58:29+09:00 Aiden-Jeon
-    Initial commit
+*   6ad27be 2026-08-27T15:52:08+09:00  (HEAD -> main) merge: add validator-readable Build 3 live evidence
+|\
+| * b6fd551 2026-08-27T15:51:42+09:00  (build3-live-evidence-v3) chore: organize submission artifacts
+| * 4ee5d67 2026-08-27T15:51:23+09:00  docs: add interactive project architecture visualizations
+|/
+* 2a39140 2026-08-27T15:38:39+09:00  chore(gateway): refresh root Submission 3 archive
+* d695b27 2026-08-27T15:38:06+09:00  chore(build1): commit final root submission archive
+* b1eaacf 2026-08-27T15:36:42+09:00  (origin/main, origin/HEAD) chore(app): package final Lakebase search evidence
+*   4d8e5be 2026-08-27T15:35:36+09:00  merge: add Lakebase search execution evidence
+|\
+| * 9621bff 2026-08-27T15:35:02+09:00  (origin/build2-search-execution-notebook, build2-search-execution-notebook) docs(app): capture live Lakebase search execution
+| * 8217586 2026-08-27T15:30:30+09:00  feat(app): add Lakebase search provenance notebook
+* | eb40352 2026-08-27T15:35:31+09:00  docs: require final submissions at project root
+* | 51e0f56 2026-08-27T15:33:54+09:00  chore(gateway): rebuild Submission 3 after feedback remediation
+* |   508c249 2026-08-27T15:33:11+09:00  merge: integrate Build 3 feedback remediation
+|\ \
+| |/
+|/|
+| * ade13a5 2026-08-27T15:32:54+09:00  (build3-feedback-remediation-v2) feat(gateway): prove live endpoint guardrail budget and agent isolation
+* | 3b9803f 2026-08-27T15:24:45+09:00  chore(app): package validator-readable Submission 2 evidence
+* |   a8b8f4f 2026-08-27T15:22:57+09:00  merge: integrate validator-readable Build 2 evidence
+|\ \
+| |/
+|/|
+| * c9348c8 2026-08-27T15:22:35+09:00  merge: add validator-readable record-linked hero chain
+| * edd2ce8 2026-08-27T15:22:17+09:00  docs(app): make hero decision chain record-linked
+| * 0b6b207 2026-08-27T15:21:58+09:00  merge: add validator-readable Act and later-state proof
+| * 6cfe493 2026-08-27T15:21:51+09:00  docs(app): expose app-written row and later committed state
+| * 71c2471 2026-08-27T15:21:28+09:00  merge: add validator-readable Search execution proof
+| * 688ac2a 2026-08-27T15:21:22+09:00  docs(app): make Lakebase search execution validator-readable
+|/
+* 5d532da 2026-08-27T15:11:49+09:00  chore(app): finalize Submission 2 evidence archive
+* 22b3d7b 2026-08-27T15:10:27+09:00  chore(gateway): rebuild Submission 3 from merged main
+*   a87e892 2026-08-27T15:10:03+09:00  merge: integrate Build 3 Unity AI Gateway submission
+|\
+| * e3c099e 2026-08-27T15:07:56+09:00  (build3-gateway-final) chore(gateway): package Build 3 submission
+| * 52befaa 2026-08-27T15:07:07+09:00  feat(gateway): capture live policy budget and agent evidence
+* | c6c3302 2026-08-27T15:08:48+09:00  chore(app): rebuild Submission 2 from merged main
+* | 7034864 2026-08-27T15:08:17+09:00  merge: integrate Build 2 feedback remediation
