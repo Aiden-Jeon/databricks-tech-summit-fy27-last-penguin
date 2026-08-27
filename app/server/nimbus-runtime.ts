@@ -5,6 +5,9 @@ export const HERO_SEGMENT_ID = 'SEG-0000214';
 export const HERO_EXPERIMENT_ID = 'EXP-0000009';
 export const EXPERIMENT_SEARCH_INDEX = 'experiments_description_bm25_idx';
 export const EXPERIMENT_SEARCH_METHOD = 'lakebase_text BM25';
+export const EXPERIMENT_SEARCH_FUNCTION = 'app.search_experiments';
+export const EXPERIMENT_SOURCE_TABLE = 'nimbus_serving.experiments';
+export const EXPERIMENT_SOURCE_KIND = 'Build 1 continuous sync';
 
 export const LIVE_VIEW_SQL = `WITH ranked_sliding AS (
   SELECT os.*,
@@ -90,6 +93,10 @@ export async function getSearchExperiments(pool: Pool, query: string, limit = 5)
     executed_at: new Date().toISOString(),
     query,
     method: EXPERIMENT_SEARCH_METHOD,
+    search_function: EXPERIMENT_SEARCH_FUNCTION,
+    source_table: EXPERIMENT_SOURCE_TABLE,
+    source_kind: EXPERIMENT_SOURCE_KIND,
+    read_only: true,
     index: EXPERIMENT_SEARCH_INDEX,
     execution_plan: executionPlan,
     row_count: result.rowCount,
