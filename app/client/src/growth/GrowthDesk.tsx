@@ -1,556 +1,217 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  AlertDescription,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  Badge,
-  Button,
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  Skeleton,
+  Alert, AlertDescription, Badge, Button, Empty, EmptyDescription, EmptyHeader,
+  EmptyTitle, Skeleton,
 } from '@databricks/appkit-ui/react';
-import {
-  ArrowUpRight,
-  Bot,
-  Check,
-  CircleDollarSign,
-  Database,
-  FileSearch,
-  RotateCcw,
-  ShieldCheck,
-  TrendingDown,
-  TrendingUp,
-  UserCheck,
-} from 'lucide-react';
-import { okOrThrow, resetDemoState, useSession } from '@/lib/api';
+import { ArrowUpRight, Bot, Check, ChevronDown, CircleDollarSign, RefreshCw, Menu, Search, UserCheck } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { okOrThrow, useSession } from '@/lib/api';
 
-const SEGMENT_ID = 'SEG-0000214';
-const EXPERIMENT_ID = 'EXP-0000009';
-
-type LiveRow = Record<string, unknown> & {
-  segment_id: string;
-  conversion_rate?: number | string;
-  conversion_rate_3w_ago?: number | string;
-  mau?: number | string;
-  conversion_at_risk_usd?: number | string;
-  matching_experiment_lift?: number | string;
-  recommended_action?: string;
-  predicted_conversion_lift?: number | string;
-  predicted_net_value_usd?: number | string;
-  action_ranking?: unknown;
-  scored_at?: string;
-  decision_id?: string;
-  decision_status?: DecisionStatus;
-  approved_by?: string;
+type Status = 'investigating' | 'investigation_failed' | 'proposed' | 'approved' | 'committed';
+type CaseRow = Record<string, unknown> & {
+  id?: string; decision_id?: string; segment_id: string; status?: Status; decision_status?: Status;
+  conversion_rate?: number; conversion_rate_3w_ago?: number; predicted_conversion_lift?: number;
+  conversion_at_risk_usd?: number; predicted_net_value_usd?: number; recommended_action?: string;
+  rollout_pct?: number; approved_by?: string; created_at?: string; decision_created_at?: string;
+  decided_at?: string; drafted_note?: string; scored_at?: string; audit_trail?: Audit[];
+  experiment?: Record<string, unknown> | null;
 };
+type Audit = { at?: string; by?: string; action?: string; notes?: string };
+type CasesPayload = { queried_at: string; cases: CaseRow[] };
 
-type DecisionStatus = 'idle' | 'proposed' | 'approved' | 'committed';
-type AuditEvent = { at?: string; by?: string; action?: string; notes?: string; tool?: string };
-type Decision = Record<string, unknown> & {
-  id: string;
-  status: Exclude<DecisionStatus, 'idle'>;
-  approved_by?: string | null;
-  audit_trail?: AuditEvent[];
-  drafted_note?: string;
+const statusText: Record<Status, string> = {
+  investigating: '진행 중', investigation_failed: '조사 실패', proposed: '승인 대기',
+  approved: '기록 대기', committed: '기록 완료',
 };
-
-type AssistResult = {
-  decision_id: string;
-  drafted_memo: string;
-  decision_status: 'proposed';
-  approval_required: true;
-  search_results: Array<Record<string, unknown>>;
-  ranked_actions: Array<Record<string, unknown>>;
+const actionText: Record<string, string> = {
+  ship_proven_variant: '검증된 변형 출시', rollout_existing_flag: '기존 플래그 확대', ship_alt_variant: '대안 변형 출시',
 };
-
-function number(value: unknown, fallback: number) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function pct(value: unknown, fallback: number) {
-  return `${(number(value, fallback) * 100).toFixed(1)}%`;
-}
-
-function currency(value: unknown, fallback: number) {
-  return `$${(number(value, fallback) / 1000).toFixed(1)}K`;
-}
-
-function parseRanking(value: unknown): Array<Record<string, unknown>> {
-  if (Array.isArray(value)) return value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object');
-  if (typeof value !== 'string') return [];
-  try { return parseRanking(JSON.parse(value)); } catch { return []; }
-}
-
-function actionLabel(action: unknown) {
-  const labels: Record<string, string> = {
-    ship_proven_variant: '검증된 변형 출시',
-    rollout_existing_flag: '기존 플래그 확대',
-    ship_alt_variant: '대안 변형 출시',
-  };
-  if (typeof action !== 'string' && typeof action !== 'number') return '후보 액션';
-  const key = String(action);
-  return labels[key] ?? key;
-}
-
-function freshness(value?: string) {
-  if (!value) return '방금 조회';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '방금 조회' : date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-}
+const toNumber = (value: unknown) => Number.isFinite(Number(value)) ? Number(value) : 0;
+const percent = (value: unknown) => `${(toNumber(value) * 100).toFixed(1)}%`;
+const money = (value: unknown) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(toNumber(value));
+const text = (value: unknown, fallback = '정보 없음') => typeof value === 'string' || typeof value === 'number' ? `${value}` : fallback;
+const dateTime = (value: unknown) => value ? new Date(text(value, '')).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) : '정보 없음';
+const hasKorean = (value: unknown) => typeof value === 'string' && /[가-힣]/.test(value);
 
 export function GrowthDesk() {
   const { me, config, meError, configError, retry: retrySession } = useSession();
-  const [row, setRow] = useState<LiveRow | null>(null);
+  const [cases, setCases] = useState<CaseRow[]>([]);
+  const [selectedId, setSelectedId] = useState<string>();
+  const [detail, setDetail] = useState<CaseRow>();
   const [queriedAt, setQueriedAt] = useState<string>();
-  const [assist, setAssist] = useState<AssistResult | null>(null);
-  const [decision, setDecision] = useState<Decision | null>(null);
+  const [filter, setFilter] = useState<'all' | Status>('all');
+  const [search, setSearch] = useState('');
+  const [rollout, setRollout] = useState(100);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [resetOpen, setResetOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  const [inboxOpen, setInboxOpen] = useState(false);
 
-  const load = useCallback(async () => {
+  const loadCases = useCallback(async (preferredId?: string) => {
     setLoading(true);
     try {
-      const response = await okOrThrow(
-        await fetch(`/api/live-view?segment_id=${SEGMENT_ID}`),
-        '/api/live-view',
-      );
-      const payload = await response.json() as { queried_at: string; rows: LiveRow[] };
-      setRow(payload.rows[0] ?? null);
-      setQueriedAt(payload.queried_at);
-      setError(null);
+      const response = await okOrThrow(await fetch('/api/cases'), '/api/cases');
+      const payload = await response.json() as CasesPayload;
+      setCases(payload.cases); setQueriedAt(payload.queried_at); setError(undefined);
+      setSelectedId((current) => preferredId ?? current ?? payload.cases[0]?.decision_id ?? payload.cases[0]?.id);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { void loadCases(); }, [loadCases]);
+  useEffect(() => {
+    if (!selectedId) { setDetail(undefined); return; }
+    let cancelled = false; setDetailLoading(true);
+    fetch(`/api/cases/${selectedId}`).then((res) => okOrThrow(res, '/api/cases/:id')).then((res) => res.json())
+      .then((payload: { case: CaseRow }) => { if (!cancelled) { setDetail(payload.case); setRollout(toNumber(payload.case.rollout_pct) || 100); } })
+      .catch((cause: Error) => { if (!cancelled) setError(cause.message); })
+      .finally(() => { if (!cancelled) setDetailLoading(false); });
+    return () => { cancelled = true; };
+  }, [selectedId]);
+
+  const visible = useMemo(() => cases.filter((item) => {
+    const status = item.decision_status ?? item.status;
+    return (filter === 'all' || status === filter) && item.segment_id.toLowerCase().includes(search.trim().toLowerCase());
+  }), [cases, filter, search]);
+
+  async function nextInvestigation() {
+    setBusy(true); setError(undefined);
+    try {
+      const response = await okOrThrow(await fetch('/api/investigations/next', { method: 'POST' }), '/api/investigations/next');
+      const payload = await response.json() as { decision_id: string };
+      await loadCases(payload.decision_id); setSelectedId(payload.decision_id); setInboxOpen(false);
+      await executeInvestigation(payload.decision_id);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
+    finally { setBusy(false); }
+  }
+
+  async function executeInvestigation(id: string) {
+    try {
+      const response = await okOrThrow(await fetch(`/api/investigations/${id}/run`, { method: 'POST' }), '/api/investigations/:id/run');
+      await response.json();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
-      setLoading(false);
+      await loadCases(id);
+      const refreshed = await okOrThrow(await fetch(`/api/cases/${id}`), '/api/cases/:id');
+      setDetail((await refreshed.json() as { case: CaseRow }).case);
     }
-  }, []);
+  }
 
-  useEffect(() => { void load(); }, [load]);
+  async function retryInvestigation() {
+    if (!selectedId) return;
+    setBusy(true); setError(undefined);
+    try { await executeInvestigation(selectedId); } finally { setBusy(false); }
+  }
 
-  const status: DecisionStatus = decision?.status ?? row?.decision_status ?? 'idle';
-  const decisionId = decision?.id ?? assist?.decision_id ?? row?.decision_id;
-  const audit = decision?.audit_trail ?? [];
-  const ranking = useMemo(() => {
-    const candidates = assist?.ranked_actions?.length ? assist.ranked_actions : parseRanking(row?.action_ranking);
-    const fallback: Array<Record<string, unknown>> = [
-      { action: 'ship_proven_variant', predicted_conversion_lift: 0.018, predicted_net_value_usd: 721300 },
-      { action: 'rollout_existing_flag', predicted_conversion_lift: 0.011, predicted_net_value_usd: 433100 },
-      { action: 'ship_alt_variant', predicted_conversion_lift: 0.006, predicted_net_value_usd: 205000 },
-    ];
-    return (candidates.length ? candidates : fallback).slice(0, 3);
-  }, [assist, row]);
-
-  async function investigate() {
-    setBusy('assist'); setError(null);
+  async function transition(action: 'approve' | 'commit') {
+    if (!selectedId) return; setBusy(true); setError(undefined);
     try {
-      const response = await okOrThrow(await fetch('/api/assist', {
+      const response = await okOrThrow(await fetch(`/api/decisions/${selectedId}/${action}`, {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ segment_id: SEGMENT_ID }),
-      }), '/api/assist');
-      const result = await response.json() as AssistResult;
-      setAssist(result);
-      setDecision({ id: result.decision_id, status: 'proposed', audit_trail: [{ action: 'proposed', by: 'Nimbus AI', notes: 'AI 초안 - 사람 승인 대기', at: new Date().toISOString() }], drafted_note: result.drafted_memo });
-      await load();
+        body: action === 'approve' ? JSON.stringify({ rollout_pct: rollout }) : undefined,
+      }), `/api/decisions/:id/${action}`);
+      await response.json(); await loadCases(selectedId);
+      const refreshed = await okOrThrow(await fetch(`/api/cases/${selectedId}`), '/api/cases/:id');
+      setDetail((await refreshed.json() as { case: CaseRow }).case);
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
-    finally { setBusy(null); }
+    finally { setBusy(false); }
   }
 
-  async function transition(to: 'approve' | 'commit') {
-    if (!decisionId) return;
-    setBusy(to); setError(null);
+  async function redraftMemo() {
+    if (!selectedId) return;
+    setBusy(true); setError(undefined);
     try {
-      const response = await okOrThrow(await fetch(`/api/decisions/${decisionId}/${to}`, { method: 'POST' }), `/api/decisions/${decisionId}/${to}`);
-      const payload = await response.json() as { decision?: Decision } & Partial<Decision>;
-      const nextDecision = payload.decision ?? payload;
-      if (!nextDecision.id || !nextDecision.status) throw new Error('Decision response is incomplete');
-      setDecision(nextDecision as Decision);
-      await load();
+      const response = await okOrThrow(
+        await fetch(`/api/decisions/${selectedId}/redraft`, { method: 'POST' }),
+        '/api/decisions/:id/redraft',
+      );
+      const payload = await response.json() as { drafted_note: string };
+      setDetail((current) => current ? { ...current, drafted_note: payload.drafted_note } : current);
+      await loadCases(selectedId);
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
-    finally { setBusy(null); }
-  }
-
-  async function reset() {
-    setBusy('reset'); setError(null);
-    try {
-      await resetDemoState();
-      setAssist(null); setDecision(null); setResetOpen(false);
-      await load();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
-    finally { setBusy(null); }
+    finally { setBusy(false); }
   }
 
   const bootError = meError ?? configError;
-  if (bootError) {
-    return (
-      <main className="nimbus-boot-error">
-        <Alert variant="destructive">
-          <AlertDescription>{bootError}</AlertDescription>
-          <Button className="nimbus-control mt-3" variant="outline" onClick={retrySession}>
-            다시 시도
-          </Button>
-        </Alert>
-      </main>
-    );
-  }
+  if (bootError) return <main className="case-boot"><Alert variant="destructive"><AlertDescription>{bootError}</AlertDescription><Button onClick={retrySession}>다시 시도</Button></Alert></main>;
+  const status = detail?.status ?? detail?.decision_status;
+  const current = toNumber(detail?.conversion_rate);
+  const lift = toNumber(detail?.predicted_conversion_lift);
+  const predicted = current + lift * (rollout / 100);
+  const sourceTime = detail?.scored_at ?? queriedAt;
 
-  return (
-    <main className="nimbus-app">
-      <header className="nimbus-header">
-        <div className="nimbus-header__inner">
-          <div className="nimbus-brand" aria-label="Nimbus Growth Desk">
-            <span className="nimbus-mark" aria-hidden>N</span>
-            <span className="nimbus-brand__copy">
-              <strong className="nimbus-brand__name">NIMBUS</strong>
-              <span className="nimbus-brand__descriptor">Growth Desk</span>
-            </span>
-          </div>
-
-          <div className="nimbus-header__actions">
-            <Badge variant="secondary" className="nimbus-user-badge">
-              <UserCheck className="size-3" />
-              {me?.userEmail ?? me?.userName ?? '로그인 사용자'}
-            </Badge>
-            {config?.gatewayDashboardUrl && (
-              <Button variant="outline" className="nimbus-control" asChild>
-                <a href={config.gatewayDashboardUrl} target="_blank" rel="noreferrer">
-                  <CircleDollarSign className="size-4" />
-                  AI 비용
-                  <ArrowUpRight className="size-3" />
-                </a>
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              className="nimbus-control nimbus-control--quiet"
-              onClick={() => setResetOpen(true)}
-            >
-              <RotateCcw className="size-4" />
-              초기화
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <div className="nimbus-shell">
-        <section className="nimbus-brief" aria-labelledby="decision-title">
-          <div className="nimbus-brief__copy">
-            <p className="nimbus-person">
-              <span className="nimbus-person__signal" aria-hidden />
-              Sofia Marchetti · VP Growth
-            </p>
-            <h1 id="decision-title">전환 하락을 찾고, 오늘 25% 롤아웃을 결정합니다</h1>
-            <p className="nimbus-brief__lede">
-              {SEGMENT_ID} · Gen-Z / Android · 회사 전체 1%p 가치와 이 세그먼트 기회는
-              서로 다른 범위입니다.
-            </p>
-          </div>
-
-          <aside className="nimbus-source" aria-label="의사결정 출처와 상태">
-            <StatusBadge status={status} />
-            <dl className="nimbus-source__list">
-              <div>
-                <dt>라이브 세그먼트</dt>
-                <dd>{SEGMENT_ID}</dd>
-              </div>
-              <div>
-                <dt>출처</dt>
-                <dd>Lakebase 동기화 뷰 + 앱 의사결정 테이블</dd>
-              </div>
-              <div>
-                <dt>갱신</dt>
-                <dd>{freshness(queriedAt)}</dd>
-              </div>
-            </dl>
-          </aside>
-        </section>
-
-        {error && (
-          <Alert variant="destructive" className="nimbus-alert" role="alert">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {loading ? <KpiSkeleton /> : !row ? (
-          <Empty className="nimbus-empty">
-            <EmptyHeader>
-              <EmptyMedia variant="icon"><FileSearch /></EmptyMedia>
-              <EmptyTitle>세그먼트 결과가 없습니다</EmptyTitle>
-              <EmptyDescription>동기화 상태를 확인한 뒤 다시 조회하세요.</EmptyDescription>
-            </EmptyHeader>
-            <Button className="nimbus-control" variant="outline" onClick={() => void load()}>다시 조회</Button>
-          </Empty>
-        ) : (
-          <section className="nimbus-stats" aria-label="성장 의사결정 핵심 지표">
-            <Kpi title="현재 전환율" value={pct(row.conversion_rate, 0.029)} context={`3주 전 ${pct(row.conversion_rate_3w_ago, 0.042)}`} tone="bad" />
-            <Kpi title="월간 활성 사용자" value={`${Math.round(number(row.mau, 420000) / 1000)}K`} context="이 세그먼트 · MAU" />
-            <Kpi title="위험 매출" value={currency(row.conversion_at_risk_usd, 524200)} context="세그먼트 범위" tone="bad" />
-            <Kpi title="추천 액션 효과" value={`+${(number(row.predicted_conversion_lift, 0.018) * 100).toFixed(2)}%p`} context={actionLabel(row.recommended_action)} tone="good" />
-            <Kpi title="예상 순가치" value={currency(row.predicted_net_value_usd, 721300)} context="비용 $5K 반영" tone="good" wide />
-          </section>
-        )}
-
-        <section className="nimbus-workbench">
-          <section className="nimbus-panel nimbus-evidence" aria-labelledby="evidence-title">
-            <header className="nimbus-panel__header">
-              <div>
-                <h2 id="evidence-title">왜 이 액션인가</h2>
-                <p>검색 근거와 모델 후보를 한곳에서 검토합니다.</p>
-              </div>
-              <FileSearch className="size-5" aria-hidden />
-            </header>
-
-            <div className="nimbus-winner">
-              <div>
-                <p className="nimbus-mono">{EXPERIMENT_ID}</p>
-                <p className="nimbus-winner__value">+2.25%p</p>
-              </div>
-              <div className="nimbus-winner__copy">
-                <Badge variant="secondary">실험 승자</Badge>
-                <p>결제 흐름 변형 · Android Gen-Z 유사 코호트</p>
-              </div>
-            </div>
-
-            <ol className="nimbus-ranking" aria-label="모델 후보 순위">
-              {ranking.map((candidate, index) => (
-                <li key={`${String(candidate.action ?? candidate.action_type)}-${String(candidate.predicted_net_value_usd ?? candidate.net_value_usd)}`}>
-                  <span className="nimbus-ranking__index">0{index + 1}</span>
-                  <strong>{actionLabel(candidate.action ?? candidate.action_type)}</strong>
-                  <span className="nimbus-ranking__metrics">
-                    <span>+{(number(candidate.predicted_conversion_lift ?? candidate.lift, [0.018, 0.011, 0.006][index]) * 100).toFixed(2)}%p</span>
-                    <span>{currency(candidate.predicted_net_value_usd ?? candidate.net_value_usd, [721300, 433100, 205000][index])}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-
-            <p className="nimbus-provenance">
-              <Database className="size-3.5" aria-hidden />
-              Lakebase BM25 · app.search_experiments · 동기화 원본은 읽기 전용
-            </p>
-          </section>
-
-          <section className="nimbus-panel nimbus-flow" aria-labelledby="flow-title">
-            <header className="nimbus-panel__header nimbus-panel__header--flow">
-              <div>
-                <h2 id="flow-title">조사 → 승인 → 기록</h2>
-                <p>AI는 초안을 만들고, 사람만 승인하며, Lakebase가 결정 체인을 기록합니다.</p>
-              </div>
-              <StatusBadge status={status} />
-            </header>
-
-            <ol className="nimbus-steps">
-              <Step index="1" title="조사·AI 초안" active={status === 'idle'} done={status !== 'idle'} icon={<Bot className="size-4" />}>
-                {status !== 'idle' ? (
-                  <CompletedStep label="초안 생성 완료" />
-                ) : (
-                  <Button
-                    className="nimbus-control nimbus-step__action"
-                    data-state={busy === 'assist' ? 'loading' : undefined}
-                    onClick={() => void investigate()}
-                    disabled={Boolean(busy)}
-                  >
-                    {busy === 'assist' ? '근거 검색 중…' : '근거 검색 + 초안'}
-                  </Button>
-                )}
-              </Step>
-              <Step index="2" title="사람 승인" active={status === 'proposed'} done={status === 'approved' || status === 'committed'} icon={<UserCheck className="size-4" />}>
-                {status === 'approved' || status === 'committed' ? (
-                  <CompletedStep label="승인 완료" />
-                ) : (
-                  <Button
-                    className="nimbus-control nimbus-step__action"
-                    data-state={busy === 'approve' ? 'loading' : undefined}
-                    variant="outline"
-                    onClick={() => void transition('approve')}
-                    disabled={Boolean(busy) || status !== 'proposed'}
-                  >
-                    {busy === 'approve' ? '승인 기록 중…' : '25% 롤아웃 승인'}
-                  </Button>
-                )}
-              </Step>
-              <Step index="3" title="결정 기록" active={status === 'approved'} done={status === 'committed'} icon={<Database className="size-4" />}>
-                {status === 'committed' ? (
-                  <CompletedStep label="결정 기록 완료" />
-                ) : (
-                  <Button
-                    className="nimbus-control nimbus-step__action"
-                    data-state={busy === 'commit' ? 'loading' : undefined}
-                    variant="outline"
-                    onClick={() => void transition('commit')}
-                    disabled={Boolean(busy) || status !== 'approved'}
-                  >
-                    {busy === 'commit' ? '기록 중…' : '승인 결정 기록'}
-                  </Button>
-                )}
-              </Step>
-            </ol>
-
-            {status === 'committed' && (
-              <div className="nimbus-flow__restart">
-                <Button
-                  className="nimbus-control"
-                  variant="outline"
-                  onClick={() => setResetOpen(true)}
-                  disabled={Boolean(busy)}
-                >
-                  <RotateCcw className="size-4" />
-                  새 조사 시작
-                </Button>
-                <p>확인 후 이 세그먼트의 앱 작성 결정만 삭제하고 첫 단계로 돌아갑니다.</p>
-              </div>
-            )}
-
-            {(assist?.drafted_memo || decision?.drafted_note) ? (
-              <section className="nimbus-draft" aria-labelledby="draft-title">
-                <div className="nimbus-draft__meta">
-                  <Badge id="draft-title"><Bot className="size-3" />AI 생성 결과</Badge>
-                  <Badge variant="outline"><ShieldCheck className="size-3" />사람 승인 필요</Badge>
-                </div>
-                <p className="nimbus-draft__body">{String(assist?.drafted_memo ?? decision?.drafted_note)}</p>
-                <p className="nimbus-provenance">{SEGMENT_ID} 실시간 뷰 · {EXPERIMENT_ID} 검색 결과 · 세 가지 모델 후보</p>
-              </section>
-            ) : (
-              <Empty className="nimbus-empty nimbus-empty--inline">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon"><Bot /></EmptyMedia>
-                  <EmptyTitle>아직 AI 초안이 없습니다</EmptyTitle>
-                  <EmptyDescription>첫 단계를 실행하면 근거, 초안, 의사결정 ID가 나타납니다.</EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            )}
-
-            <div className="nimbus-trace">
-              <section>
-                <h3>의사결정 ID</h3>
-                <p className="nimbus-mono">{decisionId ?? '아직 생성되지 않음'}</p>
-              </section>
-              <section>
-                <h3>감사 이력</h3>
-                {audit.length ? (
-                  <ol className="nimbus-audit">
-                    {audit.map((event) => (
-                      <li key={`${event.at}-${event.action}-${event.by}`}>
-                        <Check className="size-4" aria-hidden />
-                        <span><strong>{event.action}</strong> · {event.by}<small>{event.notes} · {freshness(event.at)}</small></span>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p>proposed → approved → committed 이벤트가 같은 ID에 누적됩니다.</p>
-                )}
-              </section>
-            </div>
-          </section>
-        </section>
-
-        <section className="nimbus-budget" aria-labelledby="budget-title">
-          <ShieldCheck className="nimbus-budget__icon" aria-hidden />
-          <div>
-            <h2 id="budget-title">AI 비용은 보이고, 귀속되고, 멈춥니다</h2>
-            <p>추정 토큰 비용 · application/requester/request ID 귀속 · 데모 알림 ${config?.demoBudget.alertUsd.toFixed(2) ?? '0.03'} · 하드 스톱 ${config?.demoBudget.hardStopUsd.toFixed(2) ?? '0.05'}</p>
-          </div>
-          {config?.gatewayDashboardUrl && (
-            <Button className="nimbus-control" variant="outline" asChild>
-              <a href={config.gatewayDashboardUrl} target="_blank" rel="noreferrer">
-                Gateway 대시보드<ArrowUpRight className="size-4" />
-              </a>
-            </Button>
-          )}
-        </section>
-
-        <footer className="nimbus-footer">
-          <span>Nimbus · Ask → Decide → Ship</span>
-          <span>Lakebase + Unity AI Gateway</span>
-        </footer>
+  return <main className="case-app">
+    <header className="case-header">
+      <div className="case-brand"><span>N</span><strong>Nimbus</strong><small>Growth Operations</small></div>
+      <div className="case-header__meta">
+        <Badge variant="secondary"><UserCheck className="size-3" />{me?.userEmail ?? me?.userName ?? '로그인 사용자'}</Badge>
+        {config?.gatewayDashboardUrl && <Button variant="ghost" size="sm" asChild><a href={config.gatewayDashboardUrl} target="_blank" rel="noreferrer"><CircleDollarSign className="size-4" />AI 비용<ArrowUpRight className="size-3" /></a></Button>}
       </div>
-
-      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
-        <AlertDialogContent className="nimbus-dialog">
-          <AlertDialogHeader>
-            <AlertDialogTitle>데모 의사결정을 초기화할까요?</AlertDialogTitle>
-            <AlertDialogDescription>{SEGMENT_ID}의 앱 작성 의사결정 행만 삭제합니다. Lakebase 동기화 원본과 다른 세그먼트는 변경하지 않습니다.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="nimbus-control" disabled={busy === 'reset'}>취소</AlertDialogCancel>
-            <AlertDialogAction
-              className="nimbus-control"
-              data-state={busy === 'reset' ? 'loading' : undefined}
-              onClick={(event) => { event.preventDefault(); void reset(); }}
-              disabled={busy === 'reset'}
-            >
-              {busy === 'reset' ? '초기화 중…' : '확인하고 초기화'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </main>
-  );
-}
-
-function Kpi({ title, value, context, tone, wide }: { title: string; value: string; context: string; tone?: 'good' | 'bad'; wide?: boolean }) {
-  return (
-    <div className={`nimbus-stat ${wide ? 'nimbus-stat--wide' : ''}`}>
-      <p className="nimbus-stat__label">{title}</p>
-      <p className={`nimbus-stat__value ${tone ? `is-${tone}` : ''}`}>
-        {tone === 'good' && <TrendingUp className="size-4" aria-hidden />}
-        {tone === 'bad' && <TrendingDown className="size-4" aria-hidden />}
-        {value}
-      </p>
-      <p className="nimbus-stat__context">{context}</p>
+    </header>
+    <Button className="case-inbox-toggle" variant="outline" onClick={() => setInboxOpen((value) => !value)}><Menu className="size-4" />업무함 {cases.length}건</Button>
+    <div className="case-layout">
+      <aside className={`case-inbox ${inboxOpen ? 'is-open' : ''}`} aria-label="조사 업무함">
+        <div className="case-inbox__head"><div><h1>조사 업무함</h1><p>최근 활동순 · {dateTime(queriedAt)}</p></div><Button onClick={() => void nextInvestigation()} disabled={busy}>{busy ? '조사 중…' : '새 조사'}</Button></div>
+        <label className="case-search"><Search className="size-4" /><span className="sr-only">세그먼트 ID 검색</span><input placeholder="세그먼트 ID 검색" value={search} onChange={(event) => setSearch(event.target.value)} /></label>
+        <div className="case-tabs" role="tablist" aria-label="상태 필터">
+          {([['all', '전체'], ['investigating', '진행 중'], ['investigation_failed', '실패'], ['proposed', '승인 대기'], ['approved', '기록 대기'], ['committed', '완료']] as const).map(([value, label]) => <button role="tab" aria-selected={filter === value} key={value} onClick={() => setFilter(value)}>{label}</button>)}
+        </div>
+        <div className="case-list">
+          {loading ? Array.from({ length: 4 }, (_, index) => <Skeleton className="case-list__skeleton" key={index} />) : visible.length ? visible.map((item) => {
+            const id = String(item.decision_id ?? item.id); const itemStatus = (item.decision_status ?? item.status) as Status;
+            return <button className="case-list__item" aria-current={selectedId === id} key={id} onClick={() => { setSelectedId(id); setInboxOpen(false); }}>
+              <span><strong>{item.segment_id}</strong><Badge variant={itemStatus === 'committed' ? 'secondary' : 'outline'}>{statusText[itemStatus]}</Badge></span>
+              <span>현재 {percent(item.conversion_rate)} · 위험 {money(item.conversion_at_risk_usd)}</span><time>{dateTime(item.decided_at ?? item.decision_created_at)}</time>
+            </button>;
+          }) : <Empty><EmptyHeader><EmptyTitle>조건에 맞는 케이스가 없습니다</EmptyTitle><EmptyDescription>필터를 바꾸거나 새 조사를 시작하세요.</EmptyDescription></EmptyHeader></Empty>}
+        </div>
+      </aside>
+      <section className="case-workspace">
+        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+        {detailLoading ? <div className="case-detail-skeleton"><Skeleton /><Skeleton /><Skeleton /></div> : !detail ? <Empty><EmptyHeader><EmptyTitle>케이스를 선택하세요</EmptyTitle><EmptyDescription>업무함에서 기존 케이스를 열거나 새 조사를 시작하세요.</EmptyDescription></EmptyHeader></Empty> : <>
+          <div className="case-title"><div><p>{detail.segment_id}</p><h2>{status === 'investigating' ? '실험 근거와 AI 요약을 생성하고 있습니다' : status === 'investigation_failed' ? '조사를 완료하지 못했습니다' : status === 'proposed' ? '영향을 검토하고 롤아웃을 승인하세요' : status === 'approved' ? '승인된 결정을 감사 기록에 남기세요' : '결정과 전체 감사 이력이 기록되었습니다'}</h2></div><Badge>{status ? statusText[status] : '진행 중'}</Badge></div>
+          {status === 'investigating' ? <section className="investigation-state" aria-live="polite"><Skeleton /><Skeleton /><Skeleton /><p>실험 근거와 AI 요약을 생성하고 있습니다</p></section> : status === 'investigation_failed' ? <section className="investigation-state"><Alert variant="destructive"><AlertDescription>{detail.audit_trail?.filter((event) => event.action === 'investigation_failed').at(-1)?.notes ?? '조사 중 오류가 발생했습니다.'}</AlertDescription></Alert><Button disabled={busy} onClick={() => void retryInvestigation()}>{busy ? '조사 중…' : '다시 조사'}</Button></section> : <>
+          <ol className="case-steps">
+            {(['proposed', 'approved', 'committed'] as Status[]).map((step, index, steps) => {
+              const isComplete = status ? steps.indexOf(status) >= index : false;
+              const isCurrent = status !== 'committed' && status === step;
+              return <li className={[isComplete ? 'is-complete' : '', isCurrent ? 'is-current' : ''].filter(Boolean).join(' ')} data-testid={`case-step-${step}`} key={step}><span>{isComplete ? <Check className="size-4" /> : index + 1}</span><div><strong>{['조사', '승인', '기록'][index]}</strong><small>{['영향 보고서 생성', '롤아웃 비율 확정', '감사 이력 보존'][index]}</small></div></li>;
+            })}
+          </ol>
+          <section className="evidence-grid" data-testid="evidence-section">
+            <article><p>실험 근거</p><h3>{text(detail.experiment?.experiment_id ?? detail.target_experiment_id, '연결된 실험 없음')}</h3><span>{text(detail.experiment?.description ?? detail.experiment?.hypothesis, '상세 근거가 일부 누락되었습니다.')}</span><small>출처: 동기화된 실험 검색 · {dateTime(sourceTime)}</small></article>
+          </section>
+          <section className="impact-report" aria-labelledby="impact-title" data-testid="recovery-scenario">
+            <div className="section-heading"><div><p>구조화된 영향 보고서</p><h3 id="impact-title">전환율 회복 시나리오</h3></div></div>
+            <div className="impact-kpis"><article><span>예상 상승폭 · 추정</span><strong>+{((predicted - current) * 100).toFixed(2)}%p</strong></article><article><span>위험 매출 · 실제</span><strong>{money(detail.conversion_at_risk_usd)}</strong></article><article><span>예상 순가치 · 모델</span><strong>{money(detail.predicted_net_value_usd)}</strong></article></div>
+            <div className="impact-table-wrap"><table><thead><tr><th>시나리오</th><th>전환율</th><th>분류</th></tr></thead><tbody><tr><td>3주 전</td><td>{percent(detail.conversion_rate_3w_ago)}</td><td>과거 실제</td></tr><tr><td>현재</td><td>{percent(current)}</td><td>현재 실제</td></tr><tr><td>롤아웃 후</td><td>{percent(predicted)}</td><td>단순 선형 추정</td></tr></tbody></table></div>
+            <p className="impact-formula">예측 전환율 = 현재 전환율 + 모델 상승폭 × 롤아웃 비율. 실제 결과는 달라질 수 있습니다.</p>
+          </section>
+          <details className="ai-evidence" data-testid="ai-evidence" open>
+            <summary><span><Bot className="size-4" />AI 근거 요약 <Badge variant="outline">AI 생성 · 검토 필요</Badge></span><ChevronDown className="size-4 ai-evidence__chevron" /></summary>
+            <div className="ai-evidence__body">
+              <div className="ai-evidence__highlights" aria-label="AI 근거 핵심 요약">
+                <div><span>추천 액션</span><strong>{actionText[text(detail.recommended_action ?? detail.action_type, '')] ?? text(detail.recommended_action ?? detail.action_type)}</strong></div>
+                <div><span>연결 실험</span><strong>{text(detail.experiment?.experiment_id ?? detail.target_experiment_id)}</strong></div>
+                <div><span>예상 상승폭</span><strong>+{(toNumber(detail.predicted_conversion_lift) * 100).toFixed(2)}%p</strong></div>
+                <div><span>예상 순가치</span><strong>{money(detail.predicted_net_value_usd)}</strong></div>
+              </div>
+              {status === 'proposed' && detail.drafted_note && !hasKorean(detail.drafted_note) && <Alert className="ai-evidence__legacy"><AlertDescription>이 메모는 이전 형식의 영어 초안입니다. 승인 전에 한국어 형식으로 다시 작성할 수 있습니다.</AlertDescription><Button size="sm" variant="outline" disabled={busy} onClick={() => void redraftMemo()}><RefreshCw className={busy ? 'size-4 ai-evidence__spin' : 'size-4'} />{busy ? '다시 작성 중…' : '한국어로 다시 작성'}</Button></Alert>}
+              <div className="ai-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{text(detail.drafted_note, 'AI 요약이 없습니다.')}</ReactMarkdown></div>
+              <p className="ai-evidence__source">AI가 생성한 초안입니다. 수치와 실행 조건을 검토한 뒤 승인하세요.</p>
+            </div>
+          </details>
+          <section className={`approval-card approval-card--${status === 'proposed' ? 'pending' : 'approved'}`} data-testid="recommended-action"><div><p>추천 액션</p><h3>{actionText[text(detail.recommended_action ?? detail.action_type, '')] ?? text(detail.recommended_action ?? detail.action_type)}</h3></div><div className="rollout"><label htmlFor="rollout">롤아웃 비율</label><div><input id="rollout" type="number" min="1" max="100" value={rollout} disabled={status !== 'proposed'} onChange={(event) => setRollout(Number(event.target.value))} /><span>%</span></div><div>{[25, 50, 100].map((value) => <Button key={value} size="sm" variant="outline" disabled={status !== 'proposed'} onClick={() => setRollout(value)}>{value}%</Button>)}</div></div>
+            {status === 'proposed' && <Button className="primary-action" disabled={busy || rollout < 1 || rollout > 100} onClick={() => void transition('approve')}>이 비율로 승인</Button>}
+            {status === 'approved' && <Button className="primary-action" disabled={busy} onClick={() => void transition('commit')}>결정 기록</Button>}
+          </section>
+          {status === 'committed' && <section className="audit"><div className="section-heading"><div><p>영구 기록</p><h3>결정 및 감사 이력</h3></div><span>결정 ID {text(detail.id ?? detail.decision_id)}</span></div><dl><div><dt>승인자</dt><dd>{detail.approved_by ?? '정보 없음'}</dd></div><div><dt>기록 시각</dt><dd>{dateTime(detail.decided_at)}</dd></div></dl><ol>{(detail.audit_trail ?? []).map((event, index) => <li key={`${event.at ?? 'event'}-${event.action ?? index}`}><span>{index + 1}</span><div><strong>{event.action}</strong><p>{event.notes}</p><small>{event.by} · {dateTime(event.at)}</small></div></li>)}</ol></section>}
+          </>}
+        </>}
+      </section>
     </div>
-  );
-}
-
-function KpiSkeleton() {
-  return (
-    <section className="nimbus-stats" aria-label="핵심 지표를 불러오는 중">
-      {['conversion', 'mau', 'risk', 'lift', 'value'].map((metric, index) => (
-        <div className={`nimbus-stat ${index === 4 ? 'nimbus-stat--wide' : ''}`} key={metric}>
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-8 w-28" />
-          <Skeleton className="h-3 w-20" />
-        </div>
-      ))}
-    </section>
-  );
-}
-
-function StatusBadge({ status }: { status: DecisionStatus }) {
-  const labels: Record<DecisionStatus, string> = { idle: '시작 전', proposed: 'AI 초안 · 승인 대기', approved: '사람 승인 완료', committed: '승인 결정 기록 완료' };
-  return <Badge variant="outline" className={`nimbus-status is-${status}`}><span aria-hidden />{labels[status]}</Badge>;
-}
-
-function CompletedStep({ label }: { label: string }) {
-  return (
-    <span className="nimbus-step__complete" role="status">
-      <Check className="size-4" aria-hidden />
-      {label}
-    </span>
-  );
-}
-
-function Step({ index, title, active, done, icon, children }: { index: string; title: string; active: boolean; done: boolean; icon: ReactNode; children: ReactNode }) {
-  return (
-    <li className={`nimbus-step ${active ? 'is-active' : ''} ${done ? 'is-done' : ''}`}>
-      <span className="nimbus-step__marker" aria-hidden>{done ? <Check className="size-4" /> : index}</span>
-      <div className="nimbus-step__copy">
-        <h3>{icon}{title}</h3>
-        <p>{index === '1' ? '라이브 뷰와 실험 근거를 검색해 초안을 만듭니다.' : index === '2' ? '사람이 범위와 예상 가치를 확인하고 승인합니다.' : '승인된 결정과 감사 이력을 Lakebase에 하나의 ID로 저장합니다.'}</p>
-      </div>
-      {children}
-    </li>
-  );
+  </main>;
 }

@@ -1,7 +1,8 @@
-Generated from merged main on 2026-08-27T16:22:22+09:00
+Generated from merged main on 2026-08-27T16:22:45+09:00
 Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d %s' -35
 
-*   56ed6f9 2026-08-27T16:22:15+09:00  (HEAD -> main) merge: add raw ucode execution lifecycle proof
+* a48c574 2026-08-27T16:22:38+09:00  (HEAD -> main) chore(gateway): package raw ucode execution proof
+*   56ed6f9 2026-08-27T16:22:15+09:00  merge: add raw ucode execution lifecycle proof
 |\
 | * 483cf44 2026-08-27T16:22:13+09:00  (build3-raw-ucode-proof-v4) fix(gateway): expose raw ucode lifecycle output
 |/
@@ -58,4 +59,3 @@ Command: git log --graph --decorate --date=iso-strict --pretty=format:'%h %ad %d
 | * 688ac2a 2026-08-27T15:21:22+09:00  (origin/build2-validator-search-v2, build2-validator-search-v2) docs(app): make Lakebase search execution validator-readable
 |/
 * 5d532da 2026-08-27T15:11:49+09:00  chore(app): finalize Submission 2 evidence archive
-* 22b3d7b 2026-08-27T15:10:27+09:00  chore(gateway): rebuild Submission 3 from merged main

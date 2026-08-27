@@ -3,18 +3,26 @@ import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import { createApp, lakebase, server } from '@databricks/appkit';
 import {
-  HERO_EXPERIMENT_ID,
   HERO_SEGMENT_ID,
+  buildKoreanEvidencePrompt,
+  completeInvestigation,
+  createInvestigationCase,
   createProposedDecision,
+  failInvestigation,
+  getCase,
+  getCases,
   getDecision,
   getLiveView,
   getSearchExperiments,
   initializeDecisionSchema,
   parseActionRanking,
+  redraftProposedDecision,
   resetDemoDecision,
   transitionDecision,
+  validateRolloutPct,
 } from './nimbus-runtime.js';
 import { GatewayHttpError, GatewayPolicyDeniedError, requestChatCompletion } from './lib/ai-gateway.js';
+import { authHeaders } from './lib/auth.js';
 
 function actor(req: express.Request) {
   return req.header('x-forwarded-email') || req.header('x-forwarded-user') || 'local-operator@nimbus.test';
@@ -35,8 +43,81 @@ function sendError(res: express.Response, error: unknown) {
     return;
   }
   const message = error instanceof Error ? error.message : String(error);
-  const status = /not found/i.test(message) ? 404 : /Invalid|required|Missing/i.test(message) ? 409 : 500;
+  const status = /not found/i.test(message) ? 404 : /Invalid|required|Missing|No unprocessed/i.test(message) ? 409 : 500;
   res.status(status).json({ error: message });
+}
+
+async function runInvestigation(pool: Pool, req: express.Request, decisionId: string) {
+  const assistRunId = randomUUID();
+  const decision = await getDecision(pool, decisionId);
+  const decisionRow = decision.rows[0];
+  const segmentId = String(decisionRow.segment_id);
+  const live = await getLiveView(pool, segmentId, 1);
+  const metric = live.rows[0] as Record<string, unknown> | undefined;
+  if (!metric) throw new Error(`Segment not found: ${segmentId}`);
+  const ranking = parseActionRanking(metric.action_ranking);
+  const searchTerms = [metric.cohort, metric.platform, metric.region].filter(Boolean).join(' ');
+  const search = await getSearchExperiments(pool, searchTerms || segmentId, 5);
+  const experiment = search.rows[0] as Record<string, unknown> | undefined;
+  if (!experiment) throw new Error('Experiment search returned no grounding result');
+  const prompt = buildKoreanEvidencePrompt(metric, ranking[0] ?? {}, experiment);
+  const headers = await authHeaders(req);
+  const authorization = headers.get('authorization');
+  if (!authorization?.toLowerCase().startsWith('bearer ')) {
+    throw new Error('Databricks authentication did not provide a bearer token');
+  }
+  const token = authorization.slice('bearer '.length);
+  const { body } = await requestChatCompletion({
+    host: String(process.env.DATABRICKS_HOST || '').replace(/\/$/, ''), token,
+    model: process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway',
+    messages: [
+      { role: 'system', content: '당신은 근거 기반 그로스 분석가입니다. 한국어 Markdown으로 작성하고 사람의 승인을 대신하지 마세요.' },
+      { role: 'user', content: prompt },
+    ],
+    tags: { application: 'nimbus-growth-desk', assist_run_id: assistRunId, segment_id: segmentId, experiment_id: String(experiment.experiment_id ?? '') },
+  });
+  const memo = body.choices?.[0]?.message?.content?.trim();
+  if (!memo) throw new Error('AI Gateway returned no memo');
+  const proposed = await completeInvestigation(pool, decisionId, {
+    assistRunId, experimentId: experiment.experiment_id ? String(experiment.experiment_id) : null,
+    actionType: String(metric.recommended_action), flagKey: String(metric.neighbor_flag_key ?? ''),
+    variant: String(experiment.variant ?? 'variant_a'), draftedNote: memo,
+    predictedConversionLift: Number(metric.predicted_conversion_lift),
+  });
+  return { executed_at: new Date().toISOString(), decision_id: proposed.id, segment_id: segmentId };
+}
+
+async function generateKoreanMemo(
+  req: express.Request,
+  metric: Record<string, unknown>,
+  recommendation: Record<string, unknown>,
+  experiment: Record<string, unknown>,
+  assistRunId: string,
+) {
+  const headers = await authHeaders(req);
+  const authorization = headers.get('authorization');
+  if (!authorization?.toLowerCase().startsWith('bearer ')) {
+    throw new Error('Databricks authentication did not provide a bearer token');
+  }
+  const { body } = await requestChatCompletion({
+    host: String(process.env.DATABRICKS_HOST || '').replace(/\/$/, ''),
+    token: authorization.slice('bearer '.length),
+    model: process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway',
+    messages: [
+      {
+        role: 'system',
+        content: '당신은 근거 기반 그로스 분석가입니다. 지정된 한국어 Markdown 구조를 지키고 사람의 승인을 대신하지 마세요.',
+      },
+      { role: 'user', content: buildKoreanEvidencePrompt(metric, recommendation, experiment) },
+    ],
+    tags: {
+      application: 'nimbus-growth-desk', assist_run_id: assistRunId,
+      segment_id: String(metric.segment_id ?? ''), experiment_id: String(experiment.experiment_id ?? ''),
+    },
+  });
+  const memo = body.choices?.[0]?.message?.content?.trim();
+  if (!memo) throw new Error('AI Gateway returned no memo');
+  return memo;
 }
 
 function registerRoutes(app: express.Application, pool: Pool) {
@@ -91,6 +172,44 @@ app.get('/api/live-view', async (req, res) => {
   } catch (error) { sendError(res, error); }
 });
 
+app.get('/api/cases', async (_req, res) => {
+  try { res.json(await getCases(pool)); } catch (error) { sendError(res, error); }
+});
+
+app.get('/api/cases/:id', async (req, res) => {
+  try { res.json(await getCase(pool, req.params.id)); } catch (error) { sendError(res, error); }
+});
+
+app.post('/api/investigations/next', async (_req, res) => {
+  try {
+    const created = await createInvestigationCase(pool);
+    res.status(201).json({ decision_id: created.id, segment_id: created.segment_id, status: created.status });
+  } catch (error) { sendError(res, error); }
+});
+
+app.post('/api/investigations/:id/run', async (req, res) => {
+  const lockClient = await pool.connect();
+  let locked = false;
+  try {
+    const lock = await lockClient.query('SELECT pg_try_advisory_lock(hashtext($1)) AS locked', [`investigation:${req.params.id}`]);
+    locked = lock.rows[0]?.locked === true;
+    if (!locked) { res.status(409).json({ error: '이미 조사가 실행 중입니다.' }); return; }
+    const decision = await getDecision(pool, req.params.id);
+    const status = String(decision.rows[0].status);
+    if (!['investigating', 'investigation_failed'].includes(status)) throw new Error(`Invalid investigation state: ${status}`);
+    if (status === 'investigation_failed') {
+      await pool.query("UPDATE app.feature_decisions_app SET status='investigating' WHERE id=$1 AND status='investigation_failed'", [req.params.id]);
+    }
+    res.json(await runInvestigation(pool, req, req.params.id));
+  } catch (error) {
+    await failInvestigation(pool, req.params.id, error);
+    sendError(res, error);
+  } finally {
+    if (locked) await lockClient.query('SELECT pg_advisory_unlock(hashtext($1))', [`investigation:${req.params.id}`]);
+    lockClient.release();
+  }
+});
+
 app.get('/api/search-experiments', async (req, res) => {
   try {
     const query = typeof req.query.q === 'string' && req.query.q.trim()
@@ -124,8 +243,26 @@ app.get('/api/decisions/:id', async (req, res) => {
   catch (error) { sendError(res, error); }
 });
 
+app.post('/api/decisions/:id/redraft', async (req, res) => {
+  try {
+    const detail = await getCase(pool, req.params.id);
+    const row = detail.case as Record<string, unknown>;
+    if (row.status !== 'proposed') throw new Error(`Invalid redraft state: ${String(row.status)}`);
+    const experiment = row.experiment as Record<string, unknown> | null;
+    if (!experiment) throw new Error('Experiment evidence is required to redraft the memo');
+    const ranking = parseActionRanking(row.action_ranking);
+    const assistRunId = randomUUID();
+    const memo = await generateKoreanMemo(req, row, ranking[0] ?? {}, experiment, assistRunId);
+    const decision = await redraftProposedDecision(pool, req.params.id, memo, assistRunId);
+    res.json({ decision, drafted_note: memo, redrafted_at: new Date().toISOString() });
+  } catch (error) { sendError(res, error); }
+});
+
 app.post('/api/decisions/:id/approve', async (req, res) => {
-  try { res.json(await transitionDecision(pool, req.params.id, 'approved', actor(req))); }
+  try {
+    const rolloutPct = validateRolloutPct(req.body?.rollout_pct);
+    res.json(await transitionDecision(pool, req.params.id, 'approved', actor(req), rolloutPct));
+  }
   catch (error) { sendError(res, error); }
 });
 
@@ -138,45 +275,9 @@ app.post('/api/decisions/:id/commit', async (req, res) => {
 });
 
 app.post('/api/assist', async (req, res) => {
-  const assistRunId = randomUUID();
-  const segmentId = String(req.body?.segment_id || HERO_SEGMENT_ID);
   try {
-    const live = await getLiveView(pool, segmentId, 1);
-    const hero = live.rows[0];
-    if (!hero) throw new Error(`Segment not found: ${segmentId}`);
-    const ranking = parseActionRanking(hero.action_ranking);
-    const search = await getSearchExperiments(pool, 'checkout android gen-z', 5);
-    const experiment = search.rows.find((row) => row.experiment_id === HERO_EXPERIMENT_ID) || search.rows[0];
-    if (!experiment) throw new Error('Experiment search returned no grounding result');
-
-    const prompt = `Draft a concise rollout memo. Stop before approval.\nSegment: ${JSON.stringify(hero)}\nRanked actions: ${JSON.stringify(ranking)}\nExperiment evidence: ${JSON.stringify(experiment)}`;
-    const token = req.header('x-forwarded-access-token');
-    if (!token) throw new Error('Missing Databricks app OBO token');
-    const host = String(process.env.DATABRICKS_HOST || '').replace(/\/$/, '');
-    const model = process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway';
-    const { body: gatewayBody } = await requestChatCompletion({
-      host, token, model,
-      messages: [
-        { role: 'system', content: 'You are a growth operations analyst. Draft evidence-based rollout memos. Never approve or commit.' },
-        { role: 'user', content: prompt },
-      ],
-      tags: { application: 'nimbus-growth-desk', assist_run_id: assistRunId, segment_id: segmentId, experiment_id: String(experiment.experiment_id) },
-    });
-    const memo = gatewayBody.choices?.[0]?.message?.content?.trim();
-    if (!memo) throw new Error('AI Gateway returned no memo');
-    const proposed = await createProposedDecision(pool, {
-      assistRunId, segmentId, experimentId: String(experiment.experiment_id),
-      actionType: String(hero.recommended_action), flagKey: String(hero.neighbor_flag_key),
-      variant: String(experiment.variant || 'variant_a'), rolloutPct: 25, draftedNote: memo,
-      predictedConversionLift: Number(hero.predicted_conversion_lift),
-    });
-    res.status(201).json({
-      executed_at: new Date().toISOString(), assist_run_id: assistRunId, segment_id: segmentId,
-      experiment_id: experiment.experiment_id, decision_id: proposed.id,
-      investigation: hero, search: { method: search.method, index: search.index, execution_plan: search.execution_plan },
-      search_results: search.rows, ranked_actions: ranking,
-      drafted_memo: memo, decision_status: 'proposed', approval_required: true,
-    });
+    const created = await createInvestigationCase(pool);
+    res.status(201).json(await runInvestigation(pool, req, String(created.id)));
   } catch (error) { sendError(res, error); }
 });
 

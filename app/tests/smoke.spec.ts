@@ -44,9 +44,9 @@ let failedRequests: string[] = [];
 test('smoke test - app loads and displays home page', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByText(APP_CONFIG.name, { exact: true }).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: '전환 하락을 찾고, 오늘 25% 롤아웃을 결정합니다' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '조사 → 승인 → 기록' })).toBeVisible();
+  await expect(page.getByText('Nimbus', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '조사 업무함' })).toBeVisible();
+  await expect(page.getByText('구조화된 영향 보고서')).toBeVisible();
   await expect(page.getByRole('link', { name: /AI 비용/ })).toBeVisible();
 });
 
@@ -67,6 +67,20 @@ test.beforeEach(async ({ page }) => {
   consoleErrors = [];
   pageErrors = [];
   failedRequests = [];
+
+  if (process.env.PLAYWRIGHT_UI_ONLY) {
+    const decision = {
+      id: 'smoke-decision', decision_id: 'smoke-decision', segment_id: 'SEG-SMOKE', status: 'proposed', decision_status: 'proposed',
+      conversion_rate_3w_ago: 0.04, conversion_rate: 0.03, predicted_conversion_lift: 0.01,
+      conversion_at_risk_usd: 100000, predicted_net_value_usd: 150000,
+      recommended_action: 'ship_proven_variant', scored_at: '2026-08-27T10:00:00Z', rollout_pct: 100,
+      drafted_note: '## 근거\n\n검증된 실험 결과입니다.', experiment: { experiment_id: 'EXP-SMOKE', description: '스모크 테스트 실험' },
+    };
+    await page.route('**/api/me', (route) => route.fulfill({ json: { userEmail: 'tester@example.com' } }));
+    await page.route('**/api/config', (route) => route.fulfill({ json: { gatewayDashboardUrl: 'https://example.com/cost' } }));
+    await page.route('**/api/cases', (route) => route.fulfill({ json: { queried_at: '2026-08-27T12:00:00Z', cases: [decision] } }));
+    await page.route('**/api/cases/smoke-decision', (route) => route.fulfill({ json: { case: decision } }));
+  }
 
   // Create temp directory for test artifacts
   testArtifactsDir = join(process.cwd(), '.smoke-test');

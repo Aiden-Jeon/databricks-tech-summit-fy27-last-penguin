@@ -1,0 +1,7 @@
+=== Console Logs ===
+
+=== Console Errors (React errors) ===
+
+=== Page Errors ===
+
+=== Failed Requests ===

@@ -1,0 +1,670 @@
+{
+  "datasets": [
+    {
+      "name": "summary",
+      "displayName": "비용 및 통제 요약",
+      "queryLines": [
+        "WITH usage_base AS (\n  SELECT event_time,\n         CASE\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_app_gateway' THEN 'App Gateway'\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway' THEN 'Coding Agent Gateway'\n           ELSE COALESCE(service_name, endpoint_name)\n         END AS gateway,\n         COALESCE(destination_model, destination_name, '(no destination)') AS model,\n         COALESCE(request_tags['application'], endpoint_tags['application'], 'unattributed') AS application,\n         status_code, requester, request_id,\n         COALESCE(input_tokens, 0) AS input_tokens,\n         COALESCE(output_tokens, 0) AS output_tokens,\n         COALESCE(total_tokens, COALESCE(input_tokens, 0) + COALESCE(output_tokens, 0)) AS total_tokens,\n         COALESCE(input_tokens, 0) / 1000000.0 * 0.15\n           + COALESCE(output_tokens, 0) / 1000000.0 * 0.60 AS est_cost_usd\n  FROM usage\n  WHERE workspace_id = '7474655051393778'\n    AND COALESCE(service_name, endpoint_name) IN (\n      'last_penguin_catalog.nimbus.nimbus_app_gateway',\n      'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway'\n    )\n)\nSELECT ROUND(SUM(est_cost_usd), 6) AS est_cost_usd,\n",
+        "       COUNT(*) AS requests, SUM(total_tokens) AS total_tokens,\n",
+        "       SUM(CASE WHEN status_code = 403 THEN 1 ELSE 0 END) AS blocked_403,\n",
+        "       CAST(0.03 AS DOUBLE) AS alert_usd, CAST(0.05 AS DOUBLE) AS hard_stop_usd,\n",
+        "       (SELECT ROUND(SUM(usage_quantity), 6) FROM external_model_spend\n",
+        "         WHERE workspace_id = '7474655051393778'\n",
+        "           AND usage_metadata.endpoint_name IN ('last_penguin_catalog.nimbus.nimbus_app_gateway','last_penguin_catalog.nimbus.nimbus_coding_agent_gateway')) AS external_model_spend_usd\n",
+        "FROM usage_base"
+      ]
+    },
+    {
+      "name": "hourly",
+      "displayName": "시간별 추정 비용",
+      "queryLines": [
+        "WITH usage_base AS (\n  SELECT event_time,\n         CASE\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_app_gateway' THEN 'App Gateway'\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway' THEN 'Coding Agent Gateway'\n           ELSE COALESCE(service_name, endpoint_name)\n         END AS gateway,\n         COALESCE(destination_model, destination_name, '(no destination)') AS model,\n         COALESCE(request_tags['application'], endpoint_tags['application'], 'unattributed') AS application,\n         status_code, requester, request_id,\n         COALESCE(input_tokens, 0) AS input_tokens,\n         COALESCE(output_tokens, 0) AS output_tokens,\n         COALESCE(total_tokens, COALESCE(input_tokens, 0) + COALESCE(output_tokens, 0)) AS total_tokens,\n         COALESCE(input_tokens, 0) / 1000000.0 * 0.15\n           + COALESCE(output_tokens, 0) / 1000000.0 * 0.60 AS est_cost_usd\n  FROM usage\n  WHERE workspace_id = '7474655051393778'\n    AND COALESCE(service_name, endpoint_name) IN (\n      'last_penguin_catalog.nimbus.nimbus_app_gateway',\n      'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway'\n    )\n)\nSELECT DATE_TRUNC('HOUR', event_time) AS hour, gateway,\n",
+        "       ROUND(SUM(est_cost_usd), 6) AS est_cost_usd, SUM(total_tokens) AS total_tokens, COUNT(*) AS requests\n",
+        "FROM usage_base GROUP BY 1,2 ORDER BY 1"
+      ]
+    },
+    {
+      "name": "gateway_model",
+      "displayName": "Gateway 및 모델별 사용량",
+      "queryLines": [
+        "WITH usage_base AS (\n  SELECT event_time,\n         CASE\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_app_gateway' THEN 'App Gateway'\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway' THEN 'Coding Agent Gateway'\n           ELSE COALESCE(service_name, endpoint_name)\n         END AS gateway,\n         COALESCE(destination_model, destination_name, '(no destination)') AS model,\n         COALESCE(request_tags['application'], endpoint_tags['application'], 'unattributed') AS application,\n         status_code, requester, request_id,\n         COALESCE(input_tokens, 0) AS input_tokens,\n         COALESCE(output_tokens, 0) AS output_tokens,\n         COALESCE(total_tokens, COALESCE(input_tokens, 0) + COALESCE(output_tokens, 0)) AS total_tokens,\n         COALESCE(input_tokens, 0) / 1000000.0 * 0.15\n           + COALESCE(output_tokens, 0) / 1000000.0 * 0.60 AS est_cost_usd\n  FROM usage\n  WHERE workspace_id = '7474655051393778'\n    AND COALESCE(service_name, endpoint_name) IN (\n      'last_penguin_catalog.nimbus.nimbus_app_gateway',\n      'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway'\n    )\n)\nSELECT gateway, model, ROUND(SUM(est_cost_usd), 6) AS est_cost_usd,\n",
+        "       SUM(total_tokens) AS total_tokens, COUNT(*) AS requests\n",
+        "FROM usage_base GROUP BY 1,2 ORDER BY est_cost_usd DESC"
+      ]
+    },
+    {
+      "name": "request_log",
+      "displayName": "최근 Gateway 요청",
+      "queryLines": [
+        "WITH usage_base AS (\n  SELECT event_time,\n         CASE\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_app_gateway' THEN 'App Gateway'\n           WHEN COALESCE(service_name, endpoint_name) = 'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway' THEN 'Coding Agent Gateway'\n           ELSE COALESCE(service_name, endpoint_name)\n         END AS gateway,\n         COALESCE(destination_model, destination_name, '(no destination)') AS model,\n         COALESCE(request_tags['application'], endpoint_tags['application'], 'unattributed') AS application,\n         status_code, requester, request_id,\n         COALESCE(input_tokens, 0) AS input_tokens,\n         COALESCE(output_tokens, 0) AS output_tokens,\n         COALESCE(total_tokens, COALESCE(input_tokens, 0) + COALESCE(output_tokens, 0)) AS total_tokens,\n         COALESCE(input_tokens, 0) / 1000000.0 * 0.15\n           + COALESCE(output_tokens, 0) / 1000000.0 * 0.60 AS est_cost_usd\n  FROM usage\n  WHERE workspace_id = '7474655051393778'\n    AND COALESCE(service_name, endpoint_name) IN (\n      'last_penguin_catalog.nimbus.nimbus_app_gateway',\n      'last_penguin_catalog.nimbus.nimbus_coding_agent_gateway'\n    )\n)\nSELECT event_time, gateway, model, application, status_code, requester, request_id,\n",
+        "       input_tokens, output_tokens, total_tokens, ROUND(est_cost_usd, 6) AS est_cost_usd\n",
+        "FROM usage_base ORDER BY event_time DESC LIMIT 100"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "overview",
+      "displayName": "Gateway 비용 통제",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## AI 비용은 보이고, 귀속되고, 멈춥니다"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "subtitle",
+            "multilineTextboxSpec": {
+              "lines": [
+                "Nimbus Growth Desk · 명시 단가 기준 추정 비용(입력 $0.15/M, 출력 $0.60/M) · application/requester/request ID 귀속 · $0.03 알림 / $0.05 하드 스톱"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "estimated-cost",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "summary",
+                  "fields": [
+                    {
+                      "name": "est_cost_usd",
+                      "expression": "`est_cost_usd`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "est_cost_usd",
+                  "displayName": "추정 토큰 비용",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 4
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "추정 토큰 비용"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "request-count",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "summary",
+                  "fields": [
+                    {
+                      "name": "requests",
+                      "expression": "`requests`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "requests",
+                  "displayName": "요청 수",
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "요청 수"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "total-tokens",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "summary",
+                  "fields": [
+                    {
+                      "name": "total_tokens",
+                      "expression": "`total_tokens`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_tokens",
+                  "displayName": "총 토큰",
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "총 토큰"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "blocked-count",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "summary",
+                  "fields": [
+                    {
+                      "name": "blocked_403",
+                      "expression": "`blocked_403`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "blocked_403",
+                  "displayName": "403 차단"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "403 차단"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "alert-threshold",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "summary",
+                  "fields": [
+                    {
+                      "name": "alert_usd",
+                      "expression": "`alert_usd`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "alert_usd",
+                  "displayName": "데모 알림",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 4
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "데모 알림"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "hard-stop-threshold",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "summary",
+                  "fields": [
+                    {
+                      "name": "hard_stop_usd",
+                      "expression": "`hard_stop_usd`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "hard_stop_usd",
+                  "displayName": "하드 스톱",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 4
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "하드 스톱"
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "billing-note",
+            "multilineTextboxSpec": {
+              "lines": [
+                "**비용 해석:** 위 금액은 데모에서 명시한 토큰 단가에 따른 추정치입니다. `external_model_spend`에 Nimbus 행이 없으면 실제 외부 모델 spend는 0달러가 아니라 **미제공(NULL)** 입니다. $0.03/$0.05는 데모 검증 임계값이며 연간 비용 상한이 아닙니다."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "hourly-cost",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "hourly",
+                  "fields": [
+                    {
+                      "name": "hour",
+                      "expression": "`hour`"
+                    },
+                    {
+                      "name": "est_cost_usd",
+                      "expression": "`est_cost_usd`"
+                    },
+                    {
+                      "name": "gateway",
+                      "expression": "`gateway`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "hour",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "est_cost_usd",
+                  "displayName": "추정 비용 (USD)",
+                  "scale": {
+                    "type": "quantitative",
+                    "domainMin": 0
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 4
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "gateway",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "시간별 추정 비용"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "gateway-model-usage",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gateway_model",
+                  "fields": [
+                    {
+                      "name": "gateway",
+                      "expression": "`gateway`"
+                    },
+                    {
+                      "name": "total_tokens",
+                      "expression": "`total_tokens`"
+                    },
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "mark": {
+                "layout": "group"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "total_tokens",
+                  "displayName": "총 토큰",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "gateway",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "model",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Gateway · 모델별 사용량"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "recent-requests",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "request_log",
+                  "fields": [
+                    {
+                      "name": "event_time",
+                      "expression": "`event_time`"
+                    },
+                    {
+                      "name": "application",
+                      "expression": "`application`"
+                    },
+                    {
+                      "name": "gateway",
+                      "expression": "`gateway`"
+                    },
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "status_code",
+                      "expression": "`status_code`"
+                    },
+                    {
+                      "name": "requester",
+                      "expression": "`requester`"
+                    },
+                    {
+                      "name": "request_id",
+                      "expression": "`request_id`"
+                    },
+                    {
+                      "name": "total_tokens",
+                      "expression": "`total_tokens`"
+                    },
+                    {
+                      "name": "est_cost_usd",
+                      "expression": "`est_cost_usd`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "event_time",
+                    "displayName": "시각"
+                  },
+                  {
+                    "fieldName": "application",
+                    "displayName": "애플리케이션"
+                  },
+                  {
+                    "fieldName": "gateway",
+                    "displayName": "Gateway"
+                  },
+                  {
+                    "fieldName": "model",
+                    "displayName": "모델"
+                  },
+                  {
+                    "fieldName": "status_code",
+                    "displayName": "상태"
+                  },
+                  {
+                    "fieldName": "requester",
+                    "displayName": "요청자"
+                  },
+                  {
+                    "fieldName": "request_id",
+                    "displayName": "요청 ID"
+                  },
+                  {
+                    "fieldName": "total_tokens",
+                    "displayName": "토큰"
+                  },
+                  {
+                    "fieldName": "est_cost_usd",
+                    "displayName": "추정 USD"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "최근 요청 로그 · 귀속 및 차단 결과"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#F5F7FB",
+        "dark": "#182026"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "widgetBorderColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "fontColor": {
+        "light": "#1F2530",
+        "dark": "#E8ECF0"
+      },
+      "selectionColor": {
+        "light": "#4F7CE3",
+        "dark": "#8ACAFF"
+      },
+      "visualizationColors": [
+        "#094074",
+        "#3C6997",
+        "#5ADBFF",
+        "#FFDD4A",
+        "#FE9000",
+        "#2F9E6F"
+      ],
+      "widgetHeaderAlignment": "LEFT",
+      "fontFamily": "Noto Sans KR",
+      "widgetCornerRadius": 10
+    }
+  }
+}

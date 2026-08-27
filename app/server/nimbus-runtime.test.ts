@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assertTransition, getDecision, getSearchExperiments, parseActionRanking, resetDemoDecision } from './nimbus-runtime.js';
+import { assertTransition, buildKoreanEvidencePrompt, completeInvestigation, createInvestigationCase, failInvestigation, getDecision, getSearchExperiments, parseActionRanking, redraftProposedDecision, resetDemoDecision, validateRolloutPct } from './nimbus-runtime.js';
 import type { Pool } from 'pg';
 
 describe('decision state machine', () => {
@@ -8,6 +8,78 @@ describe('decision state machine', () => {
     expect(() => assertTransition('approved', 'committed', 'vp@example.com')).not.toThrow();
     expect(() => assertTransition('proposed', 'committed', null)).toThrow(/Invalid/);
     expect(() => assertTransition('approved', 'committed', null)).toThrow(/approved_by/);
+  });
+
+  it('accepts only rollout percentages from 1 through 100', () => {
+    expect(validateRolloutPct(1)).toBe(1);
+    expect(validateRolloutPct(50)).toBe(50);
+    expect(validateRolloutPct(100)).toBe(100);
+    expect(() => validateRolloutPct(0)).toThrow(/between 1 and 100/);
+    expect(() => validateRolloutPct(101)).toThrow(/between 1 and 100/);
+  });
+});
+
+describe('investigation lifecycle', () => {
+  it('creates the highest-risk unprocessed case as investigating inside a lock', async () => {
+    const query = vi.fn()
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({ rows: [{ segment_id: 'SEG-HIGH', recommended_action: 'ship_proven_variant' }] })
+      .mockResolvedValueOnce({ rows: [{ id: 'case-1', segment_id: 'SEG-HIGH', status: 'investigating' }] })
+      .mockResolvedValueOnce({});
+    const release = vi.fn();
+    const pool = Object.create(null) as Pool;
+    pool.connect = vi.fn().mockResolvedValue({ query, release });
+    const result = await createInvestigationCase(pool);
+    expect(result).toMatchObject({ segment_id: 'SEG-HIGH', status: 'investigating' });
+    expect(String(query.mock.calls[2][0])).toContain('NOT EXISTS');
+    expect(String(query.mock.calls[2][0])).toContain('ORDER BY os.conversion_at_risk_usd DESC');
+    expect(String(query.mock.calls[3][0])).toContain("'investigating'");
+    expect(release).toHaveBeenCalled();
+  });
+
+  it('updates the same case to proposed and preserves failures in its audit trail', async () => {
+    const pool = Object.create(null) as Pool;
+    pool.query = vi.fn()
+      .mockResolvedValueOnce({ rows: [{ id: 'case-1', status: 'proposed' }] })
+      .mockResolvedValueOnce({ rows: [{ id: 'case-1', status: 'investigation_failed' }] });
+    const completed = await completeInvestigation(pool, 'case-1', {
+      assistRunId: 'run-1', experimentId: 'EXP-1', draftedNote: 'memo', actionType: 'ship_proven_variant',
+      flagKey: 'flag', variant: 'v1', predictedConversionLift: .02,
+    });
+    expect(completed).toMatchObject({ id: 'case-1', status: 'proposed' });
+    expect(String(vi.mocked(pool.query).mock.calls[0][0])).toContain("status IN ('investigating','investigation_failed')");
+    await failInvestigation(pool, 'case-1', new Error('gateway unavailable'));
+    expect(vi.mocked(pool.query).mock.calls[1][1]).toEqual(expect.arrayContaining(['case-1', expect.stringContaining('gateway unavailable')]));
+  });
+
+  it('builds a constrained Korean evidence memo contract', () => {
+    const prompt = buildKoreanEvidencePrompt(
+      { segment_id: 'SEG-1', conversion_rate: .03 },
+      { action: 'ship_proven_variant' },
+      { experiment_id: 'EXP-1', lift: .02 },
+    );
+    expect(prompt).toContain('## 한줄 결론');
+    expect(prompt).toContain('## 판단 근거');
+    expect(prompt).toContain('## 기대 효과');
+    expect(prompt).toContain('## 실행 전 확인사항');
+    expect(prompt).toContain('고정 롤아웃 비율을 제안하지 않습니다');
+    expect(prompt).toContain('승인, 실행, 기록이 이미 완료되었다고 표현하지 않습니다');
+  });
+
+  it('redrafts only a proposed decision and appends a traceable audit event', async () => {
+    const pool = Object.create(null) as Pool;
+    pool.query = vi.fn()
+      .mockResolvedValueOnce({ rows: [{ id: 'case-1', status: 'proposed', drafted_note: '한국어 메모' }] })
+      .mockResolvedValueOnce({ rows: [] });
+    const updated = await redraftProposedDecision(pool, 'case-1', '한국어 메모', 'run-redraft');
+    expect(updated).toMatchObject({ status: 'proposed', drafted_note: '한국어 메모' });
+    const firstCall = vi.mocked(pool.query).mock.calls[0];
+    expect(String(firstCall[0])).toContain("status='proposed'");
+    expect(firstCall[1]).toEqual(expect.arrayContaining([
+      'case-1', '한국어 메모', expect.stringContaining('redrafted'),
+    ]));
+    await expect(redraftProposedDecision(pool, 'case-approved', '메모', 'run-2')).rejects.toThrow(/Invalid redraft state/);
   });
 });
 

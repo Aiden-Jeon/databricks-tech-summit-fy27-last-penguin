@@ -41,7 +41,7 @@ SELECT sp.segment_id, sp.cohort, sp.platform, sp.region, sp.segment_summary,
  ORDER BY rs.risk_rank
  LIMIT $2`;
 
-export type DecisionStatus = 'proposed' | 'approved' | 'committed';
+export type DecisionStatus = 'investigating' | 'investigation_failed' | 'proposed' | 'approved' | 'committed';
 
 export function assertTransition(from: DecisionStatus, to: DecisionStatus, approver?: string | null) {
   const valid = (from === 'proposed' && to === 'approved') ||
@@ -50,13 +50,142 @@ export function assertTransition(from: DecisionStatus, to: DecisionStatus, appro
   if (to === 'committed' && !approver) throw new Error('An approved_by identity is required before commit');
 }
 
-export function parseActionRanking(value: unknown) {
-  if (Array.isArray(value)) return value;
+export async function createInvestigationCase(pool: Pool) {
+  const client = await pool.connect();
+  const decisionId = randomUUID();
+  const at = new Date().toISOString();
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT pg_advisory_xact_lock(hashtext('nimbus-next-investigation'))");
+    const candidate = await client.query(
+      `SELECT os.segment_id, os.neighbor_flag_key, ar.recommended_action,
+              ar.predicted_conversion_lift
+         FROM nimbus_serving.open_sliding os
+         LEFT JOIN nimbus_serving.action_recommendations ar USING (segment_id)
+        WHERE NOT EXISTS (
+          SELECT 1 FROM app.feature_decisions_app fd WHERE fd.segment_id=os.segment_id
+        )
+        ORDER BY os.conversion_at_risk_usd DESC, os.segment_id
+        LIMIT 1`,
+    );
+    const row = candidate.rows[0] as Record<string, unknown> | undefined;
+    if (!row) throw new Error('No unprocessed risk segment available');
+    const audit = [{ at, by: 'nimbus-assistant', action: 'investigating', notes: 'Investigation queued', tool: 'investigation_next' }];
+    const inserted = await client.query(
+      `INSERT INTO app.feature_decisions_app
+         (id, segment_id, action_type, flag_key, rollout_pct, predicted_conversion_lift,
+          status, audit_trail, created_at)
+       VALUES ($1,$2,$3,$4,100,$5,'investigating',$6::jsonb,$7)
+       RETURNING *`,
+      [decisionId, row.segment_id, row.recommended_action ?? 'ship_proven_variant',
+        row.neighbor_flag_key ?? '', row.predicted_conversion_lift ?? null, JSON.stringify(audit), at],
+    );
+    await client.query('COMMIT');
+    return inserted.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function completeInvestigation(pool: Pool, decisionId: string, input: {
+  assistRunId: string; experimentId: string | null; draftedNote: string;
+  actionType: string; flagKey: string; variant: string; predictedConversionLift: number | null;
+}) {
+  const at = new Date().toISOString();
+  const result = await pool.query(
+    `UPDATE app.feature_decisions_app
+        SET target_experiment_id=$2, drafted_note=$3, action_type=$4, flag_key=$5,
+            variant=$6, predicted_conversion_lift=$7, status='proposed',
+            audit_trail=audit_trail || $8::jsonb
+      WHERE id=$1 AND status IN ('investigating','investigation_failed')
+      RETURNING *`,
+    [decisionId, input.experimentId, input.draftedNote, input.actionType, input.flagKey,
+      input.variant, input.predictedConversionLift, JSON.stringify([{ at, by: 'nimbus-assistant',
+        action: 'proposed', notes: 'AI draft awaiting human approval', tool: 'investigation_run',
+        assist_run_id: input.assistRunId }])],
+  );
+  if (!result.rows[0]) throw new Error(`Invalid investigation state: ${decisionId}`);
+  return result.rows[0];
+}
+
+export async function failInvestigation(pool: Pool, decisionId: string, error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const at = new Date().toISOString();
+  await pool.query(
+    `UPDATE app.feature_decisions_app
+        SET status='investigation_failed',
+            audit_trail=audit_trail || $2::jsonb
+      WHERE id=$1 AND status='investigating'`,
+    [decisionId, JSON.stringify([{ at, by: 'nimbus-assistant', action: 'investigation_failed',
+      notes: message, tool: 'investigation_run' }])],
+  );
+}
+
+export function parseActionRanking(value: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is Record<string, unknown> =>
+      typeof item === 'object' && item !== null && !Array.isArray(item));
+  }
   if (typeof value === 'string') {
     const parsed: unknown = JSON.parse(value);
-    if (Array.isArray(parsed)) return parsed;
+    return parseActionRanking(parsed);
   }
   return [];
+}
+
+export function buildKoreanEvidencePrompt(
+  metric: Record<string, unknown>,
+  recommendation: Record<string, unknown>,
+  experiment: Record<string, unknown>,
+) {
+  return `다음 조사 근거를 의사결정자가 빠르게 검토할 수 있는 한국어 GFM Markdown으로 작성하세요.
+
+반드시 아래 네 개의 2단계 제목을 정확한 순서로 사용하세요.
+## 한줄 결론
+## 판단 근거
+## 기대 효과
+## 실행 전 확인사항
+
+작성 규칙:
+- 각 섹션은 1~3개의 짧은 문장 또는 글머리표로 작성합니다.
+- 실험 ID, 세그먼트 ID, 변형명, 플래그 키처럼 원문 보존이 필요한 고유 식별자를 제외하고 모두 자연스러운 한국어로 씁니다.
+- 입력에 있는 수치와 근거만 사용하고, 임의의 수치나 고정 롤아웃 비율을 제안하지 않습니다.
+- 승인, 실행, 기록이 이미 완료되었다고 표현하지 않습니다.
+- 별도의 문서 제목, 영문 섹션 제목, 상태 문구는 추가하지 않습니다.
+
+세그먼트: ${JSON.stringify(metric)}
+추천 액션: ${JSON.stringify(recommendation)}
+실험 근거: ${JSON.stringify(experiment)}`;
+}
+
+export async function redraftProposedDecision(
+  pool: Pool,
+  decisionId: string,
+  draftedNote: string,
+  assistRunId: string,
+) {
+  const at = new Date().toISOString();
+  const audit = [{
+    at,
+    by: 'nimbus-assistant',
+    action: 'redrafted',
+    notes: '한국어 AI 근거 요약으로 다시 작성',
+    tool: 'decision_redraft',
+    assist_run_id: assistRunId,
+  }];
+  const result = await pool.query(
+    `UPDATE app.feature_decisions_app
+        SET drafted_note=$2,
+            audit_trail=audit_trail || $3::jsonb
+      WHERE id=$1 AND status='proposed'
+      RETURNING *`,
+    [decisionId, draftedNote, JSON.stringify(audit)],
+  );
+  if (!result.rows[0]) throw new Error(`Invalid redraft state: ${decisionId}`);
+  return result.rows[0];
 }
 
 export async function initializeDecisionSchema(pool: Pool) {
@@ -66,6 +195,49 @@ export async function initializeDecisionSchema(pool: Pool) {
 export async function getLiveView(pool: Pool, segmentId: string | null, limit = 40) {
   const result = await pool.query(LIVE_VIEW_SQL, [segmentId, Math.min(Math.max(limit, 1), 40)]);
   return { queried_at: new Date().toISOString(), row_count: result.rowCount, rows: result.rows };
+}
+
+export async function getCases(pool: Pool) {
+  const live = await getLiveView(pool, null, 40);
+  return {
+    queried_at: live.queried_at,
+    cases: live.rows
+      .filter((row) => row.decision_id)
+      .sort((a, b) => {
+        const left = Date.parse(String(a.decided_at ?? a.decision_created_at ?? 0));
+        const right = Date.parse(String(b.decided_at ?? b.decision_created_at ?? 0));
+        return right - left;
+      }),
+  };
+}
+
+export async function getCase(pool: Pool, decisionId: string) {
+  const decision = await getDecision(pool, decisionId);
+  const row = decision.rows[0];
+  const live = await getLiveView(pool, String(row.segment_id), 1);
+  const metric = live.rows[0];
+  if (!metric) throw new Error(`Segment not found: ${String(row.segment_id)}`);
+  const experimentId = row.target_experiment_id ? String(row.target_experiment_id) : null;
+  let experiment: Record<string, unknown> | null = null;
+  if (experimentId) {
+    const result = await pool.query(
+      'SELECT * FROM app.search_experiments($1, $2) WHERE experiment_id=$3 LIMIT 1',
+      [experimentId, 10, experimentId],
+    );
+    experiment = result.rows[0] ?? null;
+  }
+  return {
+    queried_at: new Date().toISOString(),
+    case: { ...metric, ...row, experiment, audit_trail: row.audit_trail ?? [] },
+  };
+}
+
+export function validateRolloutPct(value: unknown) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 1 || parsed > 100) {
+    throw new Error('rollout_pct must be between 1 and 100');
+  }
+  return parsed;
 }
 
 export async function getSearchExperiments(pool: Pool, query: string, limit = 5) {
@@ -171,7 +343,7 @@ async function lockDecision(client: PoolClient, decisionId: string) {
   return result.rows[0] as Record<string, unknown> & { status: DecisionStatus; approved_by: string | null; audit_trail: unknown };
 }
 
-export async function transitionDecision(pool: Pool, decisionId: string, to: 'approved' | 'committed', actor: string) {
+export async function transitionDecision(pool: Pool, decisionId: string, to: 'approved' | 'committed', actor: string, rolloutPct?: number) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -180,14 +352,16 @@ export async function transitionDecision(pool: Pool, decisionId: string, to: 'ap
     const at = new Date().toISOString();
     const audit = Array.isArray(current.audit_trail) ? current.audit_trail : [];
     audit.push({ at, by: actor, action: to, notes: to === 'approved' ? 'Human approval recorded' : 'Decision committed', tool: `decision_${to}` });
+    const approvedRollout = to === 'approved' ? validateRolloutPct(rolloutPct) : null;
     const result = await client.query(
       `UPDATE app.feature_decisions_app
           SET status=$2,
               approved_by=CASE WHEN $2='approved' THEN $3 ELSE approved_by END,
               decided_at=CASE WHEN $2='committed' THEN $4 ELSE decided_at END,
-              audit_trail=$5::jsonb
+              audit_trail=$5::jsonb,
+              rollout_pct=CASE WHEN $2='approved' THEN $6 ELSE rollout_pct END
         WHERE id=$1 RETURNING *`,
-      [decisionId, to, actor, at, JSON.stringify(audit)],
+      [decisionId, to, actor, at, JSON.stringify(audit), approvedRollout],
     );
     await client.query('COMMIT');
     return result.rows[0];
