@@ -2,7 +2,8 @@ Build 2 evidence layers: Visualize -> Search -> Act -> closed-loop evidence
 Final integration branch: main
 Merged Build 2 tip: 96a2340
 
-*   7034864 2026-08-27T15:08:17+09:00  (HEAD -> main) merge: integrate Build 2 feedback remediation
+* c6c3302 2026-08-27T15:08:48+09:00  (HEAD -> main) chore(app): rebuild Submission 2 from merged main
+*   7034864 2026-08-27T15:08:17+09:00  merge: integrate Build 2 feedback remediation
 |\
 | * 96a2340 2026-08-27T15:05:27+09:00  chore(app): package remediated Build 2 submission
 | *   5e1d875 2026-08-27T15:05:27+09:00  merge: close Build 2 proof chain
