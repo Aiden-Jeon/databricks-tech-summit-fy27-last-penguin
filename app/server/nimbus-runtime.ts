@@ -3,6 +3,8 @@ import type { Pool, PoolClient } from 'pg';
 
 export const HERO_SEGMENT_ID = 'SEG-0000214';
 export const HERO_EXPERIMENT_ID = 'EXP-0000009';
+export const EXPERIMENT_SEARCH_INDEX = 'experiments_description_bm25_idx';
+export const EXPERIMENT_SEARCH_METHOD = 'lakebase_text BM25';
 
 export const LIVE_VIEW_SQL = `WITH ranked_sliding AS (
   SELECT os.*,
@@ -61,6 +63,28 @@ export async function initializeDecisionSchema(pool: Pool) {
 export async function getLiveView(pool: Pool, segmentId: string | null, limit = 40) {
   const result = await pool.query(LIVE_VIEW_SQL, [segmentId, Math.min(Math.max(limit, 1), 40)]);
   return { queried_at: new Date().toISOString(), row_count: result.rowCount, rows: result.rows };
+}
+
+export async function getSearchExperiments(pool: Pool, query: string, limit = 5) {
+  const boundedLimit = Math.min(Math.max(limit, 1), 20);
+  const searchSql =
+    'SELECT * FROM app.search_experiments($1, $2) ORDER BY relevance DESC NULLS LAST LIMIT $2';
+  const [result, explained] = await Promise.all([
+    pool.query(searchSql, [query, boundedLimit]),
+    pool.query(`EXPLAIN (FORMAT TEXT) ${searchSql}`, [query, boundedLimit]),
+  ]);
+  const executionPlan = explained.rows
+    .map((row) => String(row['QUERY PLAN'] ?? row.query_plan ?? ''))
+    .filter(Boolean);
+  return {
+    executed_at: new Date().toISOString(),
+    query,
+    method: EXPERIMENT_SEARCH_METHOD,
+    index: EXPERIMENT_SEARCH_INDEX,
+    execution_plan: executionPlan,
+    row_count: result.rowCount,
+    rows: result.rows,
+  };
 }
 
 type ProposedDecision = {
