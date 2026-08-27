@@ -3,177 +3,149 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-type Message = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  createdAt: string;
-};
-
-type Conversation = {
-  id: string;
-  title: string;
-  kind: 'default' | 'demo_dock';
-  createdAt: string;
-  updatedAt: string;
-  messages: Message[];
-};
+import { Pool } from 'pg';
+import {
+  HERO_EXPERIMENT_ID,
+  HERO_SEGMENT_ID,
+  createProposedDecision,
+  getLiveView,
+  initializeDecisionSchema,
+  parseActionRanking,
+  transitionDecision,
+} from './nimbus-runtime.js';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 
-const now = () => new Date().toISOString();
-const conversations = new Map<string, Conversation>();
-
-function createConversation(title = 'New conversation', kind: Conversation['kind'] = 'default') {
-  const timestamp = now();
-  const conversation: Conversation = {
-    id: randomUUID(),
-    title,
-    kind,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    messages: [],
-  };
-  conversations.set(conversation.id, conversation);
-  return conversation;
-}
-
-function summary(conversation: Conversation) {
-  const { messages: _messages, ...row } = conversation;
-  return row;
-}
-
-app.get('/health', (_req, res) => res.json({ status: 'ok' }));
-app.get('/api/me', (_req, res) => {
-  const host = process.env.DATABRICKS_HOST ?? '';
-  res.json({
-    userName: process.env.DATABRICKS_USER_NAME ?? 'Nimbus developer',
-    userEmail: process.env.DATABRICKS_USER_NAME ?? null,
-    workspaceUrl: host.startsWith('http') ? host : host ? `https://${host}` : '',
-    workspaceId: process.env.DATABRICKS_WORKSPACE_ID ?? null,
-    isUserContext: false,
-  });
+const pool = new Pool({
+  max: 8,
+  connectionTimeoutMillis: 10_000,
+  idleTimeoutMillis: 30_000,
+  ssl: process.env.PGHOST ? { rejectUnauthorized: false } : undefined,
 });
 
+function actor(req: express.Request) {
+  return req.header('x-forwarded-email') || req.header('x-forwarded-user') || 'local-operator@nimbus.test';
+}
+
+function sendError(res: express.Response, error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const status = /not found/i.test(message) ? 404 : /Invalid|required|Missing/i.test(message) ? 409 : 500;
+  res.status(status).json({ error: message });
+}
+
+app.get('/health', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', database: 'connected', checked_at: new Date().toISOString() });
+  } catch (error) {
+    res.status(503).json({ status: 'error', database: 'unavailable', detail: String(error) });
+  }
+});
+
+app.get('/api/me', (req, res) => res.json({
+  userName: actor(req), userEmail: actor(req), workspaceUrl: process.env.DATABRICKS_HOST ?? '',
+  workspaceId: process.env.DATABRICKS_WORKSPACE_ID ?? null, isUserContext: Boolean(req.header('x-forwarded-email')),
+}));
+
 app.get('/api/config', (_req, res) => res.json({
-  mlflowExperimentId: null,
-  agentMlflowExperimentId: null,
-  dashboardId: '',
+  mlflowExperimentId: null, agentMlflowExperimentId: null, dashboardId: '',
   branding: { appName: 'Nimbus Growth Desk' },
   assistantScript: [
-    { label: 'Investigate', prompt: 'Why is SEG-0000214 sliding on conversion?' },
-    { label: 'Recommend', prompt: 'Rank the best action to ship next.' },
-    { label: 'Approve', prompt: 'Approve the proven variant.' },
+    { label: 'Investigate + draft', prompt: `Why is ${HERO_SEGMENT_ID} sliding and what should ship?` },
+    { label: 'Approve', prompt: 'Approve the proposed decision.' },
+    { label: 'Commit', prompt: 'Commit the approved decision.' },
   ],
 }));
 
-app.get('/api/warehouse', (_req, res) => res.json({ id: null, name: 'Not connected', state: 'UNCONFIGURED' }));
-app.get('/api/activity/recent', (_req, res) => res.json([]));
-app.get('/api/returns', (_req, res) => res.json([]));
-app.get('/api/returns/summary', (_req, res) => res.json([]));
-app.get('/api/returns/by-city', (_req, res) => res.json([]));
-app.get('/api/facilities/summary', (_req, res) => res.json([]));
-app.get('/api/resources', (_req, res) => {
-  const empty = { id: '', url: '' };
-  res.json(Object.fromEntries([
-    'dashboard', 'genie', 'pipeline', 'warehouse', 'lakebase', 'mas', 'ka',
-    'gateway', 'databricksOne', 'agentBricks', 'catalog', 'model', 'volume', 'app',
-  ].map((key) => [key, empty])));
+app.get('/api/live-view', async (req, res) => {
+  try {
+    const segmentId = typeof req.query.segment_id === 'string' ? req.query.segment_id : null;
+    res.json(await getLiveView(pool, segmentId, segmentId ? 1 : 40));
+  } catch (error) { sendError(res, error); }
 });
 
-app.get('/api/conversations', (_req, res) => {
-  res.json([...conversations.values()].map(summary).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
-});
-app.post('/api/conversations', (req, res) => res.status(201).json(summary(createConversation(req.body?.title))));
-app.get('/api/dock-conversation', (_req, res) => {
-  const existing = [...conversations.values()].find((item) => item.kind === 'demo_dock');
-  res.json(summary(existing ?? createConversation('Nimbus demo', 'demo_dock')));
-});
-app.get('/api/conversations/:id', (req, res) => {
-  const conversation = conversations.get(req.params.id);
-  if (!conversation) return res.status(404).json({ error: 'Conversation not found' });
-  return res.json(conversation);
-});
-app.delete('/api/conversations/:id', (req, res) => {
-  conversations.delete(req.params.id);
-  res.status(204).end();
-});
-app.post('/api/admin/reset', (_req, res) => {
-  conversations.clear();
-  res.status(204).end();
-});
-
-const blockedLakebaseRead = /(?:all|entire|every|full)[\s\S]{0,40}(?:lakebase|database|tables?|data)|unlimited[\s-]*(?:reads?|queries)|full[\s-]*database[\s-]*scan/i;
-
-app.post('/api/chat/stream', async (req, res) => {
-  const conversation = conversations.get(req.body?.conversationId);
-  if (!conversation) return res.status(404).json({ error: 'Conversation not found' });
-  const prompt = String(req.body?.messages?.at(-1)?.content ?? '');
-  if (blockedLakebaseRead.test(prompt)) {
-    return res.status(400).json({
-      error: 'AI Gateway input policy rejected an unbounded Lakebase read request.',
-      policy: 'nimbus-bounded-lakebase-reads',
+app.post('/api/decisions', async (req, res) => {
+  try {
+    const body = req.body as Record<string, unknown>;
+    if (!body.segment_id || !body.action_type || !body.drafted_note) throw new Error('Missing decision fields');
+    const row = await createProposedDecision(pool, {
+      assistRunId: String(body.assist_run_id || randomUUID()), segmentId: String(body.segment_id),
+      experimentId: body.experiment_id ? String(body.experiment_id) : null,
+      actionType: String(body.action_type), flagKey: String(body.flag_key || 'checkout_flow'),
+      variant: String(body.variant || 'variant_a'),
+      rolloutPct: typeof body.rollout_pct === 'number' ? body.rollout_pct : null,
+      draftedNote: String(body.drafted_note),
+      predictedConversionLift: typeof body.predicted_conversion_lift === 'number' ? body.predicted_conversion_lift : null,
     });
-  }
-
-  const forwardedToken = req.header('x-forwarded-access-token');
-  if (!forwardedToken) return res.status(401).json({ error: 'Missing Databricks app OBO token.' });
-  const hostValue = process.env.DATABRICKS_HOST ?? '';
-  const host = hostValue.startsWith('http') ? hostValue : `https://${hostValue}`;
-  const model = process.env.AI_GATEWAY_MODEL ?? 'last_penguin_catalog.nimbus.nimbus_app_gateway';
-  const segmentMatch = prompt.match(/SEG-\d+/i);
-  const segment = segmentMatch?.[0].toUpperCase() ?? 'unknown';
-  const gatewayResponse = await fetch(`${host.replace(/\/$/, '')}/ai-gateway/mlflow/v1/chat/completions`, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${forwardedToken}`,
-      'content-type': 'application/json',
-      'user-agent': 'nimbus-growth-desk/3.0',
-      'Databricks-Ai-Gateway-Request-Tags': JSON.stringify({
-        application: 'nimbus-growth-desk',
-        workload: 'interactive-chat',
-        environment: 'production',
-        segment,
-      }),
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: 'You are the Nimbus Growth Desk assistant. Be concise and never request or scan an entire database.' },
-        { role: 'user', content: prompt },
-      ],
-      max_tokens: 160,
-      temperature: 0.2,
-    }),
-  });
-  const gatewayBody = await gatewayResponse.text();
-  if (!gatewayResponse.ok) {
-    console.error(`[nimbus] AI Gateway ${gatewayResponse.status}: ${gatewayBody.slice(0, 500)}`);
-    return res.status(gatewayResponse.status).json({
-      error: 'Unity AI Gateway rejected the request.',
-      status: gatewayResponse.status,
-      detail: gatewayBody.slice(0, 1000),
-    });
-  }
-  const completion = JSON.parse(gatewayBody) as { choices?: Array<{ message?: { content?: string } }> };
-  const answer = completion.choices?.[0]?.message?.content?.trim();
-  if (!answer) return res.status(502).json({ error: 'Unity AI Gateway returned no assistant content.' });
-  const timestamp = now();
-  conversation.messages.push({ id: randomUUID(), role: 'user', content: prompt, createdAt: timestamp });
-  conversation.messages.push({ id: randomUUID(), role: 'assistant', content: answer, createdAt: now() });
-  conversation.updatedAt = now();
-  if (conversation.title === 'New conversation' && prompt) conversation.title = prompt.slice(0, 48);
-
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.write(`data: ${JSON.stringify({ type: 'response.output_text.delta', delta: answer })}\n\n`);
-  res.write(`data: ${JSON.stringify({ type: 'response.completed' })}\n\n`);
-  return res.end();
+    res.status(201).json(row);
+  } catch (error) { sendError(res, error); }
 });
 
-app.use('/api', (_req, res) => res.status(503).json({ error: 'This feature requires a Databricks data resource binding.' }));
+app.post('/api/decisions/:id/approve', async (req, res) => {
+  try { res.json(await transitionDecision(pool, req.params.id, 'approved', actor(req))); }
+  catch (error) { sendError(res, error); }
+});
+
+app.post('/api/decisions/:id/commit', async (req, res) => {
+  try {
+    const decision = await transitionDecision(pool, req.params.id, 'committed', actor(req));
+    const state = await getLiveView(pool, String(decision.segment_id), 1);
+    res.json({ decision, state_refreshed_at: state.queried_at, live_view: state.rows[0] });
+  } catch (error) { sendError(res, error); }
+});
+
+app.post('/api/assist', async (req, res) => {
+  const assistRunId = randomUUID();
+  const segmentId = String(req.body?.segment_id || HERO_SEGMENT_ID);
+  try {
+    const live = await getLiveView(pool, segmentId, 1);
+    const hero = live.rows[0];
+    if (!hero) throw new Error(`Segment not found: ${segmentId}`);
+    const ranking = parseActionRanking(hero.action_ranking);
+    const search = await pool.query(
+      'SELECT * FROM app.search_experiments($1, $2) ORDER BY relevance DESC NULLS LAST LIMIT $2',
+      ['checkout android gen-z', 5],
+    );
+    const experiment = search.rows.find((row) => row.experiment_id === HERO_EXPERIMENT_ID) || search.rows[0];
+    if (!experiment) throw new Error('Experiment search returned no grounding result');
+
+    const prompt = `Draft a concise rollout memo. Stop before approval.\nSegment: ${JSON.stringify(hero)}\nRanked actions: ${JSON.stringify(ranking)}\nExperiment evidence: ${JSON.stringify(experiment)}`;
+    const token = req.header('x-forwarded-access-token');
+    if (!token) throw new Error('Missing Databricks app OBO token');
+    const host = String(process.env.DATABRICKS_HOST || '').replace(/\/$/, '');
+    const model = process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway';
+    const gateway = await fetch(`${host}/ai-gateway/mlflow/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${token}`, 'content-type': 'application/json',
+        'Databricks-Ai-Gateway-Request-Tags': JSON.stringify({ application: 'nimbus-growth-desk', assist_run_id: assistRunId, segment_id: segmentId, experiment_id: experiment.experiment_id }),
+      },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: 'You are a growth operations analyst. Draft evidence-based rollout memos. Never approve or commit.' }, { role: 'user', content: prompt }], max_tokens: 500, temperature: 0.2 }),
+    });
+    const gatewayBody = await gateway.json() as { choices?: Array<{ message?: { content?: string } }>; message?: string };
+    if (!gateway.ok) throw new Error(`AI Gateway ${gateway.status}: ${gatewayBody.message || 'request failed'}`);
+    const memo = gatewayBody.choices?.[0]?.message?.content?.trim();
+    if (!memo) throw new Error('AI Gateway returned no memo');
+    const proposed = await createProposedDecision(pool, {
+      assistRunId, segmentId, experimentId: String(experiment.experiment_id),
+      actionType: String(hero.recommended_action), flagKey: String(hero.neighbor_flag_key),
+      variant: String(experiment.variant || 'variant_a'), rolloutPct: 25, draftedNote: memo,
+      predictedConversionLift: Number(hero.predicted_conversion_lift),
+    });
+    res.status(201).json({
+      executed_at: new Date().toISOString(), assist_run_id: assistRunId, segment_id: segmentId,
+      experiment_id: experiment.experiment_id, decision_id: proposed.id,
+      investigation: hero, search_results: search.rows, ranked_actions: ranking,
+      drafted_memo: memo, decision_status: 'proposed', approval_required: true,
+    });
+  } catch (error) { sendError(res, error); }
+});
+
+app.get('/api/activity/recent', async (_req, res) => {
+  try { const result = await pool.query('SELECT * FROM app.feature_decisions_app ORDER BY created_at DESC LIMIT 25'); res.json(result.rows); }
+  catch (error) { sendError(res, error); }
+});
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const clientDir = resolve(currentDir, '../client/dist');
@@ -182,4 +154,6 @@ app.use(express.static(clientDir));
 app.get('*', (_req, res) => res.sendFile(resolve(clientDir, 'index.html')));
 
 const port = Number(process.env.DATABRICKS_APP_PORT ?? process.env.PORT ?? 8000);
-app.listen(port, '0.0.0.0', () => console.log(`[nimbus] listening on 0.0.0.0:${port}`));
+initializeDecisionSchema(pool)
+  .then(() => app.listen(port, '0.0.0.0', () => console.log(`[nimbus] live runtime listening on ${port}`)))
+  .catch((error) => { console.error('[nimbus] database initialization failed', error); process.exitCode = 1; });

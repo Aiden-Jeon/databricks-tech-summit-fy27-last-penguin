@@ -258,9 +258,9 @@ export const featureDecisions = appSchema.table(
     // The rollout note the agent drafted.
     draftedNote: text('drafted_note'),
     predictedConversionLift: doublePrecision('predicted_conversion_lift'),
-    // proposed / approved / shipped / overridden
+    // Human-gated lifecycle: proposed -> approved -> committed.
     status: text('status', {
-      enum: ['proposed', 'approved', 'shipped', 'overridden'],
+      enum: ['proposed', 'approved', 'committed'],
     })
       .notNull()
       .default('proposed'),
@@ -297,7 +297,7 @@ export type AuditEntry = {
   action:
     | 'proposed'
     | 'approved'
-    | 'executed'
+    | 'committed'
     | 'declined'
     | 'note'
     | 'rejected'
