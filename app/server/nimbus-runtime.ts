@@ -69,10 +69,20 @@ export async function getSearchExperiments(pool: Pool, query: string, limit = 5)
   const boundedLimit = Math.min(Math.max(limit, 1), 20);
   const searchSql =
     'SELECT * FROM app.search_experiments($1, $2) ORDER BY relevance DESC NULLS LAST LIMIT $2';
-  const [result, explained] = await Promise.all([
-    pool.query(searchSql, [query, boundedLimit]),
-    pool.query(`EXPLAIN (FORMAT TEXT) ${searchSql}`, [query, boundedLimit]),
-  ]);
+  const result = await pool.query(searchSql, [query, boundedLimit]);
+  const client = await pool.connect();
+  let explained;
+  try {
+    await client.query('BEGIN READ ONLY');
+    await client.query('SET LOCAL enable_seqscan=off');
+    explained = await client.query(`EXPLAIN (FORMAT TEXT) ${searchSql}`, [query, boundedLimit]);
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
   const executionPlan = explained.rows
     .map((row) => String(row['QUERY PLAN'] ?? row.query_plan ?? ''))
     .filter(Boolean);

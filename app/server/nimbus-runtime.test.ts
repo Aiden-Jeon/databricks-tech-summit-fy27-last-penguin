@@ -13,15 +13,23 @@ describe('decision state machine', () => {
 
 describe('search evidence', () => {
   it('returns rows with the declared BM25 index and execution plan', async () => {
-    const query = vi.fn()
-      .mockResolvedValueOnce({ rowCount: 1, rows: [{ experiment_id: 'EXP-0000009' }] })
-      .mockResolvedValueOnce({ rows: [{ 'QUERY PLAN': 'Index Scan using experiments_description_bm25_idx' }] });
+    const query = vi.fn().mockResolvedValue({
+      rowCount: 1,
+      rows: [{ experiment_id: 'EXP-0000009' }],
+    });
+    const clientQuery = vi.fn()
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({ rows: [{ 'QUERY PLAN': 'Index Scan using experiments_description_bm25_idx' }] })
+      .mockResolvedValueOnce({});
     const pool = Object.create(null) as Pool;
     pool.query = query;
+    pool.connect = vi.fn().mockResolvedValue({ query: clientQuery, release: vi.fn() });
     const result = await getSearchExperiments(pool, 'checkout', 5);
     expect(result.index).toBe('experiments_description_bm25_idx');
     expect(result.execution_plan.join('\n')).toContain('Index Scan');
     expect(result.rows[0]).toMatchObject({ experiment_id: 'EXP-0000009' });
+    expect(clientQuery).toHaveBeenNthCalledWith(2, 'SET LOCAL enable_seqscan=off');
   });
 });
 
