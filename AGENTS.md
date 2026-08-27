@@ -16,6 +16,10 @@ Never place one build's evidence in another build's folder.
 
 Important persistent constraints:
 
+- **All final submission folders and archives must be placed in this project
+  root.** Never hand off a final artifact from `/tmp`, `/private/tmp`, another
+  worktree, or any directory outside this repository root. Before reporting
+  completion, verify the exact root-level path the user will upload.
 - The Build 1 validator scores only top-level `submission1/`; the Build 2
   validator scores only top-level `submission2/`; the Build 3 validator scores
   only top-level `submission3/`.
