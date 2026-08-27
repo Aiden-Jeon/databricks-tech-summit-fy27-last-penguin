@@ -1,0 +1,16 @@
+{
+  "queried_at": "2026-08-27T05:46:39.542Z",
+  "source": "deployed app post-commit live-view refresh",
+  "row": {
+    "segment_id": "SEG-0000214", "risk_rank": 1, "conv_band": "sliding",
+    "recommended_action": "ship_proven_variant",
+    "decision_id": "44350937-ca81-428a-b4af-6b9044385939",
+    "decision_status": "committed", "decided_action": "ship_proven_variant",
+    "target_experiment_id": "EXP-0000009", "flag_key": "checkout_flow",
+    "variant": "variant_a", "rollout_pct": 25,
+    "approved_by": "jongseob.jeon@databricks.com",
+    "decision_created_at": "2026-08-27T05:46:28.586Z",
+    "decided_at": "2026-08-27T05:46:39.527Z"
+  },
+  "freshness_check": "queried_at is 15ms after decided_at and shows the same decision_id"
+}
