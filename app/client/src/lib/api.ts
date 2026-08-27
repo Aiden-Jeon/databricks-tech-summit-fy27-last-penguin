@@ -63,7 +63,6 @@ function useResource<T>(loader: () => Promise<T>): Resource<T> {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     loader()
       .then((v) => {
         if (cancelled) return;
@@ -83,11 +82,14 @@ function useResource<T>(loader: () => Promise<T>): Resource<T> {
     };
   }, [loader, nonce]);
 
-  const retry = useCallback(() => setNonce((n) => n + 1), []);
+  const retry = useCallback(() => {
+    setLoading(true);
+    setNonce((n) => n + 1);
+  }, []);
   return { data, error, loading, retry };
 }
 
-type Me = {
+export type Me = {
   userName: string;
   userEmail: string | null;
   workspaceUrl: string;
@@ -104,25 +106,29 @@ export type ScriptStep = {
   triggerAfter?: string[];
 };
 
-type AppConfig = {
+export type AppConfig = {
   /** Pinned MLflow experiment id, used by AppHeader's "Experiment" link. */
   mlflowExperimentId: string | null;
   /** Auto-created experiment that holds the agent's traces. The chat's
    * "View trace" deep-link points here. See server/server.ts. */
   agentMlflowExperimentId: string | null;
   dashboardId: string;
+  gatewayDashboardUrl: string;
+  demoBudget: { alertUsd: number; hardStopUsd: number };
   branding: { appName: string };
   assistantScript: ScriptStep[];
 };
 
 async function fetchMe(): Promise<Me> {
   const res = await okOrThrow(await fetch('/api/me'), '/api/me');
-  return res.json();
+  const body: unknown = await res.json();
+  return body as Me;
 }
 
 async function fetchConfig(): Promise<AppConfig> {
   const res = await okOrThrow(await fetch('/api/config'), '/api/config');
-  return res.json();
+  const body: unknown = await res.json();
+  return body as AppConfig;
 }
 
 export type Warehouse = {
@@ -133,7 +139,8 @@ export type Warehouse = {
 
 export async function fetchWarehouse(): Promise<Warehouse> {
   const res = await okOrThrow(await fetch('/api/warehouse'), '/api/warehouse');
-  return res.json();
+  const body: unknown = await res.json();
+  return body as Warehouse;
 }
 
 /** One workspace resource: its id (or endpoint name) + a deep-link URL.
@@ -164,7 +171,8 @@ export type WorkspaceResources = {
 
 export async function fetchResources(): Promise<WorkspaceResources> {
   const res = await okOrThrow(await fetch('/api/resources'), '/api/resources');
-  return res.json();
+  const body: unknown = await res.json();
+  return body as WorkspaceResources;
 }
 
 /** The persistent dock conversation for the current user. */
@@ -181,14 +189,16 @@ export async function fetchDockConversation(): Promise<DockConversation> {
     await fetch('/api/dock-conversation'),
     '/api/dock-conversation',
   );
-  return res.json();
+  const body: unknown = await res.json();
+  return body as DockConversation;
 }
 
 export async function resetDemoState(): Promise<void> {
-  await okOrThrow(
-    await fetch('/api/admin/reset', { method: 'POST' }),
-    '/api/admin/reset',
-  );
+  await okOrThrow(await fetch('/api/demo/reset', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ segment_id: 'SEG-0000214', confirm: true }),
+  }), '/api/demo/reset');
 }
 
 // ────────────────────────────────────────────────────────────────────────

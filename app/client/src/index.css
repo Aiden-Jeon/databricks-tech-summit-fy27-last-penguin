@@ -1,160 +1,116 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app
+ * H2 split knobs: ratio=7/5, proof=source panel, divider=vertical rule
+ * T4 stats: 5-up · F3 evidence: 3 columns · F4 steps: vertical · nav: N9 · footer: Ft2
+ * theme: custom · vibe: "cloud light, cool precision, spectral calm" · axes: light / geometric-sans / cool
+ * Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4
+ * contrast: pass (40–41) · nav: N9 · footer: Ft2 · slop: pass (42–45)
+ * honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49)
+ * icons: pass (30) · mobile: pass (34, 49, 50–57) · gates: 58/58
+ */
 @import "@databricks/appkit-ui/styles.css";
 /* Leaflet base CSS — imported here (not in CityMap.tsx) so tile sizing is
  * correct on first paint and HMR doesn't race the component import. */
 @import "leaflet/dist/leaflet.css";
+@import "../../tokens.css";
 
 @plugin "@tailwindcss/typography";
 
-/* Google Fonts (Fraunces + Geist + Geist Mono) are loaded via <link>
+/* Google Fonts (Space Grotesk + Geist + Geist Mono) are loaded via <link>
  * tags in index.html so the PostCSS `@import must precede all other
  * statements` warning doesn't fire against Tailwind v4's ordering. */
 
 @theme {
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-outlier);
 }
 
 :root {
-  /* ========================================================================
-   * BRAND PALETTE — single source of truth.
-   *
-   * These five stops mirror the LuxeBeauty AI/BI dashboard's
-   * visualizationColors theme so the app + dashboard read as one product.
-   * Every other token below derives from these — change a stop here and
-   * the whole app shifts. Edit cautiously.
-   *
-   * To re-skin the app for a different demo, replace these 5 hex stops
-   * (and the canvas/font/selection block right below) — that is the
-   * complete branding surface. Component code does NOT hardcode hex
-   * outside of intentionally-decorative SVGs (the source-pill tints in
-   * PlatformView also point back to these tokens).
-   * ====================================================================== */
-  --brand-1: #094074;   /* deep navy   — primary, chart anchor */
-  --brand-2: #3C6997;   /* slate blue  — primary tint, chart 2 */
-  --brand-3: #5ADBFF;   /* electric cyan — chart 3, highlights */
-  --brand-4: #FFDD4A;   /* lemon       — chart 4, warning-adjacent */
-  --brand-5: #FE9000;   /* warm orange — accent / CTA, chart 5 */
+  /* AppKit semantic bridge. Canonical values live in ../../tokens.css. */
+  --brand-1: var(--color-accent);
+  --brand-2: var(--color-info-deep);
+  --brand-3: var(--color-spectrum);
+  --brand-4: var(--color-highlight);
+  --brand-5: var(--color-accent-strong);
+  --brand-canvas: var(--color-paper);
+  --brand-surface: var(--color-paper-raised);
+  --brand-ink: var(--color-ink);
+  --brand-selection: var(--color-focus);
 
-  /* Dashboard-theme surfaces */
-  --brand-canvas: #F5F7FB;     /* dashboard canvas */
-  --brand-surface: #FFFFFF;    /* dashboard widget background */
-  --brand-ink: #1F2530;        /* dashboard font color */
-  --brand-selection: #4F7CE3;  /* dashboard selection */
+  --radius: var(--radius-card);
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-paper-raised);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-paper-raised);
+  --popover-foreground: var(--color-ink);
+  --muted: var(--color-paper-3);
+  --muted-foreground: var(--color-muted);
+  --border: var(--color-rule);
+  --input: var(--color-rule);
+  --ring: var(--color-focus);
+  --overlay: var(--color-overlay);
 
-  /* ========================================================================
-   * SEMANTIC TOKENS — what components actually consume.
-   * Always reference via these (NOT brand-* directly) so future re-themes
-   * don't require touching component code.
-   * ====================================================================== */
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-accent-ink);
+  --primary-light: var(--color-info-deep);
+  --on-primary-hover: color-mix(in oklch, var(--color-paper) 12%, transparent);
+  --secondary: var(--color-paper-3);
+  --secondary-foreground: var(--color-ink);
+  --accent: var(--color-accent-soft);
+  --accent-foreground: var(--color-ink);
 
-  --radius: 0.625rem;
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-error-ink);
+  --success: var(--color-success);
+  --success-foreground: var(--color-success-ink);
+  --warning: var(--color-warning);
+  --warning-foreground: var(--color-ink);
+  --success-subtle: var(--color-success-soft);
+  --success-subtle-foreground: var(--color-success-deep);
+  --warning-subtle: var(--color-warning-soft);
+  --warning-subtle-foreground: var(--color-warning-deep);
+  --info-subtle: var(--color-info-soft);
+  --info-subtle-foreground: var(--color-info-deep);
 
-  /* Neutrals (anchored to dashboard canvas + ink) */
-  --background: var(--brand-canvas);
-  --foreground: var(--brand-ink);
-  --card: var(--brand-surface);
-  --card-foreground: var(--brand-ink);
-  --popover: var(--brand-surface);
-  --popover-foreground: var(--brand-ink);
-  --muted: #ECF0F6;             /* canvas tinted 1 step toward ink */
-  --muted-foreground: #5B6573;
-  --border: #E1E6EE;
-  --input: #E1E6EE;
-  --ring: var(--brand-selection);
-  --overlay: rgb(31 37 48 / 0.4);
+  --tier-gold: var(--color-warning-soft);
+  --tier-gold-foreground: var(--color-warning-deep);
+  --tier-silver: var(--color-paper-3);
+  --tier-silver-foreground: var(--color-neutral);
+  --tier-bronze: var(--color-error-soft);
+  --tier-bronze-foreground: var(--color-error);
+  --tier-platinum: var(--color-accent-soft);
+  --tier-platinum-foreground: var(--color-accent-strong);
+  --status-running: var(--color-success);
+  --status-idle: var(--color-warning);
+  --severity-warning: var(--color-warning-deep);
+  --severity-danger: var(--color-error);
 
-  /* Brand — primary = deep navy, accent = warm orange */
-  --primary: var(--brand-1);
-  --primary-foreground: var(--brand-surface);
-  --primary-light: var(--brand-2);
-  --on-primary-hover: rgb(255 255 255 / 0.1);
+  --chart-1: var(--color-accent);
+  --chart-2: var(--color-info-deep);
+  --chart-3: var(--color-spectrum);
+  --chart-4: var(--color-success);
+  --chart-5: var(--color-warning);
 
-  --secondary: var(--muted);
-  --secondary-foreground: var(--foreground);
-
-  --accent: var(--brand-5);
-  --accent-foreground: var(--brand-ink);
-
-  /* Status colors — semantic, not from brand palette */
-  --destructive: #D64545;
-  --destructive-foreground: var(--brand-surface);
-  --success: #2F9E6F;
-  --success-foreground: var(--brand-surface);
-  --warning: var(--brand-4);
-  --warning-foreground: var(--brand-ink);
-
-  /* Subtle status tints (light bg + dark text for badges, pills) */
-  --success-subtle: #DCF1E7;
-  --success-subtle-foreground: #1F6F4E;
-  --warning-subtle: #FFF4CC;
-  --warning-subtle-foreground: #7A5A00;
-  --info-subtle: #D9E3F8;
-  --info-subtle-foreground: #1F3A78;
-
-  /* Tier badges (domain-specific, easy to swap per demo) */
-  --tier-gold: #FFF4CC;
-  --tier-gold-foreground: #7A5A00;
-  --tier-silver: #EAECF1;
-  --tier-silver-foreground: #4A5466;
-  --tier-bronze: #FAE3D1;
-  --tier-bronze-foreground: #7A4A1F;
-  --tier-platinum: #EDE3F5;
-  --tier-platinum-foreground: #5A3585;
-
-  /* Status indicator dots */
-  --status-running: var(--success);
-  --status-idle: var(--brand-4);
-
-  /* Severity colors for inline text (return rate, anger score, etc.)
-     — distinct from --warning (which is a fill color, too light to
-     read as text on white). Same family but darker. */
-  --severity-warning: #C26A00;
-  --severity-danger:  var(--destructive);
-
-  /* Charts — full dashboard 5-stop palette in canonical order.
-     Recharts / appkit charts read --chart-1..5 by index, so this
-     mapping makes any "first series" land on navy, just like the
-     dashboard's "Refunds (90d)" counter. */
-  --chart-1: var(--brand-1);
-  --chart-2: var(--brand-2);
-  --chart-3: var(--brand-3);
-  --chart-4: var(--brand-4);
-  --chart-5: var(--brand-5);
-
-  /* Sidebar — light surface, slightly cooler than canvas */
-  --sidebar: #EEF2F8;
-  --sidebar-foreground: var(--brand-ink);
+  --sidebar: var(--color-paper-2);
+  --sidebar-foreground: var(--color-ink);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: #DDE4EE;
-  --sidebar-accent-foreground: var(--brand-ink);
-  --sidebar-border: #D0D8E3;
+  --sidebar-accent: var(--color-paper-3);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: var(--color-rule);
   --sidebar-ring: var(--ring);
-
-  /* ========================================================================
-   * SCENE-LEVEL DECORATIONS (PlatformView)
-   * Source-pill tints mapped onto the brand palette so the platform page
-   * stays unified with the dashboard. Medallion tier dots and traffic-light
-   * dots get their own tokens too — change them once here, never in JSX.
-   * ====================================================================== */
-  --platform-source-saas:     var(--brand-1);
-  --platform-source-erp:      var(--brand-2);
-  --platform-source-streams:  var(--brand-3);
-  --platform-source-object:   var(--brand-4);
-  --platform-source-db:       var(--brand-5);
-
-  --medal-bronze: #A16207;
-  --medal-silver: #9CA3AF;
-  --medal-gold:   #EAB308;
-
-  --trafficlight-red:    #EF4444;
-  --trafficlight-yellow: #EAB308;
-  --trafficlight-green:  #22C55E;
-
-  /* Databricks brand red — used by the sidebar "Data + AI" pitch glow.
-     External brand asset, not part of LuxeBeauty's palette. */
-  --databricks-red: #EE3D2C;
+  --platform-source-saas: var(--chart-1);
+  --platform-source-erp: var(--chart-2);
+  --platform-source-streams: var(--chart-3);
+  --platform-source-object: var(--chart-4);
+  --platform-source-db: var(--chart-5);
+  --medal-bronze: var(--color-error);
+  --medal-silver: var(--color-rule-2);
+  --medal-gold: var(--color-warning);
+  --trafficlight-red: var(--color-error);
+  --trafficlight-yellow: var(--color-warning);
+  --trafficlight-green: var(--color-success);
+  --databricks-red: var(--color-error);
 }
 
 /* Force light even if OS is dark — this is a business-facing demo */
@@ -166,8 +122,21 @@
 
 html,
 body {
-  font-family: var(--font-sans);
+  overflow-x: clip;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
   font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+body {
+  min-width: 20rem;
+  margin: 0;
+}
+
+:focus-visible {
+  outline: var(--rule-fine) solid var(--color-focus);
+  outline-offset: var(--space-2xs);
 }
 
 /* Every interactive control — buttons, links, role=button, checkboxes, etc. —
@@ -209,14 +178,14 @@ textarea:disabled {
   60%  { box-shadow: 0 0 0 12px color-mix(in oklch, var(--primary) 0%,  transparent); }
   100% { box-shadow: 0 0 0 0   color-mix(in oklch, var(--primary) 0%,  transparent); }
 }
-.animate-pulse-ring { animation: pulseRing 1.5s ease-out 1; }
+.animate-pulse-ring { animation: pulseRing 1.5s var(--ease-out) 1; }
 
 /* Subtle background highlight — queue rows that flipped status. */
 @keyframes pulseRow {
   0%   { background-color: color-mix(in oklch, var(--primary) 18%, transparent); }
   100% { background-color: transparent; }
 }
-.animate-pulse-row { animation: pulseRow 1.5s ease-out 1; }
+.animate-pulse-row { animation: pulseRow 1.5s var(--ease-out) 1; }
 
 /* (Map bubbles pulse via Leaflet's setStyle on stroke weight — see
  * CityMap.tsx. A CSS-keyframe pulse on the SVG path doesn't survive
@@ -228,7 +197,10 @@ h3,
 .display {
   font-family: var(--font-display);
   font-feature-settings: "ss01";
-  letter-spacing: -0.01em;
+  font-style: normal;
+  letter-spacing: var(--tracking-display);
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 /* Chat dock trigger — slide-up entrance + synced sparkle & color breathe.
@@ -241,7 +213,7 @@ h3,
 @property --dock-tint {
   syntax: '<color>';
   inherits: true;
-  initial-value: #094074;
+  initial-value: transparent;
 }
 /* dockBreathe sets `--dock-tint` on the breathing element; for static
    uses (the dock entry button before it starts breathing) we anchor it
@@ -250,9 +222,9 @@ h3,
   --dock-tint: var(--primary);
   --dock-gradient: linear-gradient(
     135deg,
-    color-mix(in oklch, var(--dock-tint) 82%, white) 0%,
+    color-mix(in oklch, var(--dock-tint) 82%, var(--color-paper-raised)) 0%,
     var(--dock-tint) 55%,
-    color-mix(in oklch, var(--dock-tint) 88%, black) 100%
+    color-mix(in oklch, var(--dock-tint) 88%, var(--color-ink)) 100%
   );
 }
 
@@ -274,8 +246,8 @@ h3,
     box-shadow: 0 4px 20px oklch(from var(--primary-light) l c h / 0.45);
   }
 }
-.animate-dock-enter  { animation: dockEnter 0.4s ease-out, dockBreathe 3s ease-in-out 1s infinite; }
-.animate-sparkle     { animation: sparkle 3s ease-in-out infinite 1s; }
+.animate-dock-enter  { animation: dockEnter var(--dur-long) var(--ease-out) 1; }
+.animate-sparkle     { animation: none; }
 
 /* -------- Sidebar pitch box (Databricks Data + AI) -------- */
 
@@ -296,17 +268,17 @@ h3,
   color: var(--sidebar-foreground);
   overflow: hidden;
   transition:
-    transform 200ms ease,
-    border-color 200ms ease,
-    box-shadow 200ms ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03),
+    transform var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    box-shadow var(--dur-short) var(--ease-out);
+  box-shadow: var(--shadow-card),
               0 8px 20px -10px color-mix(in oklch, var(--accent) 35%, transparent);
 }
 
 .dx-sidebar-pitch:hover {
   transform: translateY(-1px);
   border-color: color-mix(in oklch, var(--accent) 60%, var(--sidebar-border));
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04),
+  box-shadow: var(--shadow-card),
               0 12px 28px -10px color-mix(in oklch, var(--accent) 50%, transparent);
 }
 
@@ -323,7 +295,7 @@ h3,
     transparent 70%
   );
   pointer-events: none;
-  animation: dx-sidebar-pitch-pulse 3.5s ease-in-out infinite;
+  animation: none;
 }
 
 @keyframes dx-sidebar-pitch-pulse {
@@ -343,7 +315,7 @@ h3,
   background: var(--card);
   border: 1px solid color-mix(in oklch, var(--databricks-red) 30%, var(--sidebar-border));
   box-shadow: 0 0 0 0 color-mix(in oklch, var(--databricks-red) 50%, transparent);
-  animation: dx-sidebar-pitch-icon-pulse 2.4s ease-in-out infinite;
+  animation: none;
 }
 
 @keyframes dx-sidebar-pitch-icon-pulse {
@@ -384,4 +356,876 @@ h3,
 .leaflet-container {
   z-index: 0;
   isolation: isolate;
+}
+
+/* -------------------------------------------------------------------------
+ * Nimbus Growth Desk · Workbench app surface
+ * ---------------------------------------------------------------------- */
+
+.nimbus-app {
+  min-height: 100dvh;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.nimbus-boot-error {
+  width: min(100%, 48rem);
+  margin-inline: auto;
+  padding: var(--space-xl) var(--page-gutter);
+}
+
+.nimbus-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-sticky);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+  background: color-mix(in oklch, var(--color-paper) 94%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+}
+
+.nimbus-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  width: min(100%, var(--page-max));
+  margin-inline: auto;
+  padding-block: var(--space-sm);
+  padding-inline: max(var(--page-gutter), env(safe-area-inset-left));
+}
+
+.nimbus-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-ink);
+}
+
+.nimbus-mark {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--display-weight);
+}
+
+.nimbus-mark::after {
+  position: absolute;
+  inset-block-start: var(--space-2xs);
+  inset-inline-end: var(--space-2xs);
+  width: var(--space-xs);
+  height: var(--space-xs);
+  border: var(--rule-hair) solid var(--color-paper-raised);
+  border-radius: var(--radius-pill);
+  background: var(--color-spectrum);
+  content: "";
+}
+
+.nimbus-brand__copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.nimbus-brand__name {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--display-weight);
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+.nimbus-brand__descriptor {
+  display: none;
+  margin-block-start: var(--space-2xs);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+
+.nimbus-header__actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2xs);
+}
+
+.nimbus-user-badge {
+  display: none;
+  max-width: 16rem;
+  gap: var(--space-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nimbus-control {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    color var(--dur-short) var(--ease-out),
+    transform var(--dur-micro) var(--ease-out);
+}
+
+.nimbus-control:focus-visible {
+  outline: var(--rule-fine) solid var(--color-focus);
+  outline-offset: var(--space-2xs);
+  box-shadow: 0 0 0 var(--space-2xs) var(--color-paper);
+}
+
+.nimbus-control:not(:disabled):not([aria-disabled="true"]):active {
+  transform: translateY(1px);
+}
+
+.nimbus-control:disabled,
+.nimbus-control[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.nimbus-control[data-state="loading"] {
+  cursor: wait;
+}
+
+.nimbus-control[data-state="error"] {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.nimbus-shell {
+  display: flex;
+  width: min(100%, var(--page-max));
+  margin-inline: auto;
+  padding-inline: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-block: var(--space-xl) max(var(--space-xl), env(safe-area-inset-bottom));
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.nimbus-brief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-items: end;
+}
+
+.nimbus-brief__copy {
+  min-width: 0;
+}
+
+.nimbus-person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-md);
+  color: var(--color-neutral);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.nimbus-person__signal {
+  width: var(--space-xs);
+  height: var(--space-xs);
+  border-radius: var(--radius-pill);
+  background: var(--color-spectrum);
+  box-shadow: 0 0 0 var(--space-2xs) var(--color-accent-soft);
+}
+
+.nimbus-brief h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-display-s);
+  font-style: normal;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.nimbus-brief__lede {
+  max-width: 65ch;
+  margin: var(--space-lg) 0 0;
+  color: var(--color-muted);
+  font-size: var(--text-base);
+  line-height: 1.65;
+}
+
+.nimbus-source {
+  display: flex;
+  min-width: 0;
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid var(--color-rule);
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.nimbus-source__list {
+  display: grid;
+  margin: 0;
+  gap: var(--space-sm);
+}
+
+.nimbus-source__list > div {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 0.7fr) minmax(0, 1.3fr);
+  gap: var(--space-md);
+  padding-block-end: var(--space-sm);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-source dt {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+
+.nimbus-source dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.nimbus-status {
+  width: fit-content;
+  max-width: 100%;
+  gap: var(--space-xs);
+  overflow: hidden;
+  border-color: var(--color-rule-2);
+  background: var(--color-paper-raised);
+  color: var(--color-neutral);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nimbus-status > span {
+  width: var(--space-xs);
+  height: var(--space-xs);
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}
+
+.nimbus-status.is-proposed {
+  border-color: var(--color-warning);
+  background: var(--color-warning-soft);
+  color: var(--color-warning-deep);
+}
+
+.nimbus-status.is-approved {
+  border-color: var(--color-accent);
+  background: var(--color-info-soft);
+  color: var(--color-info-deep);
+}
+
+.nimbus-status.is-committed {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success-deep);
+}
+
+.nimbus-alert {
+  border-color: var(--color-error);
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+
+.nimbus-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-stat {
+  display: flex;
+  min-width: 0;
+  min-height: 8.5rem;
+  padding: var(--space-lg) var(--space-md);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.nimbus-stat:nth-child(odd) {
+  border-inline-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-stat--wide {
+  grid-column: 1 / -1;
+  border-block-end: 0;
+  border-inline-end: 0;
+}
+
+.nimbus-stat__label,
+.nimbus-stat__context,
+.nimbus-stat__value {
+  margin: 0;
+}
+
+.nimbus-stat__label,
+.nimbus-stat__context {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+.nimbus-stat__value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+}
+
+.nimbus-stat__value.is-good {
+  color: var(--color-success-deep);
+}
+
+.nimbus-stat__value.is-bad {
+  color: var(--color-error);
+}
+
+.nimbus-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.nimbus-panel {
+  min-width: 0;
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-raised);
+}
+
+.nimbus-panel__header {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-panel__header h2,
+.nimbus-budget h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-style: normal;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.2;
+}
+
+.nimbus-panel__header p,
+.nimbus-budget p {
+  max-width: 62ch;
+  margin: var(--space-xs) 0 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.nimbus-winner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.nimbus-mono {
+  font-family: var(--font-outlier);
+  font-variant-numeric: tabular-nums;
+}
+
+.nimbus-mono {
+  margin: 0;
+  color: var(--color-neutral);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.nimbus-winner__value {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-success-deep);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-display);
+}
+
+.nimbus-winner .nimbus-mono {
+  white-space: nowrap;
+}
+
+.nimbus-winner__copy {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.nimbus-winner__copy p {
+  margin: 0;
+  color: var(--color-neutral);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.nimbus-ranking {
+  margin: 0;
+  padding: 0 var(--space-lg);
+  list-style: none;
+}
+
+.nimbus-ranking li {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-sm) var(--space-md);
+  align-items: center;
+  padding-block: var(--space-md);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-ranking__index {
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.nimbus-ranking strong {
+  min-width: 0;
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.nimbus-ranking__metrics {
+  display: flex;
+  grid-column: 2;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  color: var(--color-neutral);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.nimbus-provenance {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: var(--space-md) var(--space-lg);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.nimbus-flow {
+  box-shadow: var(--shadow-card);
+}
+
+.nimbus-panel__header--flow {
+  flex-direction: column;
+}
+
+.nimbus-steps {
+  margin: 0;
+  padding: 0 var(--space-lg);
+  list-style: none;
+}
+
+.nimbus-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-sm) var(--space-md);
+  padding-block: var(--space-lg);
+  border-block-end: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-step__marker {
+  position: relative;
+  z-index: var(--z-raised);
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-raised);
+  color: var(--color-neutral);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+}
+
+.nimbus-step.is-active .nimbus-step__marker {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.nimbus-step.is-done .nimbus-step__marker {
+  border-color: var(--color-success);
+  background: var(--color-success);
+  color: var(--color-success-ink);
+}
+
+.nimbus-step__copy {
+  min-width: 0;
+}
+
+.nimbus-step__copy h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.nimbus-step__copy p {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.nimbus-step__action {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.nimbus-step__complete {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border: var(--rule-hair) solid var(--color-success);
+  border-radius: var(--radius-input);
+  background: var(--color-success);
+  color: var(--color-success-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.nimbus-flow__restart {
+  display: flex;
+  margin: 0 var(--space-lg) var(--space-lg);
+  padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-success);
+  border-radius: var(--radius-card);
+  background: var(--color-success-soft);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+.nimbus-flow__restart p {
+  margin: 0;
+  color: var(--color-success-deep);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.nimbus-draft {
+  margin: var(--space-lg);
+  border-block: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.nimbus-draft__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg) 0;
+}
+
+.nimbus-draft__body {
+  margin: 0;
+  padding: var(--space-lg);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.nimbus-trace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-block-start: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-trace > section {
+  min-width: 0;
+  padding: var(--space-lg);
+}
+
+.nimbus-trace > section + section {
+  border-block-start: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-trace h3 {
+  margin: 0 0 var(--space-sm);
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.nimbus-trace p {
+  margin: 0;
+  color: var(--color-neutral);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.nimbus-audit {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-sm);
+  list-style: none;
+}
+
+.nimbus-audit li {
+  display: flex;
+  gap: var(--space-sm);
+  color: var(--color-neutral);
+  font-size: var(--text-sm);
+}
+
+.nimbus-audit li > svg {
+  flex: 0 0 auto;
+  color: var(--color-success-deep);
+}
+
+.nimbus-audit small {
+  display: block;
+  margin-block-start: var(--space-2xs);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+
+.nimbus-empty {
+  min-height: 12rem;
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-raised);
+  color: var(--color-ink);
+}
+
+.nimbus-empty--inline {
+  min-height: 11rem;
+  margin: var(--space-lg);
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.nimbus-budget {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: start;
+  padding-block: var(--space-lg);
+  border-block: var(--rule-hair) solid var(--color-rule);
+}
+
+.nimbus-budget__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-accent);
+}
+
+.nimbus-budget .nimbus-control {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.nimbus-footer {
+  display: flex;
+  padding-block-start: var(--space-md);
+  border-block-start: var(--rule-hair) solid var(--color-rule);
+  flex-direction: column;
+  gap: var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+
+.nimbus-dialog {
+  border-color: var(--color-rule);
+  background: var(--color-paper-raised);
+  color: var(--color-ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nimbus-control:not(:disabled):not([aria-disabled="true"]):hover {
+    transform: translateY(-1px);
+  }
+
+  .nimbus-control:not(:disabled):not([aria-disabled="true"]):active {
+    transform: translateY(1px);
+  }
+}
+
+@media (min-width: 40rem) {
+  .nimbus-brand__descriptor {
+    display: block;
+  }
+
+  .nimbus-panel__header--flow,
+  .nimbus-footer {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .nimbus-winner {
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  }
+
+  .nimbus-step {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .nimbus-step__action {
+    grid-column: auto;
+    width: auto;
+  }
+
+  .nimbus-step__complete {
+    grid-column: auto;
+    justify-self: end;
+  }
+
+  .nimbus-flow__restart {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nimbus-trace {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .nimbus-trace > section + section {
+    border-block-start: 0;
+    border-inline-start: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .nimbus-budget {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .nimbus-budget .nimbus-control {
+    grid-column: auto;
+    width: auto;
+  }
+}
+
+@media (min-width: 48rem) {
+  .nimbus-stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .nimbus-stat,
+  .nimbus-stat:nth-child(odd) {
+    border-block-end: 0;
+    border-inline-end: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .nimbus-stat:last-child {
+    border-inline-end: 0;
+  }
+
+  .nimbus-stat--wide {
+    grid-column: auto;
+  }
+}
+
+@media (min-width: 60rem) {
+  .nimbus-user-badge {
+    display: inline-flex;
+  }
+
+  .nimbus-shell {
+    padding-block-start: var(--space-2xl);
+    gap: var(--space-2xl);
+  }
+
+  .nimbus-brief {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-2xl);
+  }
+
+  .nimbus-source {
+    padding-block-start: 0;
+    padding-inline-start: var(--space-xl);
+    border-block-start: 0;
+    border-inline-start: var(--rule-hair) solid var(--color-rule);
+  }
+}
+
+@media (min-width: 64rem) {
+  .nimbus-workbench {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
+
+@media (min-width: 90rem) {
+  .nimbus-shell {
+    padding-block-start: var(--space-3xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: var(--dur-micro) !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--dur-micro) !important;
+  }
 }

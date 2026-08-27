@@ -11,6 +11,7 @@ import {
   getSearchExperiments,
   initializeDecisionSchema,
   parseActionRanking,
+  resetDemoDecision,
   transitionDecision,
 } from './nimbus-runtime.js';
 import { GatewayHttpError, GatewayPolicyDeniedError, requestChatCompletion } from './lib/ai-gateway.js';
@@ -56,7 +57,10 @@ app.get('/api/me', (req, res) => res.json({
 }));
 
 app.get('/api/config', (_req, res) => res.json({
-  mlflowExperimentId: null, agentMlflowExperimentId: null, dashboardId: '',
+  mlflowExperimentId: null, agentMlflowExperimentId: null,
+  dashboardId: '01f1a1dd34c41076a3e8815da30f2fd4',
+  gatewayDashboardUrl: `${String(process.env.DATABRICKS_HOST || '').replace(/\/$/, '')}/dashboardsv3/01f1a1dd34c41076a3e8815da30f2fd4/published?isDbOne=true&utm_source=nimbus-growth-desk`,
+  demoBudget: { alertUsd: 0.03, hardStopUsd: 0.05 },
   branding: { appName: 'Nimbus Growth Desk' },
   assistantScript: [
     { label: 'Investigate + draft', prompt: `Why is ${HERO_SEGMENT_ID} sliding and what should ship?` },
@@ -64,6 +68,21 @@ app.get('/api/config', (_req, res) => res.json({
     { label: 'Commit', prompt: 'Commit the approved decision.' },
   ],
 }));
+
+app.post('/api/demo/reset', async (req, res) => {
+  try {
+    const body = req.body as Record<string, unknown>;
+    const keys = Object.keys(body).sort();
+    if (keys.length !== 2 || keys[0] !== 'confirm' || keys[1] !== 'segment_id' ||
+        body.segment_id !== HERO_SEGMENT_ID || body.confirm !== true) {
+      res.status(400).json({
+        error: `Reset requires exactly {segment_id:"${HERO_SEGMENT_ID}", confirm:true}`,
+      });
+      return;
+    }
+    res.json(await resetDemoDecision(pool, HERO_SEGMENT_ID));
+  } catch (error) { sendError(res, error); }
+});
 
 app.get('/api/live-view', async (req, res) => {
   try {

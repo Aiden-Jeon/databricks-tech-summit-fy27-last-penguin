@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assertTransition, getDecision, getSearchExperiments, parseActionRanking } from './nimbus-runtime.js';
+import { assertTransition, getDecision, getSearchExperiments, parseActionRanking, resetDemoDecision } from './nimbus-runtime.js';
 import type { Pool } from 'pg';
 
 describe('decision state machine', () => {
@@ -74,5 +74,29 @@ describe('action ranking', () => {
     expect(parseActionRanking('[{"action":"ship_proven_variant"}]')).toEqual([
       { action: 'ship_proven_variant' },
     ]);
+  });
+});
+
+describe('demo reset', () => {
+  it('deletes only the hero segment decision rows', async () => {
+    const pool = Object.create(null) as Pool;
+    pool.query = vi.fn().mockResolvedValue({ rowCount: 2, rows: [] });
+    const result = await resetDemoDecision(pool, 'SEG-0000214');
+    expect(result).toMatchObject({
+      segment_id: 'SEG-0000214',
+      deleted_count: 2,
+      synchronized_sources_changed: false,
+    });
+    expect(pool.query).toHaveBeenCalledWith(
+      'DELETE FROM app.feature_decisions_app WHERE segment_id=$1',
+      ['SEG-0000214'],
+    );
+  });
+
+  it('rejects every other segment', async () => {
+    const pool = Object.create(null) as Pool;
+    pool.query = vi.fn();
+    await expect(resetDemoDecision(pool, 'SEG-OTHER')).rejects.toThrow(/restricted/);
+    expect(pool.query).not.toHaveBeenCalled();
   });
 });

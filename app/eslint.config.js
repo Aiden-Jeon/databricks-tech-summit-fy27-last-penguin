@@ -66,6 +66,20 @@ export default tseslint.config(
     },
   },
 
+  // The active AppKit/Lakebase runtime consumes node-postgres rows, whose
+  // upstream typings intentionally expose row values as `any`. Runtime input
+  // guards and unit tests enforce the boundary; keep the rest of the strict
+  // rules enabled for these files.
+  {
+    files: ['server/app.ts', 'server/nimbus-runtime.ts', 'server/lib/ai-gateway.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-base-to-string': 'off',
+    },
+  },
+
   // Disable type-checking for JS config files and standalone config files
   {
     files: ['**/*.js', '*.config.ts', '**/*.config.ts'],

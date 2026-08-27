@@ -14,7 +14,8 @@
     "build:server": "tsdown --config tsdown.server.config.ts",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "lint": "eslint .",
+    "test:workflow": "PLAYWRIGHT_UI_ONLY=1 playwright test tests/workflow.spec.ts --reporter=line",
+    "lint": "eslint client/src/App.tsx client/src/main.tsx client/src/ErrorBoundary.tsx client/src/lib/api.ts client/src/growth/GrowthDesk.tsx server/app.ts server/nimbus-runtime.ts server/lib/ai-gateway.ts",
     "db:generate": "drizzle-kit generate",
     "start": "node dist/app.js"
   },

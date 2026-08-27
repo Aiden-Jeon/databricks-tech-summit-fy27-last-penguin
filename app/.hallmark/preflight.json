@@ -1,0 +1,14 @@
+{
+  "scanned_at": "2026-08-27",
+  "framework": "React 19 + Vite 7 + Tailwind CSS 4",
+  "font_stack": "Space Grotesk + Geist + Geist Mono",
+  "palette": "Custom Nimbus OKLCH tokens in app/tokens.css",
+  "motion": "motion-cut; CSS-only functional feedback",
+  "spacing": "4-point named scale",
+  "source_files": [
+    "package.json",
+    "client/index.html",
+    "client/src/index.css",
+    "client/src/growth/GrowthDesk.tsx"
+  ]
+}

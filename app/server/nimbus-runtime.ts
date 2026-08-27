@@ -198,3 +198,19 @@ export async function transitionDecision(pool: Pool, decisionId: string, to: 'ap
     client.release();
   }
 }
+
+export async function resetDemoDecision(pool: Pool, segmentId: string) {
+  if (segmentId !== HERO_SEGMENT_ID) {
+    throw new Error(`Demo reset is restricted to ${HERO_SEGMENT_ID}`);
+  }
+  const result = await pool.query(
+    'DELETE FROM app.feature_decisions_app WHERE segment_id=$1',
+    [segmentId],
+  );
+  return {
+    segment_id: segmentId,
+    deleted_count: result.rowCount ?? 0,
+    reset_at: new Date().toISOString(),
+    synchronized_sources_changed: false,
+  };
+}

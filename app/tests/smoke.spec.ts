@@ -3,11 +3,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 // ── Templated configuration (resolved by `databricks apps init`) ────────────
-const APP_CONFIG = {
-  name: 'mas-chat-demo',
-  plugins: [
-  ],
-} as const;
+const APP_CONFIG = { name: 'Nimbus Growth Desk', plugins: [] } as const;
 
 interface PluginPage {
   navLabel: string;
@@ -48,16 +44,10 @@ let failedRequests: string[] = [];
 test('smoke test - app loads and displays home page', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { name: APP_CONFIG.name })).toBeVisible();
-  await expect(
-    page.getByRole('heading', { name: 'Welcome to your Databricks App' }),
-  ).toBeVisible();
-  await expect(page.getByText('Getting Started')).toBeVisible();
-
-  await expect(page.getByRole('link', { name: 'Home' })).toBeVisible();
-  for (const [, plugin] of enabledPages) {
-    await expect(page.getByRole('link', { name: plugin.navLabel })).toBeVisible();
-  }
+  await expect(page.getByText(APP_CONFIG.name, { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '전환 하락을 찾고, 오늘 25% 롤아웃을 결정합니다' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '조사 → 승인 → 기록' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /AI 비용/ })).toBeVisible();
 });
 
 for (const [name, plugin] of enabledPages) {
