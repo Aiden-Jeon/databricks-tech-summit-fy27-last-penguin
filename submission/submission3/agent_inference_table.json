@@ -1,6 +1,6 @@
 {
   "artifact_type": "executed_inference_table_export",
-  "executed_at": "2026-08-27T07:05:00Z",
+  "executed_at": "2026-08-27T07:15:00Z",
   "profile": "fe-sandbox-last-penguin",
   "table": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
   "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
@@ -9,24 +9,24 @@
   "query_exit_code": 0,
   "rows": [
     {
-      "event_time": "2026-08-27T07:04:59.040Z",
-      "request_id": "3bcb7b59-1eec-4f56-9171-f09d61defdc6",
-      "thread_id": "01a04209-34a2-7a91-a04b-83288a8ac62f",
+      "event_time": "2026-08-27T07:14:51.132Z",
+      "request_id": "bd27243a-5ea9-4658-a406-1c7ba7148f77",
+      "thread_id": "01a04212-3d6c-72e2-aa7f-f2bbf8173e72",
       "model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
-      "request": "Reply with exactly NIMBUS_UCODE_PROOF_20260827T1612KST and nothing else.",
-      "response": "NIMBUS_UCODE_PROOF_20260827T1612KST",
-      "marker": "NIMBUS_UCODE_PROOF_20260827T1612KST",
+      "request": "Reply with exactly NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST and nothing else.",
+      "response": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
+      "marker": "NIMBUS_UCODE_EXECUTED_NOTEBOOK_20260827T1625KST",
       "marker_in_request": true,
       "marker_in_response": true,
       "status_code": 200,
-      "latency_ms": 3253,
+      "latency_ms": 1331,
       "destination_name": "gpt-5-4-mini",
       "destination_model": "gpt-5-4-mini",
       "requester": "jongseob.jeon@databricks.com",
       "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
       "api_type": "openai/v1/responses",
       "proof_role": "PRIMARY_UCODE_EXECUTION",
-      "proof": "The unique marker links the direct ucode command and raw JSONL agent response to this HTTP 200 inference row."
+      "proof": "A real Python kernel executed the ucode subprocess in live_execution_evidence.ipynb. The adjacent output cells link exit code 0, thread ID, unique agent response, and this HTTP 200 inference row."
     },
     {
       "event_time": "2026-08-27T06:46:28.216Z",
