@@ -1,0 +1,24 @@
+Captured: 2026-08-27
+Terraform: v1.14.6 on darwin_arm64
+Provider: registry.terraform.io/databricks/databricks v1.129.0
+
+$ terraform -chdir=submission1 init -backend=false -input=false
+Terraform has been successfully initialized!
+
+$ terraform -chdir=submission1 validate
+Success! The configuration is valid.
+
+$ terraform -chdir=infra validate
+Success! The configuration is valid.
+
+$ terraform fmt -check infra/lakebase.tf submission1/lakebase.tf
+PASS
+
+$ bash -n submission1/lakebase_setup.sh
+PASS
+
+Validated constructs:
+- databricks_postgres_synced_table with CONTINUOUS scheduling for four UC tables
+- databricks_postgres_cdf_config for app reverse sync
+- explicit branch creation from projects/nimbus-growth-ops/branches/main
+- endpoint autoscaling 0.5-2 CU and suspend_timeout_duration 300s

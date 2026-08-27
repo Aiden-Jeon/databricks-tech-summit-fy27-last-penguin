@@ -1,0 +1,46 @@
+{
+  "captured_at": "2026-08-27",
+  "project": {
+    "name": "projects/nimbus-growth-ops",
+    "pg_version": 17,
+    "default_endpoint_settings": {
+      "autoscaling_limit_max_cu": 2,
+      "autoscaling_limit_min_cu": 0.5,
+      "suspend_timeout_duration": "300s"
+    }
+  },
+  "branches": [
+    {
+      "name": "projects/nimbus-growth-ops/branches/main",
+      "create_time": "2026-08-27T04:56:26Z",
+      "state": "READY",
+      "is_protected": true,
+      "source_branch": "projects/nimbus-growth-ops/branches/production"
+    },
+    {
+      "name": "projects/nimbus-growth-ops/branches/agent-forecast-dev",
+      "create_time": "2026-08-27T05:10:09Z",
+      "state": "READY",
+      "is_protected": false,
+      "source_branch": "projects/nimbus-growth-ops/branches/main"
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "projects/nimbus-growth-ops/branches/main/endpoints/primary",
+      "state": "IDLE",
+      "endpoint_type": "ENDPOINT_TYPE_READ_WRITE",
+      "autoscaling_limit_min_cu": 0.5,
+      "autoscaling_limit_max_cu": 2,
+      "suspend_timeout_duration": "300s"
+    },
+    {
+      "name": "projects/nimbus-growth-ops/branches/agent-forecast-dev/endpoints/primary",
+      "state": "ACTIVE",
+      "endpoint_type": "ENDPOINT_TYPE_READ_WRITE",
+      "autoscaling_limit_min_cu": 0.5,
+      "autoscaling_limit_max_cu": 2,
+      "suspend_timeout_duration": "300s"
+    }
+  ]
+}

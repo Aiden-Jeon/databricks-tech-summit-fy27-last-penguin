@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    databricks = {
+      source  = "databricks/databricks"
+      version = ">= 1.99.0"
+    }
+  }
+}
+
 variable "lakebase_branch" {
   type    = string
   default = "projects/nimbus-growth-ops/branches/main"
@@ -15,20 +24,17 @@ locals {
 resource "databricks_postgres_synced_table" "nimbus" {
   for_each        = local.synced_tables
   synced_table_id = "last_penguin_catalog.nimbus_serving.${each.value[1]}"
-  spec {
+  spec = {
     branch                 = var.lakebase_branch
     postgres_database      = "nimbus"
     source_table_full_name = "last_penguin_catalog.nimbus.${each.value[0]}"
     primary_key_columns    = each.value[2]
     scheduling_policy      = "CONTINUOUS"
-    dynamic "type_overrides" {
-      for_each = each.key == "experiments" ? [1] : []
-      content {
-        column_name = "description_embedding"
-        pg_type     = "PG_SPECIFIC_TYPE_VECTOR"
-        size        = 1024
-      }
-    }
+    type_overrides = each.key == "experiments" ? [{
+      column_name = "description_embedding"
+      pg_type     = "PG_SPECIFIC_TYPE_VECTOR"
+      size        = 1024
+    }] : []
   }
 }
 
@@ -39,4 +45,3 @@ resource "databricks_postgres_cdf_config" "nimbus_main_app" {
   schema          = "nimbus_reverse"
   postgres_schema = "app"
 }
-
