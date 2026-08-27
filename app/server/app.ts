@@ -105,13 +105,58 @@ app.post('/api/admin/reset', (_req, res) => {
   res.status(204).end();
 });
 
-app.post('/api/chat/stream', (req, res) => {
+const blockedLakebaseRead = /(?:all|entire|every|full)[\s\S]{0,40}(?:lakebase|database|tables?|data)|unlimited[\s-]*(?:reads?|queries)|full[\s-]*database[\s-]*scan/i;
+
+app.post('/api/chat/stream', async (req, res) => {
   const conversation = conversations.get(req.body?.conversationId);
   if (!conversation) return res.status(404).json({ error: 'Conversation not found' });
   const prompt = String(req.body?.messages?.at(-1)?.content ?? '');
+  if (blockedLakebaseRead.test(prompt)) {
+    return res.status(400).json({
+      error: 'AI Gateway input policy rejected an unbounded Lakebase read request.',
+      policy: 'nimbus-bounded-lakebase-reads',
+    });
+  }
+
+  const forwardedToken = req.header('x-forwarded-access-token');
+  if (!forwardedToken) return res.status(401).json({ error: 'Missing Databricks app OBO token.' });
+  const hostValue = process.env.DATABRICKS_HOST ?? '';
+  const host = hostValue.startsWith('http') ? hostValue : `https://${hostValue}`;
+  const model = process.env.AI_GATEWAY_MODEL ?? 'last_penguin_catalog.nimbus.nimbus_app_gateway';
+  const segmentMatch = prompt.match(/SEG-\d+/i);
+  const segment = segmentMatch?.[0].toUpperCase() ?? 'unknown';
+  const gatewayResponse = await fetch(`${host.replace(/\/$/, '')}/ai-gateway/mlflow/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${forwardedToken}`,
+      'content-type': 'application/json',
+      'user-agent': 'nimbus-growth-desk/3.0',
+      'Databricks-Ai-Gateway-Request-Tags': `application=nimbus-growth-desk,workload=interactive-chat,environment=production,segment=${segment}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are the Nimbus Growth Desk assistant. Be concise and never request or scan an entire database.' },
+        { role: 'user', content: prompt },
+      ],
+      max_tokens: 160,
+      temperature: 0.2,
+    }),
+  });
+  const gatewayBody = await gatewayResponse.text();
+  if (!gatewayResponse.ok) {
+    console.error(`[nimbus] AI Gateway ${gatewayResponse.status}: ${gatewayBody.slice(0, 500)}`);
+    return res.status(gatewayResponse.status).json({
+      error: 'Unity AI Gateway rejected the request.',
+      status: gatewayResponse.status,
+      detail: gatewayBody.slice(0, 1000),
+    });
+  }
+  const completion = JSON.parse(gatewayBody) as { choices?: Array<{ message?: { content?: string } }> };
+  const answer = completion.choices?.[0]?.message?.content?.trim();
+  if (!answer) return res.status(502).json({ error: 'Unity AI Gateway returned no assistant content.' });
   const timestamp = now();
   conversation.messages.push({ id: randomUUID(), role: 'user', content: prompt, createdAt: timestamp });
-  const answer = 'Nimbus 앱이 정상 실행 중입니다. 데이터 분석과 추천 기능은 Lakebase, SQL Warehouse, Genie 리소스를 연결하면 활성화됩니다.';
   conversation.messages.push({ id: randomUUID(), role: 'assistant', content: answer, createdAt: now() });
   conversation.updatedAt = now();
   if (conversation.title === 'New conversation' && prompt) conversation.title = prompt.slice(0, 48);
@@ -120,7 +165,7 @@ app.post('/api/chat/stream', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.write(`data: ${JSON.stringify({ type: 'response.output_text.delta', delta: answer })}\n\n`);
   res.write(`data: ${JSON.stringify({ type: 'response.completed' })}\n\n`);
-  res.end();
+  return res.end();
 });
 
 app.use('/api', (_req, res) => res.status(503).json({ error: 'This feature requires a Databricks data resource binding.' }));

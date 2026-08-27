@@ -59,8 +59,8 @@ else
 fi
 
 # Sanity-check the build outputs the deploy expects to ship.
-[[ -f "$APP_DIR/dist/server.js" ]] || {
-    echo "[build-app] ERROR: dist/server.js missing — server build failed?" >&2
+[[ -f "$APP_DIR/dist/app.js" ]] || {
+    echo "[build-app] ERROR: dist/app.js missing — server build failed?" >&2
     exit 1
 }
 [[ -f "$APP_DIR/client/dist/index.html" ]] || {

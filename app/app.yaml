@@ -31,3 +31,5 @@ user_authorization:
 env:
   - name: NODE_ENV
     value: production
+  - name: AI_GATEWAY_MODEL
+    value: last_penguin_catalog.nimbus.nimbus_app_gateway
