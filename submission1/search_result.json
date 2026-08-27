@@ -1,0 +1,11 @@
+{
+  "query":"checkout improvements that worked for Gen-Z Android users",
+  "embedding_model":"databricks-gte-large-en",
+  "results":[
+    {"experiment_id":"EXP-0000009","description":"Experiment on the checkout flow, variant_a, tested on gen_z / android. WON: lifted conversion by 2.25 points.","vector_rank":4,"bm25_rank":1,"fused_relevance":0.03201844262295082},
+    {"experiment_id":"EXP-0000045","description":"Experiment on the checkout flow, variant_c, tested on gen_z / android. WON: lifted conversion by 0.94 points.","vector_rank":1,"bm25_rank":4,"fused_relevance":0.03201844262295082},
+    {"experiment_id":"EXP-0000020","description":"Experiment on the checkout flow, variant_b, tested on gen_z / android. WON: lifted conversion by 0.84 points.","vector_rank":3,"bm25_rank":2,"fused_relevance":0.03200204813108039},
+    {"experiment_id":"EXP-0000060","description":"Experiment on the checkout flow, variant_b, tested on gen_z / android. WON: lifted conversion by 2.12 points.","vector_rank":2,"bm25_rank":3,"fused_relevance":0.03200204813108039}
+  ]
+}
+

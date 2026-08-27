@@ -1,0 +1,10 @@
+commit 3f59ebb3c3765e91c4fc29e3e3e63901951677b5
+Author trailer: OpenAI Codex
+Subject: feat(lakebase): add decision forecasts
+
+Added migrations/001_decision_forecasts.sql:
+- app.decision_forecasts with nullable FK to app.feature_decisions_app
+- segment/time index
+- REPLICA IDENTITY FULL
+- idempotent SEG-0000214 forecast seed
+

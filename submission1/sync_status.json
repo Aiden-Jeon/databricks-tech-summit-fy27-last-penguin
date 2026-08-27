@@ -1,0 +1,9 @@
+{
+  "synced_tables": "online continuous update",
+  "cdf_config": "projects/nimbus-growth-ops/branches/main/databases/db-1yvj-4oxl1t5wrr/cdf-configs/nimbus_main_app",
+  "cdf_status": [
+    {"postgres_table":"feature_decisions_app","state":"CDF_STATE_STREAMING","committed_lsn":"0/2244820","uc_table":"last_penguin_catalog.nimbus_reverse.lb_feature_decisions_app_history"},
+    {"postgres_table":"decision_forecasts","state":"CDF_STATE_STREAMING","committed_lsn":"0/22054B0","uc_table":"last_penguin_catalog.nimbus_reverse.lb_decision_forecasts_history"}
+  ]
+}
+

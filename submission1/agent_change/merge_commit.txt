@@ -1,0 +1,4 @@
+fffbc5e merge: promote validated forecast migration
+Parents: fc47cac, 3f59ebb
+Strategy: ort, explicit --no-ff merge
+

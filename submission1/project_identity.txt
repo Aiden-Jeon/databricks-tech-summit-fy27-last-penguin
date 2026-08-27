@@ -1,0 +1,16 @@
+Workspace profile: fe-sandbox-last-penguin
+Workspace: https://fe-sandbox-last-penguin.cloud.databricks.com
+Project resource: projects/nimbus-growth-ops
+Project UID: 7b0eb0fe-0ba0-4432-aa90-93fc6985f871
+Display name: Nimbus Growth Ops
+Owner: jongseob.jeon@databricks.com
+Postgres version: 17
+Database: nimbus
+Main branch: projects/nimbus-growth-ops/branches/main (protected)
+Main endpoint: projects/nimbus-growth-ops/branches/main/endpoints/primary
+Endpoint host: ep-quiet-pine-d1tvnjfk.database.us-west-2.cloud.databricks.com
+Autoscaling: 0.5-2 CU; scale to zero after 300 seconds
+
+SELECT current_database(), current_user, version();
+nimbus | jongseob.jeon@databricks.com | PostgreSQL 17.11 (df1f1a3) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+

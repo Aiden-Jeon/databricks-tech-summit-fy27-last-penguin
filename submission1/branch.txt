@@ -1,0 +1,13 @@
+Lakebase main: projects/nimbus-growth-ops/branches/main (protected)
+Lakebase development: projects/nimbus-growth-ops/branches/agent-forecast-dev
+Lakebase source branch: projects/nimbus-growth-ops/branches/main
+Git development branch: agent-forecast-dev
+Git agent commit: 3f59ebb feat(lakebase): add decision forecasts
+Git merge commit: fffbc5e merge: promote validated forecast migration
+
+Forecast change:
+- table app.decision_forecasts references app.feature_decisions_app
+- REPLICA IDENTITY FULL
+- seeded SEG-0000214 with forecast lift 0.0225 and risk USD 524160
+- migration header and commit trailer: Author: OpenAI Codex
+

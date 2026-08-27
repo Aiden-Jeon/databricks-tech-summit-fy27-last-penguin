@@ -1,0 +1,16 @@
+TypeScript: PASS (tsc -b)
+Unit test runner: PASS (vitest; no test files found)
+Production client build: PASS (3973 modules transformed)
+Production server build: PASS (dist/app.js)
+
+Local running smoke test:
+GET http://127.0.0.1:8787/health
+HTTP/1.1 200 OK
+{"status":"ok"}
+
+Deployed app: nimbus-growth-desk
+Deployment state: SUCCEEDED
+Message: App started successfully
+URL: https://nimbus-growth-desk-7474655051393778.aws.databricksapps.com
+Unauthenticated /health correctly redirects to workspace OAuth (HTTP 302).
+

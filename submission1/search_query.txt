@@ -1,0 +1,14 @@
+Natural-language query:
+checkout improvements that worked for Gen-Z Android users
+
+Embedding model: databricks-gte-large-en
+Embedding dimensions: 1024
+
+SELECT * FROM app.search_experiments(
+  'checkout improvements that worked for Gen-Z Android users',
+  :query_embedding::vector(1024),
+  10
+);
+
+Search implementation: ANN (lakebase_ann) + BM25 (lakebase_bm25), fused with reciprocal rank fusion using k=60.
+

@@ -1,0 +1,4 @@
+Which sliding Nimbus segments have the most conversion value at risk and a proven experiment available?
+
+Answer: SEG-0000214 is highest at $524,160 conversion at risk. It is a Gen-Z Android segment in EMEA, and proven checkout experiment EXP-0000009 is available with observed lift 0.0225.
+

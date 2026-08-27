@@ -1,0 +1,12 @@
+Direct OAuth PostgreSQL connectivity succeeded with sslmode=require.
+Database: nimbus
+Role: jongseob.jeon@databricks.com
+Endpoint state: ACTIVE
+Main branch protection: true
+Lakebase Search workspace preview: On
+Lakebase Search project setting: enabled (irreversible; project computes restarted)
+Installed extensions, in order:
+  vector 0.8.0
+  lakebase_vector 1.0.1
+  lakebase_text 0.1.1
+

@@ -1,0 +1,17 @@
+{
+  "project": "projects/nimbus-growth-ops",
+  "branch": "projects/nimbus-growth-ops/branches/main",
+  "database": "nimbus",
+  "tables": [
+    {"name":"last_penguin_catalog.nimbus_serving.segment_positions","state":"SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE","postgres_schema":"nimbus_serving","rows":500},
+    {"name":"last_penguin_catalog.nimbus_serving.open_sliding","state":"SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE","postgres_schema":"nimbus_serving","rows":40},
+    {"name":"last_penguin_catalog.nimbus_serving.action_recommendations","state":"SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE","postgres_schema":"nimbus_serving","rows":40},
+    {"name":"last_penguin_catalog.nimbus_serving.experiments","state":"SYNCED_TABLE_ONLINE_CONTINUOUS_UPDATE","postgres_schema":"nimbus_serving","rows":60,"description_embedding_dimensions":1024}
+  ],
+  "access_validation": {
+    "role": "nimbus_app_reader",
+    "synced_table_insert": "ERROR: permission denied for table segment_positions",
+    "operational_table_insert": "INSERT 0 1 (transaction rolled back; leaked_test_rows=0)"
+  }
+}
+

@@ -1,0 +1,11 @@
+{
+  "source_table": "app.feature_decisions_app",
+  "history_table": "last_penguin_catalog.nimbus_reverse.lb_feature_decisions_app_history",
+  "business_key": "C852C5F8160945FEA7E3C57F768A377E",
+  "rows": [
+    {"_pg_change_type":"insert","_pg_lsn":35930432,"_pg_xid":4099,"_timestamp":"2026-08-27T05:19:47.391","_sort_by":0,"segment_id":"SEG-0000214","status":"proposed","valid_from":"2026-08-27T05:19:47.391","valid_to":"2026-08-27T05:19:47.395","is_current":false},
+    {"_pg_change_type":"update_preimage","_pg_lsn":35931312,"_pg_xid":4100,"_timestamp":"2026-08-27T05:19:47.395","_sort_by":1,"segment_id":"SEG-0000214","status":"proposed","valid_from":"2026-08-27T05:19:47.391","valid_to":"2026-08-27T05:19:47.395","is_current":false},
+    {"_pg_change_type":"update_postimage","_pg_lsn":35931312,"_pg_xid":4100,"_timestamp":"2026-08-27T05:19:47.395","_sort_by":2,"segment_id":"SEG-0000214","status":"approved","decided_at":"2026-08-27T05:19:47.002Z","valid_from":"2026-08-27T05:19:47.395","valid_to":null,"is_current":true}
+  ]
+}
+
