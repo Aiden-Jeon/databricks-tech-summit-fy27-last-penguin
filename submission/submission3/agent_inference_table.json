@@ -1,6 +1,6 @@
 {
   "artifact_type": "executed_inference_table_export",
-  "executed_at": "2026-08-27T06:47:00Z",
+  "executed_at": "2026-08-27T07:05:00Z",
   "profile": "fe-sandbox-last-penguin",
   "table": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway_payload",
   "table_id": "808159e7-8f4d-4407-bea3-4a02400bcde8",
@@ -8,6 +8,26 @@
   "service_policy_attachments": [],
   "query_exit_code": 0,
   "rows": [
+    {
+      "event_time": "2026-08-27T07:04:59.040Z",
+      "request_id": "3bcb7b59-1eec-4f56-9171-f09d61defdc6",
+      "thread_id": "01a04209-34a2-7a91-a04b-83288a8ac62f",
+      "model_service": "last_penguin_catalog.nimbus.nimbus_coding_agent_gateway",
+      "request": "Reply with exactly NIMBUS_UCODE_PROOF_20260827T1612KST and nothing else.",
+      "response": "NIMBUS_UCODE_PROOF_20260827T1612KST",
+      "marker": "NIMBUS_UCODE_PROOF_20260827T1612KST",
+      "marker_in_request": true,
+      "marker_in_response": true,
+      "status_code": 200,
+      "latency_ms": 3253,
+      "destination_name": "gpt-5-4-mini",
+      "destination_model": "gpt-5-4-mini",
+      "requester": "jongseob.jeon@databricks.com",
+      "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
+      "api_type": "openai/v1/responses",
+      "proof_role": "PRIMARY_UCODE_EXECUTION",
+      "proof": "The unique marker links the direct ucode command and raw JSONL agent response to this HTTP 200 inference row."
+    },
     {
       "event_time": "2026-08-27T06:46:28.216Z",
       "request_id": "fbb68e70-4b99-409a-83ed-d42f33ca3761",
@@ -25,6 +45,7 @@
       "url": "https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses",
       "api_type": "openai/v1/responses",
       "app_guardrail_applied": false,
+      "proof_role": "POLICY_ISOLATION_SUPPORTING_EVIDENCE",
       "proof": "The same exact phrase denied on the app service completed with HTTP 200 on the distinct agent service, whose live service-policy list is empty."
     },
     {

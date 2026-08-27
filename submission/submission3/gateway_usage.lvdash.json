@@ -5,11 +5,12 @@
   "lifecycle_state": "ACTIVE",
   "automatic_updates": true,
   "source": "Databricks account usage-dashboards API",
-  "exported_at": "2026-08-27T06:49:00Z",
+  "exported_at": "2026-08-27T07:05:00Z",
   "usage_rows": [
+    {"source":"agent_inference_table","proof_role":"PRIMARY_UCODE_EXECUTION","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","request_id":"3bcb7b59-1eec-4f56-9171-f09d61defdc6","thread_id":"01a04209-34a2-7a91-a04b-83288a8ac62f","status_code":200,"marker":"NIMBUS_UCODE_PROOF_20260827T1612KST","marker_in_request":true,"marker_in_response":true,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"},
     {"source":"app_inference_table","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_app_gateway","request_id":"95451486-e2bc-49d7-8039-9b2454bc00bd","status_code":200,"total_tokens":5027,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"},
     {"source":"app_inference_table_and_system.ai_gateway.usage","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_app_gateway","request_id":"57857105-3aa5-4f2e-9d11-745fb4ff32d4","status_code":403,"latency_ms":18,"blocking_budget_id":"c1999872-d8f0-4351-a932-17fd07e2fcdb","budget_limit_usd":0.05,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/mlflow/v1/chat/completions"},
-    {"source":"agent_inference_table","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","request_id":"fbb68e70-4b99-409a-83ed-d42f33ca3761","status_code":200,"exact_runaway_phrase_in_request":true,"isolation_marker_in_response":true,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"},
+    {"source":"agent_inference_table","proof_role":"POLICY_ISOLATION_SUPPORTING_EVIDENCE","service_type":"MODEL_SERVICE","service_name":"last_penguin_catalog.nimbus.nimbus_coding_agent_gateway","request_id":"fbb68e70-4b99-409a-83ed-d42f33ca3761","status_code":200,"exact_runaway_phrase_in_request":true,"isolation_marker_in_response":true,"requester":"jongseob.jeon@databricks.com","url":"https://fe-sandbox-last-penguin.cloud.databricks.com/ai-gateway/codex/v1/responses"},
     {"source":"governed_mcp_execution","service_type":"MCP_SERVICE","service_name":"system.ai.slack","operation":"resources/list","mode":"read-only","status":"failed_missing_per_user_connection","content_rows_exported":0}
   ],
   "guardrail_execution": {
