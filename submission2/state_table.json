@@ -1,6 +1,13 @@
 {
+  "export_type": "post_commit_live_view_rows",
+  "executed": true,
+  "execution_evidence": true,
   "queried_at": "2026-08-27T06:02:05.317Z",
   "source": "deployed app GET /api/live-view?segment_id=SEG-0000214 after commit",
+  "reflected_after_commit": true,
+  "writeback_table": "app.feature_decisions_app",
+  "writeback_decided_at": "2026-08-27T06:02:03.822Z",
+  "chain_id": "d2669088-4482-4aa5-a22f-12c074209380",
   "assist_run_id": "81f02665-94f9-47e1-b31a-962ab54da37f",
   "segment_id": "SEG-0000214",
   "experiment_id": "EXP-0000009",
@@ -15,7 +22,10 @@
     "variant": "variant_a", "rollout_pct": 25,
     "approved_by": "jongseob.jeon@databricks.com",
     "decision_created_at": "2026-08-27T06:01:50.914Z",
-    "decided_at": "2026-08-27T06:02:03.822Z"
+    "decided_at": "2026-08-27T06:02:03.822Z",
+    "queried_at": "2026-08-27T06:02:05.317Z",
+    "reflected_after_commit": true,
+    "writeback_decision_id": "d2669088-4482-4aa5-a22f-12c074209380"
   }],
   "freshness_check": "queried_at is later than decided_at and shows the same decision_id"
 }
