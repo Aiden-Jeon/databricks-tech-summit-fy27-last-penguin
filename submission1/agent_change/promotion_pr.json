@@ -1,0 +1,12 @@
+{
+  "repository": "Aiden-Jeon/databricks-tech-summit-fy27-last-penguin",
+  "pull_request": 1,
+  "url": "https://github.com/Aiden-Jeon/databricks-tech-summit-fy27-last-penguin/pull/1",
+  "state": "MERGED",
+  "base_ref": "main",
+  "head_ref": "build1-scoring-remediation",
+  "merged_at": "2026-08-27T06:01:56Z",
+  "merge_commit_sha": "f107912c8a624cb3a7f88c3189a144470fadef73",
+  "lakebase_feature_commit": "3f59ebb",
+  "scoring_remediation_commit": "18f8846"
+}
