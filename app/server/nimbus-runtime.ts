@@ -87,6 +87,31 @@ export async function getSearchExperiments(pool: Pool, query: string, limit = 5)
   };
 }
 
+export async function getDecision(pool: Pool, decisionId: string) {
+  const result = await pool.query(
+    'SELECT * FROM app.feature_decisions_app WHERE id=$1 LIMIT 1',
+    [decisionId],
+  );
+  if (!result.rows[0]) throw new Error(`Decision not found: ${decisionId}`);
+  const row = result.rows[0] as Record<string, unknown>;
+  const auditTrail = Array.isArray(row.audit_trail) ? row.audit_trail : [];
+  const proposed = auditTrail.find((event) =>
+    typeof event === 'object' && event !== null && event.action === 'proposed',
+  ) as Record<string, unknown> | undefined;
+  return {
+    queried_at: new Date().toISOString(),
+    table: 'app.feature_decisions_app',
+    app_written: true,
+    assist_run_id: proposed?.assist_run_id ?? null,
+    segment_id: row.segment_id,
+    experiment_id: row.target_experiment_id,
+    decision_id: row.id,
+    row_count: 1,
+    columns: Object.keys(row),
+    rows: [row],
+  };
+}
+
 type ProposedDecision = {
   assistRunId: string;
   segmentId: string;
@@ -102,7 +127,14 @@ type ProposedDecision = {
 export async function createProposedDecision(pool: Pool, input: ProposedDecision) {
   const decisionId = randomUUID();
   const at = new Date().toISOString();
-  const audit = [{ at, by: 'nimbus-assistant', action: 'proposed', notes: 'AI draft awaiting human approval', tool: 'assist' }];
+  const audit = [{
+    at,
+    by: 'nimbus-assistant',
+    action: 'proposed',
+    notes: 'AI draft awaiting human approval',
+    tool: 'assist',
+    assist_run_id: input.assistRunId,
+  }];
   const result = await pool.query(
     `INSERT INTO app.feature_decisions_app
        (id, segment_id, action_type, target_experiment_id, flag_key, variant,

@@ -6,6 +6,7 @@ import {
   HERO_EXPERIMENT_ID,
   HERO_SEGMENT_ID,
   createProposedDecision,
+  getDecision,
   getLiveView,
   getSearchExperiments,
   initializeDecisionSchema,
@@ -97,6 +98,11 @@ app.post('/api/decisions', async (req, res) => {
     });
     res.status(201).json(row);
   } catch (error) { sendError(res, error); }
+});
+
+app.get('/api/decisions/:id', async (req, res) => {
+  try { res.json(await getDecision(pool, req.params.id)); }
+  catch (error) { sendError(res, error); }
 });
 
 app.post('/api/decisions/:id/approve', async (req, res) => {
