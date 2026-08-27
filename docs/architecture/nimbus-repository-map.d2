@@ -1,0 +1,59 @@
+# Nimbus repository and scored-deliverable boundaries.
+
+direction: right
+vars: { d2-config: { layout-engine: elk; pad: 36 } }
+
+title: |md
+  # Nimbus · Repository & Submission Map
+  One source repository · three isolated scored deliverables
+| { near: top-center; style: { font-size: 26; bold: true } }
+
+source: Project Sources {
+  class: group
+  direction: down
+  context: Product context\nREADME.md · docs/ · specifications/ { class: source }
+  bootstrap: Platform bootstrap\ndatabricks.yml · resources.json\ndata_generation/ · transformation/ { class: compute }
+  lakebase: Lakebase implementation\ninfra/ · sql/ · migrations/ · evidence/ { class: store; icon: ${ICONS}/databricks/lakebase.svg }
+  app: Application source\napp/client · app/server · app/config · tests { class: serve; icon: ${ICONS}/databricks/apps.svg }
+  gateway: Gateway integration\napp/server/lib/ai-gateway.ts\nGateway configuration evidence { class: govern; icon: ${ICONS}/databricks/unity_ai_gateway.svg }
+}
+
+handoff: Required Handoff Checklists {
+  class: group
+  direction: down
+  s1: submission/docs/SUBMISSION1.md\nLakebase checklist { class: govern }
+  s2: submission/docs/SUBMISSION2.md\nApp checklist { class: govern }
+  s3: submission/docs/SUBMISSION3.md\nUnity AI Gateway checklist { class: govern }
+}
+
+deliverables: Scored Deliverables under submission/ {
+  class: group
+  direction: down
+  build1: Build 1 · Lakebase\nsubmission/submission1/ + .zip { shape: stored_data; class: store; icon: ${ICONS}/databricks/lakebase.svg }
+  build2: Build 2 · App\nsubmission/submission2/ + .zip { shape: stored_data; class: serve; icon: ${ICONS}/databricks/apps.svg }
+  build3: Build 3 · Unity AI Gateway\nsubmission/submission3/ + .zip { shape: stored_data; class: govern; icon: ${ICONS}/databricks/unity_ai_gateway.svg }
+}
+
+rules: Packaging Invariants {
+  class: group
+  direction: down
+  root: Final folder + archive stay\nunder root submission/ { class: govern }
+  history: Each folder contains final\ngit_history.txt { class: govern }
+  boundary: Never mix evidence\nbetween builds { class: govern }
+  size: Inspect members · exclude datasets,\nnode_modules & caches · keep < 40 MB { class: govern }
+}
+
+source.context -> source.bootstrap
+source.bootstrap -> source.lakebase
+source.bootstrap -> source.app
+source.app -> source.gateway
+
+source.lakebase -> handoff.s1
+source.app -> handoff.s2
+source.gateway -> handoff.s3
+
+handoff.s1 -> deliverables.build1: package exact Build 1 files { class: accent }
+handoff.s2 -> deliverables.build2: rebuild from final app/ { class: accent }
+handoff.s3 -> deliverables.build3: package exact Build 3 files { class: accent }
+
+rules -> deliverables: validate before handoff { class: govlink }

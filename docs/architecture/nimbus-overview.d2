@@ -1,0 +1,63 @@
+# Nimbus project overview — intentionally compact for first-glance viewing.
+
+direction: right
+vars: { d2-config: { layout-engine: elk; pad: 36 } }
+
+title: |md
+  # Nimbus Growth Desk · Project Overview
+  Find a sliding segment · recommend the next feature · approve it · serve it fast
+| { near: top-center; style: { font-size: 26; bold: true } }
+
+surface: Experience {
+  class: group
+  direction: right
+  growth: Growth leader\nJordan Cole { shape: person; class: source }
+  app: Databricks App\nGrowth Desk { class: serve; icon: ${ICONS}/databricks/apps.svg }
+  dashboard: AI/BI Dashboard\nrisk KPIs + cohort scatter { class: serve; icon: ${ICONS}/databricks/ai_bi.svg }
+  genie: Genie\ninvestigate why { class: serve; icon: ${ICONS}/databricks/genie.svg }
+
+  growth -> app: investigate · recommend · act { class: accent }
+  growth -> dashboard: see the slide
+  growth -> genie: ask why
+}
+
+core: Databricks Intelligence Platform {
+  class: group
+  direction: right
+  data: Data + ML foundation\nLakeflow · Delta Gold · recommender { class: compute; icon: ${ICONS}/databricks/lakeflow.svg }
+  lakebase: Build 1 · Lakebase\ncontinuous sync · search · OLTP { shape: cylinder; class: store; icon: ${ICONS}/databricks/lakebase.svg }
+  runtime: Build 2 · App runtime\nbounded evidence + human gate { class: serve; icon: ${ICONS}/databricks/apps.svg }
+  gateway: Build 3 · Unity AI Gateway\npolicy · budget · inference logs { shape: hexagon; class: govern; icon: ${ICONS}/databricks/unity_ai_gateway.svg }
+  model: Foundation Model\ndraft rollout memo { class: compute; icon: ${ICONS}/databricks/model_serving.svg }
+
+  data -> lakebase: governed Delta → Postgres { class: accent }
+  lakebase -> runtime: low-latency context { class: accent }
+  runtime -> gateway: OBO + request tags { class: accent }
+  gateway -> model: controlled inference { class: accent }
+}
+
+act: Governed Action Loop {
+  class: group
+  direction: right
+  proposal: Evidence-backed proposal\nproven variant ranks first { class: compute }
+  approval: PM approval\nproposed → approved → committed { shape: diamond; class: govern }
+  decision: Lakebase decision row\nfeature_decisions_app { shape: cylinder; class: store; icon: ${ICONS}/databricks/lakebase.svg }
+  product: Nimbus product\nlow-latency flag read { class: source }
+  reverse: UC reverse sync\naudit + downstream analytics { shape: cylinder; class: store; icon: ${ICONS}/databricks/unity_catalog.svg }
+
+  proposal -> approval: human-in-the-loop
+  approval -> decision: write only after approval { class: accent }
+  decision -> product: serve approved action { class: accent }
+  decision -> reverse: CDF
+}
+
+uc: Unity Catalog governance plane\naccess · lineage · governed data and AI assets { class: govern; icon: ${ICONS}/databricks/unity_catalog.svg }
+
+surface.app -> core.runtime
+core.model -> act.proposal: grounded memo
+act.decision -> surface.app: live refresh
+core.data -> surface.dashboard: SQL Warehouse
+core.data -> surface.genie: governed SQL
+uc -> core.data: governs { class: govlink }
+uc -> core.lakebase: governs { class: govlink }
+uc -> core.gateway: governs { class: govlink }
