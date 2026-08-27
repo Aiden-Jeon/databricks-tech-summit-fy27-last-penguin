@@ -1,5 +1,6 @@
 $ git log --oneline --graph --decorate main agent-forecast-dev build1-feedback-remediation build1-scoring-remediation
-* 6a08665 (HEAD -> main, origin/main, origin/HEAD) docs(build1): record merged promotion PR
+* f95cd56 (HEAD -> main) docs(build1): refresh remote promotion history
+* 6a08665 (origin/main, origin/HEAD) docs(build1): record merged promotion PR
 *   f107912 Merge pull request #1 from Aiden-Jeon/build1-scoring-remediation
 |\
 | * 18f8846 (origin/build1-scoring-remediation, build1-scoring-remediation) fix(build1): make Lakebase evidence grader-readable
