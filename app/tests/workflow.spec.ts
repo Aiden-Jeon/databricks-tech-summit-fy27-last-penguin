@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 type Status = 'investigating' | 'investigation_failed' | 'proposed' | 'approved' | 'committed';
 const segment = 'SEG-0098765';
+const gatewayDashboardUrl = 'https://workspace.cloud.databricks.com/dashboardsv3/01f1a1dd34c41076a3e8815da30f2fd4/published?isDbOne=true&utm_source=nimbus-growth-desk';
 
 async function mockApp(page: Page, initial: Status = 'proposed', draftedNote = '## 근거\n\n- 검증된 실험 결과입니다.') {
   let status = initial;
@@ -16,7 +17,7 @@ async function mockApp(page: Page, initial: Status = 'proposed', draftedNote = '
     target_experiment_id: 'EXP-DYNAMIC', experiment: { experiment_id: 'EXP-DYNAMIC', description: '유사 코호트 실험' },
   };
   await page.route('**/api/me', (route) => route.fulfill({ json: { userName: 'tester', userEmail: 'tester@example.com' } }));
-  await page.route('**/api/config', (route) => route.fulfill({ json: { gatewayDashboardUrl: 'https://example.com/cost' } }));
+  await page.route('**/api/config', (route) => route.fulfill({ json: { gatewayDashboardUrl } }));
   await page.route('**/api/cases', (route) => route.fulfill({ json: { queried_at: '2026-08-27T12:00:00Z', cases: [{ ...base, decision_status: status, rollout_pct: rollout }] } }));
   await page.route('**/api/cases/decision-7', (route) => route.fulfill({ json: { case: { ...base, status, rollout_pct: rollout, approved_by: status === 'proposed' ? null : 'tester@example.com', decided_at: status === 'committed' ? '2026-08-27T12:00:00Z' : null, audit_trail: status === 'committed' ? [{ action: 'proposed', by: 'AI', at: '2026-08-27T10:00:00Z' }, { action: 'approved', by: 'tester@example.com', at: '2026-08-27T11:00:00Z' }, { action: 'committed', by: 'tester@example.com', at: '2026-08-27T12:00:00Z' }] : [] } } }));
   await page.route('**/api/decisions/decision-7/approve', async (route) => { const body = route.request().postDataJSON(); rollout = body.rollout_pct; status = 'approved'; calls.push({ url: route.request().url(), body }); await route.fulfill({ json: { ...base, status, rollout_pct: rollout } }); });
@@ -37,6 +38,12 @@ test('cases render in the inbox and rollout recalculates the linear forecast', a
   await expect(page.getByRole('cell', { name: '3.5%' })).toBeVisible();
   await expect(page.getByText('+0.50%p')).toBeVisible();
   await expect(page.getByText('단순 선형 추정', { exact: true })).toBeVisible();
+});
+
+test('AI cost link opens the published Gateway dashboard with an absolute URL', async ({ page }) => {
+  await mockApp(page); await page.goto('/');
+  await expect(page.getByRole('link', { name: /AI 비용/ })).toHaveAttribute('href', gatewayDashboardUrl);
+  await expect(page.getByRole('link', { name: /AI 비용/ })).toHaveAttribute('target', '_blank');
 });
 
 test('approver changes only rollout and can commit after approval', async ({ page }) => {

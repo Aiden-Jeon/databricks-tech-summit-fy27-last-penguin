@@ -172,6 +172,33 @@ function addNotes(slide, number, time, script) {
 // 7
 {
   const s = pptx.addSlide('NIMBUS');
+  title(s, 'WHY DATABRICKS', '하나의 데이터·AI 플랫폼으로 더 빠르고 지속 가능하게 운영합니다', 'One governed platform. One control plane for AI cost.');
+  const stages = [
+    ['01', '문제를 빠르게 발견', ['최신 상태를 지속적으로 반영', '결제 완료율 하락과 영향 고객 확인'], 'Lakeflow · 공통 지표 · Lakebase 동기화', C.blue],
+    ['02', '자연어로 쉽게 분석', ['“어떤 고객의 결제 완료율이\n왜 떨어졌는가?”라고 질문', '대시보드와 Genie가 같은 정의로 답변'], 'AI/BI · Genie · Metric View', C.cyan],
+    ['03', '적은 운영 부담으로 실행', ['과거 사례 → AI 시험안 → 담당자 승인', '관리형 서비스와 유휴 시 축소'], 'Databricks Apps · Lakebase', C.orange],
+    ['04', '데이터와 AI를 함께 통제', ['접근 권한·보호·추적성을 일관되게 적용', '사용자별 비용 확인·예산 초과 차단'], 'Unity Catalog · Unity AI Gateway', C.red],
+  ];
+  stages.forEach(([n, heading, bullets, products, accent], i) => {
+    const x = 0.58 + i * 3.17;
+    s.addShape(pptx.ShapeType.roundRect, { x, y: 2.03, w: 2.82, h: 3.5, rectRadius: 0.08, fill: { color: C.white }, line: { color: accent, width: 1.2 } });
+    s.addShape(pptx.ShapeType.ellipse, { x: x + 0.18, y: 2.22, w: 0.48, h: 0.48, fill: { color: accent }, line: { color: accent } });
+    addText(s, n, x + 0.18, 2.22, 0.48, 0.48, { fontSize: 9, bold: true, color: C.white, align: 'center' });
+    addText(s, heading, x + 0.2, 2.86, 2.42, 0.56, { fontSize: 15, bold: true, color: C.ink, valign: 'top' });
+    addText(s, `• ${bullets[0]}\n\n• ${bullets[1]}`, x + 0.2, 3.55, 2.42, 1.25, { fontSize: 10.2, color: C.muted, breakLine: true, valign: 'top', breakLineOnOverflow: false });
+    s.addShape(pptx.ShapeType.line, { x: x + 0.2, y: 4.93, w: 2.42, h: 0, line: { color: C.line, width: 0.8 } });
+    addText(s, products, x + 0.2, 5.02, 2.42, 0.3, { fontSize: 8.2, bold: true, color: accent, align: 'center' });
+    if (i < stages.length - 1) arrow(s, x + 2.85, 3.76, x + 3.12, 3.76, C.line);
+  });
+  s.addShape(pptx.ShapeType.roundRect, { x: 0.86, y: 5.86, w: 11.6, h: 0.64, rectRadius: 0.08, fill: { color: C.dark }, line: { color: C.dark } });
+  addText(s, '도구 간 연결과 수작업 인계를 줄여, 적은 인원으로 더 빠른 의사결정과 예측 가능한 비용 운영이 가능합니다.', 1.12, 5.86, 11.08, 0.64, { fontSize: 13.5, bold: true, color: C.white, align: 'center' });
+  addText(s, '앱은 승인된 결정을 기록하고, 실제 고객 대상 실행은 제품팀이 담당합니다.', 1.12, 6.6, 11.08, 0.25, { fontSize: 8.8, color: C.muted, align: 'center' });
+  addNotes(s, 7, '0:55', ['“Databricks의 가치는 제품 목록이 아니라 문제 발견부터 비용 통제까지 하나의 운영 흐름으로 이어지는 데 있습니다.”', '최신 상태를 지속적으로 반영하고, 같은 지표 정의를 대시보드와 Genie가 함께 사용해 자연어 분석 부담을 낮춘다.', '관리형 서비스와 유휴 시 축소로 운영 부담을 줄이고, 앱은 담당자가 승인한 결정만 기록하며 실제 실행은 제품팀이 담당한다.', 'Unity Catalog는 데이터와 AI 자산의 접근·보호·추적성을, Unity AI Gateway는 AI 사용량·비용과 예산 초과 차단을 담당한다고 구분해 설명한다.']);
+}
+
+// 8
+{
+  const s = pptx.addSlide('NIMBUS');
   s.background = { color: C.dark };
   addCustomerLogo(s, true);
   addText(s, '실제 화면 시연', 0.75, 0.72, 2.3, 0.3, { fontSize: 10, bold: true, color: C.red, charSpacing: 2 });
@@ -192,10 +219,10 @@ function addNotes(slide, number, time, script) {
   s.addImage({ path: customerLogo, x: 5.23, y: 5.38, w: 2.87, h: 1.58, sizing: { type: 'contain', w: 2.87, h: 1.58 }, altText: 'Nimbus customer logo' });
   addText(s, 'Nimbus Growth Desk 앱', 0.9, 6.05, 3.5, 0.3, { fontSize: 9.5, color: '82949E', align: 'center' });
   addText(s, 'AI 사용량·비용 화면', 8.92, 6.05, 3.5, 0.3, { fontSize: 9.5, color: '82949E', align: 'center' });
-  addNotes(s, 7, '전환 0:15 + 라이브 10:00', ['“이제 문제를 찾고 시험안을 승인해 기록하는 실제 흐름을 보여드리겠습니다.”', '앱에서 하락 고객군 찾기, 과거 성공 사례 비교, AI 시험안 확인, 담당자 승인을 차례로 실행한다.', '승인자와 기록 시각이 즉시 남는 것을 보여준 뒤 AI 사용량과 비용 화면을 연다.', '앱이 고객 화면을 직접 변경하는 것은 아니며, 승인된 시험안은 제품팀이 실행한다고 분명히 설명한다.']);
+  addNotes(s, 8, '전환 0:15 + 라이브 10:00', ['“이제 문제를 찾고 시험안을 승인해 기록하는 실제 흐름을 보여드리겠습니다.”', '앱에서 하락 고객군 찾기, 과거 성공 사례 비교, AI 시험안 확인, 담당자 승인을 차례로 실행한다.', '승인자와 기록 시각이 즉시 남는 것을 보여준 뒤 AI 사용량과 비용 화면을 연다.', '앱이 고객 화면을 직접 변경하는 것은 아니며, 승인된 시험안은 제품팀이 실행한다고 분명히 설명한다.']);
 }
 
-// 8
+// 9
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, 'AI 비용 관리', '누가 얼마나 사용했고, 어디서 차단됐는지 확인합니다', 'AI 사용량, 계산한 예상 비용, 한도 초과 차단 결과를 한 화면에서 확인합니다.');
@@ -206,10 +233,10 @@ function addNotes(slide, number, time, script) {
   node(s, 0.68, 4.55, 3.56, 1.3, '비용을 본다', '시간별 예상 비용\nAI 모델별 사용량', C.blue);
   node(s, 4.86, 4.55, 3.56, 1.3, '사용자를 찾는다', '어떤 앱에서\n누가 요청했는지 확인', C.green);
   node(s, 9.04, 4.55, 3.56, 1.3, '초과 사용을 막는다', '$0.03에서 알림\n$0.05에서 요청 차단', C.red);
-  addNotes(s, 8, '1:00', ['“재무 책임자는 AI가 싸다는 약속보다 누가 얼마를 사용했고 어디서 멈췄는지 확인할 수 있어야 합니다.”', '현재 측정된 AI 요청 55건, 총 처리량 414.6K 토큰, 예상 비용 $0.0976, 차단 3건을 보여준다.', '실제 외부 청구액 자료는 제공되지 않았으므로 0이라고 말하지 않고, 사용량과 명시 단가로 계산한 예상 비용이라고 설명한다.', '$0.03과 $0.05는 실제 운영 예산이 아니라 시연을 위해 낮게 설정한 한도라고 설명한다.']);
+  addNotes(s, 9, '1:00', ['“재무 책임자는 AI가 싸다는 약속보다 누가 얼마를 사용했고 어디서 멈췄는지 확인할 수 있어야 합니다.”', '현재 측정된 AI 요청 55건, 총 처리량 414.6K 토큰, 예상 비용 $0.0976, 차단 3건을 보여준다.', '실제 외부 청구액 자료는 제공되지 않았으므로 0이라고 말하지 않고, 사용량과 명시 단가로 계산한 예상 비용이라고 설명한다.', '$0.03과 $0.05는 실제 운영 예산이 아니라 시연을 위해 낮게 설정한 한도라고 설명한다.']);
 }
 
-// 9
+// 10
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, '다음 단계', '작게 시험하고, 결과를 보고 확대하거나 중단합니다', '앱에서 승인한 시험안을 제품팀이 실행하고 결제 완료율과 AI 비용을 함께 확인합니다.');
@@ -227,10 +254,10 @@ function addNotes(slide, number, time, script) {
     pill(s, p, x + 0.2, 3.82, 2.3, i === 3 ? '243039' : C.pale, i === 3 ? C.cyan : C.blue);
     addText(s, d, x + 0.2, 4.42, 2.3, 0.72, { fontSize: 10.5, color: i === 3 ? 'B7C5CD' : C.muted, valign: 'top' });
   });
-  addNotes(s, 9, '0:55', ['“앱의 역할은 시험안을 승인하고 기록하는 데까지이며, 실제 고객 화면은 제품팀이 변경합니다.”', '오늘 시험안을 승인하고 제품팀이 고객 25%에게 한 화면 간편결제를 적용한다.', '24시간 동안 결제 완료율, 오류율, AI 비용을 확인하고 72시간 뒤 확대하거나 중단한다.', '성공 기준은 결제 완료율 회복, 안정적인 결제, 통제된 AI 비용, 승인 기록 보존이다.']);
+  addNotes(s, 10, '0:55', ['“앱의 역할은 시험안을 승인하고 기록하는 데까지이며, 실제 고객 화면은 제품팀이 변경합니다.”', '오늘 시험안을 승인하고 제품팀이 고객 25%에게 한 화면 간편결제를 적용한다.', '24시간 동안 결제 완료율, 오류율, AI 비용을 확인하고 72시간 뒤 확대하거나 중단한다.', '성공 기준은 결제 완료율 회복, 안정적인 결제, 통제된 AI 비용, 승인 기록 보존이다.']);
 }
 
-// Appendix 10
+// Appendix 11
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, '부록 A', '예상 가치의 계산 범위', '회사 전체의 단순 환산값과 이번 고객군의 예상 가치를 구분합니다.');
@@ -240,10 +267,10 @@ function addNotes(slide, number, time, script) {
   addText(s, '= 예상 결제 완료 증가 × 대상 고객 수 × 평균 주문금액 × 관측기간\n  - 시험·개발·운영 비용($5K)', 2.45, 3.72, 9.5, 0.82, { fontSize: 16, bold: true, color: C.ink, breakLine: true });
   addText(s, '주의: +2.25%p는 과거 시험의 실제 결과이고, +1.80%p는 이번 고객군에 대한 예상치입니다.', 0.78, 5.2, 11.25, 0.4, { fontSize: 12, color: C.red, bold: true });
   addText(s, '대시보드의 $0.03/$0.05는 라이브 데모에서 검증한 AI 예산 임계값이며 연간 비용 상한이 아닙니다.', 0.78, 5.78, 11.25, 0.4, { fontSize: 11, color: C.muted });
-  addNotes(s, 10, '질문 시 1:00', ['예상 가치의 계산 범위를 묻는 질문에 사용한다.', '$4M은 회사 전체 결제 완료율 1%p의 연간 단순 환산이고, $721.3K는 이번 고객군과 관측기간에 대한 예상 순가치라고 설명한다.', '과거 시험에서 실제로 관측한 효과와 이번 시험의 예상 효과를 구분한다.']);
+  addNotes(s, 11, '질문 시 1:00', ['예상 가치의 계산 범위를 묻는 질문에 사용한다.', '$4M은 회사 전체 결제 완료율 1%p의 연간 단순 환산이고, $721.3K는 이번 고객군과 관측기간에 대한 예상 순가치라고 설명한다.', '과거 시험에서 실제로 관측한 효과와 이번 시험의 예상 효과를 구분한다.']);
 }
 
-// Appendix 11
+// Appendix 12
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, '부록 B', 'AI 초안과 사람의 승인을 분리합니다', 'AI는 시험안을 작성할 뿐이며, 담당자 승인 없이는 최종 결정으로 기록할 수 없습니다.');
@@ -261,10 +288,10 @@ function addNotes(slide, number, time, script) {
   });
   s.addShape(pptx.ShapeType.roundRect, { x: 1.0, y: 5.1, w: 11.25, h: 0.85, rectRadius: 0.08, fill: { color: C.paleRed }, line: { color: 'F1BDB7' } });
   addText(s, '담당자 승인을 건너뛴 최종 기록은 서버에서 거부 · 모든 과정은 같은 결정 번호에 보관', 1.3, 5.1, 10.65, 0.85, { fontSize: 14, bold: true, color: C.red, align: 'center' });
-  addNotes(s, 11, '질문 시 1:15', ['승인 책임과 시스템 통제 질문에 사용한다.', 'AI는 시험안만 만들고 로그인한 담당자가 승인한 뒤에만 최종 결정 기록이 가능하다.', '승인을 건너뛰려는 요청은 서버가 거부하고 모든 과정은 같은 결정 번호에 보관한다.', '구체적인 API 주소와 상태 코드는 기술 검증 자료에서 확인할 수 있다.']);
+  addNotes(s, 12, '질문 시 1:15', ['승인 책임과 시스템 통제 질문에 사용한다.', 'AI는 시험안만 만들고 로그인한 담당자가 승인한 뒤에만 최종 결정 기록이 가능하다.', '승인을 건너뛰려는 요청은 서버가 거부하고 모든 과정은 같은 결정 번호에 보관한다.', '구체적인 API 주소와 상태 코드는 기술 검증 자료에서 확인할 수 있다.']);
 }
 
-// Appendix 12
+// Appendix 13
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, '부록 C', '어떤 데이터를 읽고 무엇을 기록하는가', '고객과 과거 시험 데이터는 읽기만 하고, 앱은 승인된 결정만 별도 공간에 기록합니다.');
@@ -276,10 +303,10 @@ function addNotes(slide, number, time, script) {
     ['시연 초기화', '이번 고객군의 결정 기록', '해당 기록만 삭제', 'segment_id + confirm=true'],
   ], { x: 0.7, y: 2.0, w: 11.9, h: 3.2, border: { type: 'solid', color: C.line, pt: 1 }, fill: C.white, color: C.ink, fontFace: 'Noto Sans KR', fontSize: 12, margin: 0.12, rowH: 0.6, colW: [1.25, 4.15, 2.5, 4.0], bold: false, valign: 'mid', autoFit: false, fillHeader: C.dark });
   addText(s, '고객 원본 데이터는 변경하지 않음 · 시연 초기화도 이번 고객군의 결정 기록만 삭제', 0.75, 5.75, 11.6, 0.4, { fontSize: 13, bold: true, color: C.red, align: 'center' });
-  addNotes(s, 12, '질문 시 1:00', ['데이터 보호와 초기화 안전성을 묻는 질문에 사용한다.', '고객군과 과거 시험 데이터는 읽기만 하며 앱은 승인된 결정만 별도 테이블에 기록한다.', '시연 초기화는 지정된 고객군의 앱 작성 기록만 삭제하고 원본 데이터는 변경하지 않는다.']);
+  addNotes(s, 13, '질문 시 1:00', ['데이터 보호와 초기화 안전성을 묻는 질문에 사용한다.', '고객군과 과거 시험 데이터는 읽기만 하며 앱은 승인된 결정만 별도 테이블에 기록한다.', '시연 초기화는 지정된 고객군의 앱 작성 기록만 삭제하고 원본 데이터는 변경하지 않는다.']);
 }
 
-// Appendix 13
+// Appendix 14
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, '부록 D', 'AI 비용 숫자를 어떻게 해석하는가', '계산한 예상 비용, 사용자별 사용량, 차단 결과, 실제 청구액을 서로 구분합니다.');
@@ -292,10 +319,10 @@ function addNotes(slide, number, time, script) {
   ];
   s.addTable([[{ text: '통제', options: { bold: true } }, { text: '구현', options: { bold: true } }, { text: '표시 원칙', options: { bold: true } }], ...rows], { x: 0.72, y: 1.95, w: 11.85, h: 3.7, border: { type: 'solid', color: C.line, pt: 1 }, fill: C.white, color: C.ink, fontFace: 'Noto Sans KR', fontSize: 12, margin: 0.13, rowH: 0.58, colW: [2.0, 5.35, 4.5], valign: 'mid', autoFit: false });
   addText(s, '예상 비용과 실제 청구액을 섞지 않고, 자료가 없으면 “미제공”으로 표시합니다.', 0.76, 6.0, 11.5, 0.42, { fontSize: 14, bold: true, color: C.blue, align: 'center' });
-  addNotes(s, 13, '질문 시 1:15', ['AI 비용 계산과 통제 질문에 사용한다.', '사용량과 명시 단가로 계산한 예상 비용을 외부 제공사의 실제 청구액과 섞지 않는다.', '현재 차단 3건은 요청 번호와 함께 확인할 수 있다고 설명한다.', '구체적인 필드명과 상태 코드는 제출 증거에서 확인할 수 있다.']);
+  addNotes(s, 14, '질문 시 1:15', ['AI 비용 계산과 통제 질문에 사용한다.', '사용량과 명시 단가로 계산한 예상 비용을 외부 제공사의 실제 청구액과 섞지 않는다.', '현재 차단 3건은 요청 번호와 함께 확인할 수 있다고 설명한다.', '구체적인 필드명과 상태 코드는 제출 증거에서 확인할 수 있다.']);
 }
 
-// Appendix 14
+// Appendix 15
 {
   const s = pptx.addSlide('NIMBUS');
   title(s, '부록 E', '예상 질문과 짧은 답변', '정확성, 승인 책임, 비용, 확장성 질문에 확인 가능한 근거로 답합니다.');
@@ -312,7 +339,34 @@ function addNotes(slide, number, time, script) {
     s.addShape(pptx.ShapeType.line, { x: 3.35, y: y + 0.29, w: 0.55, h: 0, line: { color: C.line, width: 1.4 } });
     addText(s, a, 4.05, y, 8.15, 0.58, { fontSize: 12, color: C.ink, valign: 'mid' });
   });
-  addNotes(s, 14, '질문 시 필요 항목만', ['질문을 받은 항목만 짧게 사용한다.', '주장보다 승인 기록, AI 사용 내역, 데이터 보호 범위처럼 확인 가능한 근거로 답한다.', '더 깊은 기술 질문은 QA_OBJECTIONS_KO.md를 참조한다.']);
+  addNotes(s, 15, '질문 시 필요 항목만', ['질문을 받은 항목만 짧게 사용한다.', '주장보다 승인 기록, AI 사용 내역, 데이터 보호 범위처럼 확인 가능한 근거로 답한다.', '더 깊은 기술 질문은 QA_OBJECTIONS_KO.md를 참조한다.']);
+}
+
+// Appendix 16
+{
+  const s = pptx.addSlide('NIMBUS');
+  title(s, '부록 F', 'Why Databricks — 주장과 증거', '각 비즈니스 주장에 프로젝트 증거와 공식 제품 책임 범위를 연결합니다.');
+  const rows = [
+    ['하나의 지표 정의', 'Unity Catalog Metric View', '대시보드·Genie·앱이 같은 전환율 정의 사용'],
+    ['최신 상태 반영', 'Lakeflow + Lakebase', '동기화된 고객 상태와 앱 최신 화면'],
+    ['자연어 분석', 'AI/BI Genie', '자연어 질문과 데이터 기반 답변'],
+    ['사람 중심 실행', 'Databricks Apps + Lakebase', '시험안 → 담당자 승인 → 결정 기록'],
+    ['AI 비용 통제', 'Unity AI Gateway', '요청자·사용량·비용·차단 3건 증거'],
+    ['경제적인 운영', '관리형 서비스 + scale-to-zero', 'Lakebase 유휴 시 축소 및 AI 예산 한도'],
+  ];
+  s.addTable([[{ text: '주장', options: { bold: true } }, { text: 'Databricks 기능', options: { bold: true } }, { text: '프로젝트 증거', options: { bold: true } }], ...rows], { x: 0.68, y: 1.82, w: 11.96, h: 3.52, border: { type: 'solid', color: C.line, pt: 1 }, fill: C.white, color: C.ink, fontFace: 'Noto Sans KR', fontSize: 10.5, margin: 0.1, rowH: 0.5, colW: [2.1, 3.25, 6.61], valign: 'mid', autoFit: false });
+  addText(s, '공식 출처', 0.72, 5.56, 1.0, 0.24, { fontSize: 9, bold: true, color: C.red });
+  const sources = [
+    ['Unity Catalog', 'https://docs.databricks.com/data-governance/unity-catalog/'],
+    ['Genie', 'https://docs.databricks.com/genie/'],
+    ['Databricks Apps', 'https://docs.databricks.com/dev-tools/databricks-apps/'],
+    ['Lakebase', 'https://docs.databricks.com/oltp/projects'],
+    ['AI governance', 'https://docs.databricks.com/ai-gateway/ai-governance/'],
+  ];
+  sources.forEach(([label, url], i) => addText(s, label, 1.78 + i * 2.12, 5.52, 1.78, 0.3, { fontSize: 8.7, color: C.blue, underline: { color: C.blue }, hyperlink: { url }, align: 'center' }));
+  s.addShape(pptx.ShapeType.roundRect, { x: 0.88, y: 6.02, w: 11.56, h: 0.62, rectRadius: 0.08, fill: { color: C.pale }, line: { color: 'B8D2E5' } });
+  addText(s, '데이터·AI 자산 거버넌스는 Unity Catalog, AI 사용량·비용 통제는 Unity AI Gateway가 담당합니다.', 1.12, 6.02, 11.08, 0.62, { fontSize: 12.5, bold: true, color: C.blue, align: 'center' });
+  addNotes(s, 16, '질문 시 1:15', ['Why Databricks 슬라이드의 각 주장에 어떤 기능과 프로젝트 증거가 연결되는지 묻는 질문에 사용한다.', '같은 전환율 정의, 동기화된 고객 상태, Genie 자연어 답변, 사람 승인 기록, Gateway의 비용·차단 증거를 차례로 설명한다.', '경제성은 검증되지 않은 절감액이 아니라 관리형 운영, Lakebase 유휴 시 축소, AI 예산 통제로 설명한다.', '하단 공식 출처 링크에서 각 제품의 책임 범위를 확인할 수 있다.']);
 }
 
 const notesMd = ['# Nimbus Growth Desk 발표자 노트', '', '> 대상: Sofia Marchetti(VP Growth), Noor Haddad(Head of Finance) · 본편 8분 + 라이브 10분 + 마무리 4분 + Q&A 8분', ''];

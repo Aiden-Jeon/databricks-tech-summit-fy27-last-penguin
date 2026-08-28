@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the 19-slide capture review deck without modifying the 14-slide final."""
+"""Create the 21-slide capture review deck without modifying the 16-slide final."""
 
 from copy import deepcopy
 from pathlib import Path
@@ -212,25 +212,25 @@ def main():
         raise FileNotFoundError("Missing captures: " + ", ".join(missing))
 
     prs = Presentation(SOURCE)
-    if len(prs.slides) != 14:
-        raise ValueError(f"Expected 14 source slides, found {len(prs.slides)}")
+    if len(prs.slides) != 16:
+        raise ValueError(f"Expected 16 source slides, found {len(prs.slides)}")
 
     new_ids = []
     for spec in SLIDES:
         slide = add_review_slide(prs, spec)
         new_ids.append(slide.slide_id)
 
-    # Move the five appended slides immediately after source slide 6.
+    # Move the five appended slides after the Why Databricks and demo-transition slides.
     id_list = prs.slides._sldIdLst
     id_to_element = {int(element.id): element for element in id_list}
     for slide_id in new_ids:
         id_list.remove(id_to_element[slide_id])
-    insert_at = 6
+    insert_at = 8
     for offset, slide_id in enumerate(new_ids):
         id_list.insert(insert_at + offset, id_to_element[slide_id])
 
-    if len(prs.slides) != 19:
-        raise AssertionError(f"Expected 19 slides, found {len(prs.slides)}")
+    if len(prs.slides) != 21:
+        raise AssertionError(f"Expected 21 slides, found {len(prs.slides)}")
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(OUTPUT)
     print(OUTPUT)

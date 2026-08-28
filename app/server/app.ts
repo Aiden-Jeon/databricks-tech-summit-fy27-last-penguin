@@ -23,6 +23,10 @@ import {
 } from './nimbus-runtime.js';
 import { GatewayHttpError, GatewayPolicyDeniedError, requestChatCompletion } from './lib/ai-gateway.js';
 import { authHeaders } from './lib/auth.js';
+import { normalizeWorkspaceHost } from './lib/workspace-host.js';
+
+const workspaceHost = normalizeWorkspaceHost(process.env.DATABRICKS_HOST);
+const gatewayDashboardId = '01f1a1dd34c41076a3e8815da30f2fd4';
 
 function actor(req: express.Request) {
   return req.header('x-forwarded-email') || req.header('x-forwarded-user') || 'local-operator@nimbus.test';
@@ -68,7 +72,7 @@ async function runInvestigation(pool: Pool, req: express.Request, decisionId: st
   }
   const token = authorization.slice('bearer '.length);
   const { body } = await requestChatCompletion({
-    host: String(process.env.DATABRICKS_HOST || '').replace(/\/$/, ''), token,
+    host: workspaceHost, token,
     model: process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway',
     messages: [
       { role: 'system', content: '당신은 근거 기반 그로스 분석가입니다. 한국어 Markdown으로 작성하고 사람의 승인을 대신하지 마세요.' },
@@ -100,7 +104,7 @@ async function generateKoreanMemo(
     throw new Error('Databricks authentication did not provide a bearer token');
   }
   const { body } = await requestChatCompletion({
-    host: String(process.env.DATABRICKS_HOST || '').replace(/\/$/, ''),
+    host: workspaceHost,
     token: authorization.slice('bearer '.length),
     model: process.env.AI_GATEWAY_MODEL || 'last_penguin_catalog.nimbus.nimbus_app_gateway',
     messages: [
@@ -133,14 +137,16 @@ app.get('/api/runtime-health', async (_req, res) => {
 });
 
 app.get('/api/me', (req, res) => res.json({
-  userName: actor(req), userEmail: actor(req), workspaceUrl: process.env.DATABRICKS_HOST ?? '',
+  userName: actor(req), userEmail: actor(req), workspaceUrl: workspaceHost,
   workspaceId: process.env.DATABRICKS_WORKSPACE_ID ?? null, isUserContext: Boolean(req.header('x-forwarded-email')),
 }));
 
 app.get('/api/config', (_req, res) => res.json({
   mlflowExperimentId: null, agentMlflowExperimentId: null,
-  dashboardId: '01f1a1dd34c41076a3e8815da30f2fd4',
-  gatewayDashboardUrl: `${String(process.env.DATABRICKS_HOST || '').replace(/\/$/, '')}/dashboardsv3/01f1a1dd34c41076a3e8815da30f2fd4/published?isDbOne=true&utm_source=nimbus-growth-desk`,
+  dashboardId: gatewayDashboardId,
+  gatewayDashboardUrl: workspaceHost
+    ? `${workspaceHost}/dashboardsv3/${gatewayDashboardId}/published?isDbOne=true&utm_source=nimbus-growth-desk`
+    : '',
   demoBudget: { alertUsd: 0.03, hardStopUsd: 0.05 },
   branding: { appName: 'Nimbus Growth Desk' },
   assistantScript: [
