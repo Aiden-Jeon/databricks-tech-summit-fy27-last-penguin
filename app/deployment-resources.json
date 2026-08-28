@@ -18,6 +18,6 @@
         }
       }
     ],
-    "user_api_scopes": ["ai-gateway"]
+    "user_api_scopes": ["ai-gateway", "serving.serving-endpoints"]
   }
 }
