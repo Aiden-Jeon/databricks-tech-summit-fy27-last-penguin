@@ -9,7 +9,9 @@ import {
   index,
   uniqueIndex,
   boolean,
+  check,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 /**
  * Lakebase schema, under `app.*` — Nimbus Growth Desk.
@@ -258,9 +260,9 @@ export const featureDecisions = appSchema.table(
     // The rollout note the agent drafted.
     draftedNote: text('drafted_note'),
     predictedConversionLift: doublePrecision('predicted_conversion_lift'),
-    // Human-gated lifecycle: proposed -> approved -> committed.
+    // Investigation precedes the human-gated proposed -> approved -> committed lifecycle.
     status: text('status', {
-      enum: ['proposed', 'approved', 'committed'],
+      enum: ['investigating', 'investigation_failed', 'proposed', 'approved', 'committed'],
     })
       .notNull()
       .default('proposed'),
@@ -274,6 +276,10 @@ export const featureDecisions = appSchema.table(
     decidedAt: timestamp('decided_at', { withTimezone: true }),
   },
   (t) => [
+    check(
+      'feature_decisions_app_status_check',
+      sql`${t.status} IN ('investigating', 'investigation_failed', 'proposed', 'approved', 'committed')`,
+    ),
     index('feature_decisions_segment_idx').on(t.segmentId),
     index('feature_decisions_created_idx').on(t.createdAt),
   ],
@@ -295,6 +301,8 @@ export type AuditEntry = {
   at: string;
   by: string;
   action:
+    | 'investigating'
+    | 'investigation_failed'
     | 'proposed'
     | 'approved'
     | 'committed'

@@ -36,7 +36,12 @@
  * ───────────────────────────────────────────────────────────────────── */
 
 export type ConvBand = 'sliding' | 'watch' | 'healthy';
-export type FeatureDecisionStatus = 'proposed' | 'approved' | 'committed';
+export type FeatureDecisionStatus =
+  | 'investigating'
+  | 'investigation_failed'
+  | 'proposed'
+  | 'approved'
+  | 'committed';
 export type ActionType = 'ship_proven_variant' | 'rollout_existing_flag' | 'ship_alt_variant';
 
 export type SegmentRow = {

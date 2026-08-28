@@ -50,6 +50,8 @@ CREATE TABLE "app"."feature_decisions_app" (
 	"decided_at" timestamp with time zone
 );
 --> statement-breakpoint
+ALTER TABLE "app"."feature_decisions_app" ADD CONSTRAINT "feature_decisions_app_status_check" CHECK ("app"."feature_decisions_app"."status" IN ('investigating', 'investigation_failed', 'proposed', 'approved', 'committed'));
+--> statement-breakpoint
 CREATE TABLE "app"."feedback" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"message_id" uuid NOT NULL,

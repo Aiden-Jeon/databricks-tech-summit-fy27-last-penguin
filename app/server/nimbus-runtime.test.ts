@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assertTransition, buildKoreanEvidencePrompt, completeInvestigation, createInvestigationCase, failInvestigation, getDecision, getSearchExperiments, parseActionRanking, redraftProposedDecision, resetDemoDecision, validateRolloutPct } from './nimbus-runtime.js';
+import { assertTransition, buildKoreanEvidencePrompt, completeInvestigation, createInvestigationCase, failInvestigation, getDecision, getSearchExperiments, initializeDecisionSchema, parseActionRanking, redraftProposedDecision, resetDemoDecision, validateRolloutPct } from './nimbus-runtime.js';
 import type { Pool } from 'pg';
 
 describe('decision state machine', () => {
@@ -20,6 +20,19 @@ describe('decision state machine', () => {
 });
 
 describe('investigation lifecycle', () => {
+  it('requires the five-state Lakebase check constraint at startup', async () => {
+    const pool = Object.create(null) as Pool;
+    pool.query = vi.fn().mockResolvedValue({
+      rows: [{ definition: "CHECK ((status = ANY (ARRAY['investigating'::text, 'investigation_failed'::text, 'proposed'::text, 'approved'::text, 'committed'::text])))" }],
+    });
+    await expect(initializeDecisionSchema(pool)).resolves.toBeUndefined();
+
+    pool.query = vi.fn().mockResolvedValue({
+      rows: [{ definition: "CHECK ((status = ANY (ARRAY['proposed'::text, 'approved'::text, 'committed'::text])))" }],
+    });
+    await expect(initializeDecisionSchema(pool)).rejects.toThrow(/Incompatible.*status constraint/);
+  });
+
   it('creates the highest-risk unprocessed case as investigating inside a lock', async () => {
     const query = vi.fn()
       .mockResolvedValueOnce({})

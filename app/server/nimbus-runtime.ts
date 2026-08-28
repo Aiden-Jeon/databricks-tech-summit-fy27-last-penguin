@@ -189,7 +189,25 @@ export async function redraftProposedDecision(
 }
 
 export async function initializeDecisionSchema(pool: Pool) {
-  await pool.query('SELECT 1 FROM app.feature_decisions_app LIMIT 1');
+  const expected = ['approved', 'committed', 'investigating', 'investigation_failed', 'proposed'];
+  const result = await pool.query<{ definition: string }>(
+    `SELECT pg_get_constraintdef(c.oid) AS definition
+       FROM pg_constraint c
+      WHERE c.conrelid = 'app.feature_decisions_app'::regclass
+        AND c.conname = 'feature_decisions_app_status_check'
+        AND c.contype = 'c'`,
+  );
+  const definition = result.rows[0]?.definition;
+  const actual = definition
+    ? [...new Set([...definition.matchAll(/'([^']+)'(?:::text)?/g)].map((match) => match[1]))].sort()
+    : [];
+  if (!definition || actual.length !== expected.length || actual.some((status, index) => status !== expected[index])) {
+    throw new Error(
+      'Incompatible app.feature_decisions_app status constraint: expected ' +
+      `[${expected.join(', ')}], found ${definition ?? 'no feature_decisions_app_status_check constraint'}. ` +
+      'Apply drizzle/0001_remarkable_microbe.sql before starting Nimbus.',
+    );
+  }
 }
 
 export async function getLiveView(pool: Pool, segmentId: string | null, limit = 40) {
